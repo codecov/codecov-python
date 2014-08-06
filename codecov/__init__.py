@@ -76,7 +76,7 @@ def clazz(_class):
 
 
 def main():
-    if os.getenv('CI') == "TRUE" and os.getenv('TRAVIS') == "TRUE":
+    if os.getenv('CI') == "true" and os.getenv('TRAVIS') == "true":
         # http://docs.travis-ci.com/user/ci-environment/#Environment-variables
         codecov = dict(owner=[os.getenv('TRAVIS_REPO_SLUG').split('/')[0]],
                        repo=[os.getenv('TRAVIS_REPO_SLUG').split('/')[1]],
