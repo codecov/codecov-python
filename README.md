@@ -20,7 +20,7 @@ after_success:
   codecov
 ```
 
-> [**<encrypted token>**][2] ex. `travis encrypt CODECOV_TOKEN=27518a78-1111-2222-3333-47c0e9846739` 
+> [<encrypted token>][2] ex. `travis encrypt CODECOV_TOKEN=27518a78-1111-2222-3333-47c0e9846739` 
 > locate your token at the bottom of your repository page on [codecov.io][1]
 
 
