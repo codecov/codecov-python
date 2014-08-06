@@ -75,13 +75,18 @@ def clazz(_class):
         "lines": lines}
 
 
+class Object(dict):
+    def __getattr__(self, index):
+        return self.get(index)
+
+
 def main():
     if os.getenv('CI') == "true" and os.getenv('TRAVIS') == "true":
         # http://docs.travis-ci.com/user/ci-environment/#Environment-variables
-        codecov = dict(owner=[os.getenv('TRAVIS_REPO_SLUG').split('/')[0]],
-                       repo=[os.getenv('TRAVIS_REPO_SLUG').split('/')[1]],
-                       xml=os.path.join(os.getenv('TRAVIS_BUILD_DIR'), "coverage.xml"),
-                       commit=[os.getenv('TRAVIS_COMMIT')])
+        codecov = Object(owner=[os.getenv('TRAVIS_REPO_SLUG').split('/')[0]],
+                         repo=[os.getenv('TRAVIS_REPO_SLUG').split('/')[1]],
+                         xml=os.path.join(os.getenv('TRAVIS_BUILD_DIR'), "coverage.xml"),
+                         commit=[os.getenv('TRAVIS_COMMIT')])
 
     else:
         parser = argparse.ArgumentParser(prog='codecov', add_help=True,
