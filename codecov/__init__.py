@@ -1,3 +1,4 @@
+import re
 import os
 import sys
 import commands
@@ -97,6 +98,12 @@ def main():
                         repo=[os.getenv('CIRCLE_PROJECT_USERNAME'), os.getenv('CIRCLE_PROJECT_REPONAME')],
                         commit=os.getenv('CIRCLE_SHA1'))
 
+    else:
+        # find branch, commit, repo from git command
+        defaults.update(branch=commands.getstatusoutput('git branch')[1].replace('* ', ''),
+                        commit=commands.getstatusoutput('git rev-parse HEAD')[1],
+                        repo=re.search(r"\w+(\s+|\t)(\w+)://github.com/([^\.]+).git\s", commands.getstatusoutput('git remote -v | grep github.com | head -1')[1]).groups()[2])
+
     parser = argparse.ArgumentParser(prog='codecov', add_help=True,
                                      formatter_class=argparse.RawDescriptionHelpFormatter,
                                      epilog="""Example: \033[90mcodecov stevepeak timestring 817vnp1\033[0m\nRead more at \033[95mhttps://codecov.io/\033[0m""")
@@ -115,27 +122,24 @@ def main():
     if type(codecov.repo) in (tuple, list):
         codecov.repo = "/".join(codecov.repo)
 
-    assert codecov.repo is not None, "repo (owner/name) is required"
-    assert codecov.branch is not None, "branch is required"
-    assert codecov.commit is not None, "commit hash is required"
+    assert codecov.repo is not None, "codecov: repo (owner/name) is required"
+    assert codecov.branch is not None, "codecov: branch is required"
+    assert codecov.commit is not None, "codecov: commit hash is required"
     if os.getenv('TRAVIS') != "true":
-        assert codecov.token is not None, "token is required if not using travis-ci, codeship or circleci"
+        assert codecov.token is not None, "codecov: token is required if not using travis-ci, codeship or circleci"
 
     try:
         coverage = generate_report(codecov.xml)
         if not coverage:
-            sys.stdout.write("\033[95mWARNING\033[0m: no coverage.xml report found, could not upload to codecov\n")
+            sys.stdout.write("codecov: Error no coverage.xml report found, could not upload to codecov\n")
     except:
-        sys.stdout.write("\033[95mERROR\033[0m: failed to process report for codecov\n")
+        sys.stdout.write("codecov: Error failed to process report for codecov\n")
         raise
 
     else:
         url = "%s/%s?commit=%s&version=%s&token=%s&branch=%s&travis_job_id=%s" % (codecov.url, codecov.repo, codecov.commit, version, (codecov.token or ''), codecov.branch, defaults.get('travis_job_id', ''))
         result = requests.post(url, headers={"Accept": "application/json"}, data=dumps(coverage))
-        if result.status_code == 200:
-            sys.stdout.write("codecov coverage uploaded successfuly to \033[95m%s/%s?ref=%s\033[0m\n" % (codecov.url, codecov.repo, codecov.commit))
-        else:
-            sys.stdout.write(result.text+"\n")
+        sys.stdout.write(result.text+"\n")
 
 
 if __name__ == '__main__':
