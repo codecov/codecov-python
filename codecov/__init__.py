@@ -101,9 +101,9 @@ def main():
                                      epilog="""Example: \033[90mcodecov stevepeak timestring 817vnp1\033[0m\nRead more at \033[95mhttps://codecov.io/\033[0m""")
     parser.add_argument('--version', action='version', version='codecov '+version+" - https://codecov.io")
     parser.add_argument('repo', nargs="?", help="repo name")
-    parser.add_argument('--commit', default=defaults.get('commit'), required=True, help="commit ref")
-    parser.add_argument('--branch', default=defaults.get('branch', 'master'), required=True, help="commit branch name")
-    parser.add_argument('--token', '-t', default=os.getenv("CODECOV_TOKEN"), required=True, help="codecov repository token")
+    parser.add_argument('--commit', default=defaults.get('commit'), help="commit ref")
+    parser.add_argument('--branch', default=defaults.get('branch', 'master'), help="commit branch name")
+    parser.add_argument('--token', '-t', default=os.getenv("CODECOV_TOKEN"), help="codecov repository token")
     parser.add_argument('--xml', '-x', default="coverage.xml", help="coverage xml report relative path")
     parser.add_argument('--url', default="https://codecov.io", help="url, used for debugging")
     codecov = parser.parse_args()
@@ -117,6 +117,7 @@ def main():
     assert codecov.repo is not None, "repo (owner/name) is required"
     assert codecov.branch is not None, "branch is required"
     assert codecov.commit is not None, "commit hash is required"
+    assert codecov.token is not None, "token is required"
 
     try:
         coverage = generate_report(codecov.xml)
