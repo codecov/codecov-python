@@ -76,26 +76,24 @@ def clazz(_class):
 
 
 def main():
-    defaults = dict(ci=False)
+    defaults = dict()
 
     if os.getenv('CI') == "true" and os.getenv('TRAVIS') == "true":
         # http://docs.travis-ci.com/user/ci-environment/#Environment-variables
-        defaults = dict(ci=True,
-                        repo=os.getenv('TRAVIS_REPO_SLUG'),
+        defaults = dict(repo=os.getenv('TRAVIS_REPO_SLUG'),
                         branch=os.getenv('TRAVIS_BRANCH'),
+                        travis_job_id=os.getenv('TRAVIS_JOB_ID'),
                         xml=os.path.join(os.getenv('TRAVIS_BUILD_DIR'), "coverage.xml"),
                         commit=os.getenv('TRAVIS_COMMIT'))
 
     elif os.getenv('CI_NAME') == 'codeship':
         # https://www.codeship.io/documentation/continuous-integration/set-environment-variables/
-        defaults = dict(ci=True,
-                        branch=os.getenv('CI_BRANCH'),
+        defaults = dict(branch=os.getenv('CI_BRANCH'),
                         commit=os.getenv('CI_COMMIT_ID'))
 
     elif os.getenv('CIRCLECI') == 'true':
         # https://circleci.com/docs/environment-variables
-        defaults = dict(ci=True,
-                        branch=os.getenv('CIRCLE_BRANCH'),
+        defaults = dict(branch=os.getenv('CIRCLE_BRANCH'),
                         repo=[os.getenv('CIRCLE_PROJECT_USERNAME'), os.getenv('CIRCLE_PROJECT_REPONAME')],
                         commit=os.getenv('CIRCLE_SHA1'))
 
@@ -120,7 +118,7 @@ def main():
     assert codecov.repo is not None, "repo (owner/name) is required"
     assert codecov.branch is not None, "branch is required"
     assert codecov.commit is not None, "commit hash is required"
-    if not defaults["ci"]:
+    if os.getenv('TRAVIS') != "true":
         assert codecov.token is not None, "token is required if not using travis-ci, codeship or circleci"
 
     try:
@@ -132,7 +130,7 @@ def main():
         raise
 
     else:
-        url = "%s/%s?commit=%s&version=%s&token=%s&branch=%s" % (codecov.url, codecov.repo, codecov.commit, version, (codecov.token or ''), codecov.branch)
+        url = "%s/%s?commit=%s&version=%s&token=%s&branch=%s&travis_job_id=%s" % (codecov.url, codecov.repo, codecov.commit, version, (codecov.token or ''), codecov.branch, defaults.get('travis_job_id', ''))
         result = requests.post(url, headers={"Accept": "application/json"}, data=dumps(coverage))
         if result.status_code == 200:
             sys.stdout.write("codecov coverage uploaded successfuly to \033[95m%s/%s?ref=%s\033[0m\n" % (codecov.url, codecov.repo, codecov.commit))
