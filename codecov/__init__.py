@@ -6,7 +6,7 @@ import argparse
 from json import dumps
 from xml.dom.minidom import parseString
 
-version = VERSION = __version__ = '0.0.2'
+version = VERSION = __version__ = '0.0.3'
 
 
 def generate_report(path):
@@ -75,32 +75,48 @@ def clazz(_class):
         "lines": lines}
 
 
-class Object(dict):
-    def __getattr__(self, index):
-        return self.get(index)
-
-
 def main():
+    defaults = dict()
+
     if os.getenv('CI') == "true" and os.getenv('TRAVIS') == "true":
         # http://docs.travis-ci.com/user/ci-environment/#Environment-variables
-        codecov = Object(owner=[os.getenv('TRAVIS_REPO_SLUG').split('/')[0]],
-                         repo=[os.getenv('TRAVIS_REPO_SLUG').split('/')[1]],
-                         xml=os.path.join(os.getenv('TRAVIS_BUILD_DIR'), "coverage.xml"),
-                         commit=[os.getenv('TRAVIS_COMMIT')])
+        defaults = dict(repo=os.getenv('TRAVIS_REPO_SLUG'),
+                        branch=os.getenv('TRAVIS_BRANCH'),
+                        xml=os.path.join(os.getenv('TRAVIS_BUILD_DIR'), "coverage.xml"),
+                        commit=os.getenv('TRAVIS_COMMIT'))
 
-    else:
-        parser = argparse.ArgumentParser(prog='codecov', add_help=True,
-                                         formatter_class=argparse.RawDescriptionHelpFormatter,
-                                         epilog="""Example: \033[90mcodecov stevepeak timestring 817vnp1\033[0m
-    Read more at \033[95mhttps://codecov.io/\033[0m""")
-        parser.add_argument('--version', action='version', version='codecov '+version+" - https://codecov.io")
-        parser.add_argument('owner', nargs=1, help="repo owner name")
-        parser.add_argument('repo', nargs=1, help="repo name")
-        parser.add_argument('commit', nargs=1, help="commit ref")
-        parser.add_argument('--token', '-t', default=os.getenv("CODECOV_TOKEN"), required=True, help="codecov repository token")
-        parser.add_argument('--xml', '-x', default="coverage.xml", help="coverage xml report relative path")
-        parser.add_argument('--url', default="https://codecov.io", help="url, used for debugging")
-        codecov = parser.parse_args()
+    elif os.getenv('CI_NAME') == 'codeship':
+        # https://www.codeship.io/documentation/continuous-integration/set-environment-variables/
+        defaults = dict(branch=os.getenv('CI_BRANCH'),
+                        commit=os.getenv('CI_COMMIT_ID'))
+
+    elif os.getenv('CIRCLECI') == 'true':
+        # https://circleci.com/docs/environment-variables
+        defaults = dict(branch=os.getenv('CIRCLE_BRANCH'),
+                        repo=[os.getenv('CIRCLE_PROJECT_USERNAME'), os.getenv('CIRCLE_PROJECT_REPONAME')],
+                        commit=os.getenv('CIRCLE_SHA1'))
+
+    parser = argparse.ArgumentParser(prog='codecov', add_help=True,
+                                     formatter_class=argparse.RawDescriptionHelpFormatter,
+                                     epilog="""Example: \033[90mcodecov stevepeak timestring 817vnp1\033[0m\nRead more at \033[95mhttps://codecov.io/\033[0m""")
+    parser.add_argument('--version', action='version', version='codecov '+version+" - https://codecov.io")
+    parser.add_argument('repo', nargs="?", help="repo name")
+    parser.add_argument('--commit', default=defaults.get('commit'), required=True, help="commit ref")
+    parser.add_argument('--branch', default=defaults.get('branch', 'master'), required=True, help="commit branch name")
+    parser.add_argument('--token', '-t', default=os.getenv("CODECOV_TOKEN"), required=True, help="codecov repository token")
+    parser.add_argument('--xml', '-x', default="coverage.xml", help="coverage xml report relative path")
+    parser.add_argument('--url', default="https://codecov.io", help="url, used for debugging")
+    codecov = parser.parse_args()
+
+    if not codecov.repo:
+        codecov.repo = defaults['repo']
+
+    if type(codecov.repo) in (tuple, list):
+        codecov.repo = "/".join(codecov.repo)
+
+    assert codecov.repo is not None, "repo (owner/name) is required"
+    assert codecov.branch is not None, "branch is required"
+    assert codecov.commit is not None, "commit hash is required"
 
     try:
         coverage = generate_report(codecov.xml)
@@ -111,10 +127,10 @@ def main():
         raise
 
     else:
-        url = "%s/%s/%s?commit=%s&version=%s&token=%s" % (codecov.url, codecov.owner[0], codecov.repo[0], codecov.commit[0], version, codecov.token)
+        url = "%s/%s?commit=%s&version=%s&token=%s&branch=%s" % (codecov.url, codecov.repo, codecov.commit, version, codecov.token, codecov.branch)
         result = requests.post(url, headers={"Accept": "application/json"}, data=dumps(coverage))
         if result.status_code == 200:
-            sys.stdout.write("codecov coverage uploaded successfuly to \033[95m%s/%s/%s?ref=%s\033[0m\n" % (codecov.url, codecov.owner[0], codecov.repo[0], codecov.commit[0]))
+            sys.stdout.write("codecov coverage uploaded successfuly to \033[95m%s/%s?ref=%s\033[0m\n" % (codecov.url, codecov.repo, codecov.commit))
         else:
             sys.stdout.write(result.text+"\n")
 
