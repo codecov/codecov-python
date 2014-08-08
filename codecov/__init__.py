@@ -126,7 +126,9 @@ def main():
     assert codecov.branch is not None, "codecov: branch is required"
     assert codecov.commit is not None, "codecov: commit hash is required"
     if os.getenv('TRAVIS') != "true":
-        assert codecov.token is not None, "codecov: token is required if not using travis-ci, codeship or circleci"
+        if not codecov.token:
+            sys.stdout.write("\033[91mRepository token required.\033[0m\n\nPlease set \033[90mCODECOV_TOKEN\033[0m in your environment settings: \033[90mexport CODECOV_TOKEN=<repository token>\033[0m\nor use \033[90m--token <repository token>\033[0m\n")
+            return
 
     try:
         coverage = generate_report(codecov.xml)
