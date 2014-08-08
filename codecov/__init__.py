@@ -102,7 +102,7 @@ def main():
         # find branch, commit, repo from git command
         defaults.update(branch=commands.getstatusoutput('git branch')[1].replace('* ', ''),
                         commit=commands.getstatusoutput('git rev-parse HEAD')[1],
-                        repo=re.search(r"\w+(\s+|\t)(\w+)://github.com/([^\.]+).git\s", commands.getstatusoutput('git remote -v | grep github.com | head -1')[1]).groups()[2])
+                        repo=re.search(r"github.com\/(.+)\.git", commands.getstatusoutput('git remote -v | grep github.com | head -1')[1]).groups()[0])
 
     parser = argparse.ArgumentParser(prog='codecov', add_help=True,
                                      formatter_class=argparse.RawDescriptionHelpFormatter,
