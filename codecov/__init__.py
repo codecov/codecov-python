@@ -57,7 +57,7 @@ def clazz(_class):
     run = sum([1 for line in lines if int(line['h']) > 0])
     missing = sum([1 for line in lines if int(line['h']) == 0])
     excluded = 0 # not sure how to get this value
-    partial = sum([1 for line in lines if line['c']])
+    partial = sum([1 for line in lines if line['c'] and not line['c'].startswith('100%')])
     branches = sum([int(line['c'].split('/')[-1][:-1]) for line in lines if line['c']])
 
     return _class.getAttribute('filename'), {
