@@ -7,7 +7,7 @@ import argparse
 from json import dumps
 from xml.dom.minidom import parseString
 
-version = VERSION = __version__ = '0.0.3'
+version = VERSION = __version__ = '0.0.4'
 
 
 def generate_report(path):
