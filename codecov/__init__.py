@@ -7,7 +7,7 @@ import argparse
 from json import dumps
 from xml.dom.minidom import parseString
 
-version = VERSION = __version__ = '0.0.5'
+version = VERSION = __version__ = '0.1.0'
 
 
 def generate_report(path):
@@ -79,50 +79,72 @@ def clazz(_class):
 def main():
     defaults = dict()
 
+    # ---------
+    # Travis CI
+    # ---------
     if os.getenv('CI') == "true" and os.getenv('TRAVIS') == "true":
         # http://docs.travis-ci.com/user/ci-environment/#Environment-variables
-        defaults = dict(repo=os.getenv('TRAVIS_REPO_SLUG'),
-                        branch=os.getenv('TRAVIS_BRANCH'),
+        defaults = dict(branch=os.getenv('TRAVIS_BRANCH'),
                         travis_job_id=os.getenv('TRAVIS_JOB_ID'),
                         xml=os.path.join(os.getenv('TRAVIS_BUILD_DIR'), "coverage.xml"),
                         commit=os.getenv('TRAVIS_COMMIT'))
 
-    elif os.getenv('CI_NAME') == 'codeship':
+    # --------
+    # Codeship
+    # --------
+    elif os.getenv('CI') == "true" and os.getenv('CI_NAME') == 'codeship':
         # https://www.codeship.io/documentation/continuous-integration/set-environment-variables/
         defaults = dict(branch=os.getenv('CI_BRANCH'),
                         commit=os.getenv('CI_COMMIT_ID'))
 
-    elif os.getenv('CIRCLECI') == 'true':
+    # ---------
+    # Circle CI
+    # ---------
+    elif os.getenv('CI') == "true" and os.getenv('CIRCLECI') == 'true':
         # https://circleci.com/docs/environment-variables
         defaults = dict(branch=os.getenv('CIRCLE_BRANCH'),
-                        repo=[os.getenv('CIRCLE_PROJECT_USERNAME'), os.getenv('CIRCLE_PROJECT_REPONAME')],
+                        xml=os.path.join(os.getenv('CIRCLE_ARTIFACTS'), "coverage.xml"),
                         commit=os.getenv('CIRCLE_SHA1'))
 
+    # ---------
+    # Semaphore
+    # ---------
+    elif os.getenv('CI') == "true" and os.getenv('SEMAPHORE') == "true":
+        # https://semaphoreapp.com/docs/available-environment-variables.html
+        defaults = dict(branch=os.getenv('BRANCH_NAME'),
+                        xml=os.path.join(os.getenv('SEMAPHORE_PROJECT_DIR'), "coverage.xml"),
+                        commit=os.getenv('SEMAPHORE_PROJECT_HASH_ID'))
+    # --------
+    # drone.io
+    # --------
+    elif os.getenv('CI') == "true" and os.getenv('DRONE') == "true":
+        # https://semaphoreapp.com/docs/available-environment-variables.html
+        defaults = dict(branch=os.getenv('DRONE_BRANCH'),
+                        xml=os.path.join(os.getenv('DRONE_BUILD_DIR'), "coverage.xml"),
+                        commit=os.getenv('DRONE_COMMIT'))
+
+    # ---
+    # git
+    # ---
     else:
         # find branch, commit, repo from git command
         defaults.update(branch=commands.getstatusoutput('git branch')[1].replace('* ', ''),
-                        commit=commands.getstatusoutput('git rev-parse HEAD')[1],
-                        repo=re.search(r"github.com\/(.+)\.git", commands.getstatusoutput('git remote -v | grep github.com | head -1')[1]).groups()[0])
+                        commit=commands.getstatusoutput('git rev-parse HEAD')[1])
 
     parser = argparse.ArgumentParser(prog='codecov', add_help=True,
                                      formatter_class=argparse.RawDescriptionHelpFormatter,
                                      epilog="""Example: \033[90mcodecov stevepeak timestring 817vnp1\033[0m\nRead more at \033[95mhttps://codecov.io/\033[0m""")
     parser.add_argument('--version', action='version', version='codecov '+version+" - https://codecov.io")
-    parser.add_argument('repo', nargs="?", help="repo name")
     parser.add_argument('--commit', default=defaults.get('commit'), help="commit ref")
     parser.add_argument('--branch', default=defaults.get('branch', 'master'), help="commit branch name")
     parser.add_argument('--token', '-t', default=os.getenv("CODECOV_TOKEN"), help="codecov repository token")
     parser.add_argument('--xml', '-x', default="coverage.xml", help="coverage xml report relative path")
-    parser.add_argument('--url', default="https://codecov.io", help="url, used for debugging")
+    parser.add_argument('--url', default="https://codecov.io/+", help="url, used for debugging")
     codecov = parser.parse_args()
-
-    if not codecov.repo:
-        codecov.repo = defaults['repo']
 
     if type(codecov.repo) in (tuple, list):
         codecov.repo = "/".join(codecov.repo)
 
-    assert codecov.repo is not None, "codecov: repo (owner/name) is required"
     assert codecov.branch is not None, "codecov: branch is required"
     assert codecov.commit is not None, "codecov: commit hash is required"
     if os.getenv('TRAVIS') != "true":
@@ -139,7 +161,7 @@ def main():
         raise
 
     else:
-        url = "%s/%s?commit=%s&version=%s&token=%s&branch=%s&travis_job_id=%s" % (codecov.url, codecov.repo, codecov.commit, version, (codecov.token or ''), codecov.branch, defaults.get('travis_job_id', ''))
+        url = "%s?commit=%s&version=%s&token=%s&branch=%s&travis_job_id=%s" % (codecov.url, codecov.commit, version, (codecov.token or ''), codecov.branch, defaults.get('travis_job_id', ''))
         result = requests.post(url, headers={"Accept": "application/json"}, data=dumps(coverage))
         sys.stdout.write(result.text+"\n")
 
