@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from setuptools import setup
 
-version = '0.1.0'
+version = '0.1.1'
 classifiers = ["Development Status :: 4 - Beta",
                "Environment :: Plugins",
                "Intended Audience :: Developers",
@@ -10,7 +10,7 @@ classifiers = ["Development Status :: 4 - Beta",
 
 setup(name='codecov',
       version=version,
-      description="Free hosted coverage reports for pubic and private repos",
+      description="Hosted coverage reports for Github and Bitbucket",
       long_description=None,
       classifiers=classifiers,
       keywords='coverage codecov code',

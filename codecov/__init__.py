@@ -1,4 +1,3 @@
-import re
 import os
 import sys
 import commands
@@ -7,7 +6,7 @@ import argparse
 from json import dumps
 from xml.dom.minidom import parseString
 
-version = VERSION = __version__ = '0.1.0'
+version = VERSION = __version__ = '0.1.1'
 
 
 def generate_report(path):
@@ -141,9 +140,6 @@ def main():
     parser.add_argument('--xml', '-x', default="coverage.xml", help="coverage xml report relative path")
     parser.add_argument('--url', default="https://codecov.io/+", help="url, used for debugging")
     codecov = parser.parse_args()
-
-    if type(codecov.repo) in (tuple, list):
-        codecov.repo = "/".join(codecov.repo)
 
     assert codecov.branch is not None, "codecov: branch is required"
     assert codecov.commit is not None, "codecov: commit hash is required"
