@@ -1,4 +1,4 @@
-[codecov][1] [![Build Status](https://secure.travis-ci.org/codecov/codecov-python.png)](http://travis-ci.org/codecov/codecov.io) [![codecov.io](https://codecov.io/codecov/codecov-python/coverage.png)](https://codecov.io/codecov/codecov.io)
+[codecov][1] [![Build Status](https://secure.travis-ci.org/codecov/codecov-python.svg?branch=master)](http://travis-ci.org/codecov/codecov.io) [![codecov.io](https://codecov.io/github/codecov/codecov-python/coverage.png)](https://codecov.io/github/codecov/codecov-python)
 ----------
 
 ```sh
