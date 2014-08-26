@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from setuptools import setup
 
-version = '0.1.1'
+version = '0.1.2'
 classifiers = ["Development Status :: 4 - Beta",
                "Environment :: Plugins",
                "Intended Audience :: Developers",
@@ -14,7 +14,7 @@ setup(name='codecov',
       long_description=None,
       classifiers=classifiers,
       keywords='coverage codecov code',
-      author='codecov.io',
+      author='@codecov',
       author_email='hello@codecov.io',
       url='http://github.com/codecov/codecov-python',
       license='http://www.apache.org/licenses/LICENSE-2.0',

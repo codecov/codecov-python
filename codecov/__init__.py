@@ -6,7 +6,7 @@ import argparse
 from json import dumps
 from xml.dom.minidom import parseString
 
-version = VERSION = __version__ = '0.1.1'
+version = VERSION = __version__ = '0.1.2'
 
 
 def generate_report(path):
@@ -127,7 +127,8 @@ def main():
     # ---
     else:
         # find branch, commit, repo from git command
-        defaults.update(branch=commands.getstatusoutput('git branch')[1].replace('* ', ''),
+        branch = commands.getstatusoutput('git rev-parse --abbrev-ref HEAD')[1]
+        defaults.update(branch=branch if branch != 'HEAD' else 'master',
                         commit=commands.getstatusoutput('git rev-parse HEAD')[1])
 
     parser = argparse.ArgumentParser(prog='codecov', add_help=True,
