@@ -1087,5 +1087,7 @@
 				</class>
 			</classes>
 		</package>
+		<package branch-rate="0.6657" complexity="0" line-rate="0.8478" name="">
+		</package>
 	</packages>
 </coverage>
