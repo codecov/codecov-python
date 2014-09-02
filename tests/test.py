@@ -6,6 +6,8 @@ import codecov
 
 
 class TestUploader(unittest.TestCase):
+    url = os.getenv("DEBUG_URL", "https://codecov.io")
+
     def setUp(self):
         # set all environ back
         os.environ['CI'] = "true"
@@ -43,7 +45,7 @@ class TestUploader(unittest.TestCase):
         os.environ['CI_BRANCH'] = 'master'
         os.environ['CI_COMMIT_ID'] = '743b04806ea677403aa2ff26c6bdeb85005de658'
         os.environ['CODECOV_TOKEN'] = '473c8c5b-10ee-4d83-86c6-bfd72a185a27'
-        self.passed(self.command())
+        self.passed(self.command(xml=os.path.join(os.path.dirname(__file__), "xml/coverage.xml")))
 
     def test_circleci(self):
         os.environ['CIRCLECI'] = 'true'
@@ -72,14 +74,15 @@ class TestUploader(unittest.TestCase):
     def basics(self):
         return dict(token="473c8c5b-10ee-4d83-86c6-bfd72a185a27", 
                     xml=os.path.join(os.path.dirname(__file__), "xml/coverage.xml"),
-                    url="http://localhost:5000",
+                    url=self.url,
                     commit="743b04806ea677403aa2ff26c6bdeb85005de658",
                     branch="master")
 
     def command(self, **kwargs):
-        args = dict(url="http://localhost:5000")
+        args = dict(url=self.url)
         args.update(kwargs)
         inline = list(itertools.chain(*[['--%s'% key, value] for key, value in args.items() if value]))
+        print "\033[92m....\033[0m", inline
         return codecov.main(*inline), args
 
     def upload(self, **kwargs):
@@ -93,7 +96,7 @@ class TestUploader(unittest.TestCase):
         if toserver.get('commit'):
             self.assertIn('github/codecov/ci-repo?ref=%s'%toserver['commit'], fromserver['url'])
         else:
-            self.assertRegexpMatches(fromserver['url'], r'^https?://localhost:\d+/github/codecov/ci-repo\?ref=[a-z\d]{40}')
+            self.assertRegexpMatches(fromserver['url'], r'/github/codecov/ci-repo\?ref=[a-z\d]{40}')
         self.assertEqual(fromserver['message'], 'Coverage reports upload successfully')
 
     def failed(self, result, why):
