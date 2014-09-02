@@ -185,4 +185,4 @@ def main(*argv):
 
     
 if __name__ == '__main__':
-    sys.stdout.write(dumps(main()))
+    print dumps(main())
