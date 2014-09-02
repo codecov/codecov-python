@@ -185,4 +185,4 @@ def main(*argv):
 
 if __name__ == '__main__':
     print dumps(main())
-    sys.exit(1)
+    sys.exit(None)
