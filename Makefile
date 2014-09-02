@@ -8,4 +8,6 @@ reinstall:
 	python setup.py install
 
 test:
+	. venv/bin/activate; pip uninstall -y codecov
+	. venv/bin/activate; python setup.py install
 	. venv/bin/activate; nosetests --rednose --with-cov --cov-config=.coveragerc

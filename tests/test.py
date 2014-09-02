@@ -1,6 +1,7 @@
 import os
 import unittest
 import itertools
+import commands
 
 import codecov
 
@@ -18,6 +19,9 @@ class TestUploader(unittest.TestCase):
                     "DRONE", "DRONE_BRANCH", "DRONE_BUILD_DIR", "DRONE_COMMIT", 
                     "CODECOV_TOKEN"):
             os.environ[key] = ""
+
+    def test_command(self):
+        self.assertIn('usage: codecov', commands.getstatusoutput('codecov --hep')[1])
 
     def test_pass_1(self): self.passed(self.upload())
     def test_pass_2(self): self.passed(self.upload(travis_job_id="33116958", commit="c739768fcac68144a3a6d82305b9c4106934d31a"))

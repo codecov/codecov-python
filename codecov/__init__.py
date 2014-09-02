@@ -9,7 +9,7 @@ from json import dumps
 from urllib import urlencode
 from xml.dom.minidom import parseString
 
-version = VERSION = __version__ = '0.2.0'
+version = VERSION = __version__ = '0.2.1'
 
 
 def generate_report(path):
@@ -171,7 +171,10 @@ def main(*argv):
     parser.add_argument('--token', '-t', default=os.getenv("CODECOV_TOKEN"), help="codecov repository token")
     parser.add_argument('--xml', '-x', default=defaults.pop("xml"), help="coverage xml report relative path")
     parser.add_argument('--url', default="https://codecov.io", help="url, used for debugging")
-    codecov = parser.parse_args(argv)
+    if argv:
+        codecov = parser.parse_args(argv)
+    else:
+        codecov = parser.parse_args()
     
     return upload(url=codecov.url,
                   xml=codecov.xml, 
