@@ -183,6 +183,9 @@ def main(*argv):
                   token=codecov.token,
                   **defaults)
 
+def cli():
+   print dumps(main())
+   sys.exit(0) 
+
 if __name__ == '__main__':
-    print dumps(main())
-    sys.exit(None)
+    cli()
