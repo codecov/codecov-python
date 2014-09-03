@@ -9,7 +9,7 @@ from json import dumps
 from urllib import urlencode
 from xml.dom.minidom import parseString
 
-version = VERSION = __version__ = '0.2.1'
+version = VERSION = __version__ = '0.2.2'
 
 
 def generate_report(path):
