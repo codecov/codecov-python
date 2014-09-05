@@ -1,4 +1,5 @@
 import os
+import json
 import unittest
 import itertools
 import commands
@@ -32,6 +33,14 @@ class TestUploader(unittest.TestCase):
     def test_fail_3(self): self.failed(self.upload(travis_job_id="12125215", token=""), "travis job commit and upload commit do not match")
     def test_fail_4(self): self.failed(self.upload(commit=""), "commit hash is required")
     def test_fail_5(self): self.failed(self.upload(branch=""), "branch is required")
+
+    def test_report_accuracy(self):
+        report = codecov.generate_report(os.path.join(os.path.dirname(__file__), 'xml/coverage.xml'))
+        with open(os.path.join(os.path.dirname(__file__), 'json/coverage.json')) as f:
+            compare = json.loads(f.read()%codecov.version)
+        self.assertDictEqual(report["coverage"], compare["coverage"])
+        self.assertDictEqual(report["meta"], compare["meta"])
+        self.assertDictEqual(report["stats"], compare["stats"])
 
     def test_console(self): 
         self.passed(self.command(**self.basics()))
