@@ -86,7 +86,9 @@ def _branches(_class):
         "file.py": 2
     }
     """
-    return _class.getAttribute('filename'), len(filter(lambda l: l.getAttribute('branch')=='true', _class.getElementsByTagName('line')))
+    return _class.getAttribute('filename'), sum(map(lambda l: int(l.getAttribute('condition-coverage').split('/')[1][:-1]), 
+                                                    filter(lambda l: l.getAttribute('branch')=='true', 
+                                                           _class.getElementsByTagName('line'))))
 
 def upload(xml, url, **kwargs):
     try:
