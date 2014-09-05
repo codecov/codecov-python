@@ -107,7 +107,7 @@ def upload(xml, url, **kwargs):
         return dict(message=str(e), uploaded=False)
 
 def main(*argv):
-    defaults = dict(commit='', branch='', travis_job_id='', xml="coverage.xml")
+    defaults = dict(commit='', branch='', travis_job_id='', xml="coverage.xml", pull_request='')
 
     # ---------
     # Travis CI
@@ -115,6 +115,7 @@ def main(*argv):
     if os.getenv('CI') == "true" and os.getenv('TRAVIS') == "true":
         # http://docs.travis-ci.com/user/ci-environment/#Environment-variables
         defaults.update(dict(branch=os.getenv('TRAVIS_BRANCH'),
+                             pull_request=os.getenv('TRAVIS_PULL_REQUEST') if os.getenv('TRAVIS_PULL_REQUEST')!='false' else '',
                              travis_job_id=os.getenv('TRAVIS_JOB_ID'),
                              xml=os.path.join(os.getenv('TRAVIS_BUILD_DIR'), "coverage.xml"),
                              commit=os.getenv('TRAVIS_COMMIT')))
@@ -164,7 +165,7 @@ def main(*argv):
 
     parser = argparse.ArgumentParser(prog='codecov', add_help=True,
                                      formatter_class=argparse.RawDescriptionHelpFormatter,
-                                     epilog="""Example: \033[90mcodecov stevepeak timestring 817vnp1\033[0m\nRead more at \033[95mhttps://codecov.io/\033[0m""")
+                                     epilog="""Read more at https://codecov.io/""")
     parser.add_argument('--version', action='version', version='codecov '+version+" - https://codecov.io")
     parser.add_argument('--commit', default=defaults.pop('commit'), help="commit ref")
     parser.add_argument('--branch', default=defaults.pop('branch'), help="commit branch name")
