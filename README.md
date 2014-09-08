@@ -1,9 +1,8 @@
-[codecov][1] [![Build Status](https://secure.travis-ci.org/codecov/codecov-python.svg?branch=master)](http://travis-ci.org/codecov/codecov-python) [![codecov.io](https://codecov.io/github/codecov/codecov-python/coverage.svg?branch=master)](https://codecov.io/github/codecov/codecov-python)
-----------
-
-```sh
-pip install codecov
-```
+codecov-python [![Build Status](https://secure.travis-ci.org/codecov/codecov-python.svg?branch=master)](http://travis-ci.org/codecov/codecov-python) [![codecov.io](https://codecov.io/github/codecov/codecov-python/coverage.svg?branch=master)](https://codecov.io/github/codecov/codecov-python)
+=======
+| [https://codecov.io/][1] | [@codecov][2] | [hello@codecov.io][3] |
+| ------------------------ | ------------- | --------------------- |
+=======
 
 ## Usage
 
@@ -45,20 +44,6 @@ test:
         - codecov --token=<repo token>
 ```
 > ### Start testing with [Circle CI](https://circleci.com/)
-
-# Manually
-> In shell, from your **project root**
-
-```sh
-pip install codecov
-codecov --token=<repo token>
-```
-
-
-| [https://codecov.io/][1] | [@codecov][2] | [hello@codecov.io][3] |
-| ------------------------ | ------------- | --------------------- |
-
------
 
 
 [1]: https://codecov.io/
