@@ -42,6 +42,13 @@ class TestUploader(unittest.TestCase):
         self.assertDictEqual(report["meta"], compare["meta"])
         self.assertDictEqual(report["stats"], compare["stats"])
 
+    def test_clover(self):
+        report = codecov.generate_report(os.path.join(os.path.dirname(__file__), 'xml/clover.xml'))
+        with open(os.path.join(os.path.dirname(__file__), 'json/clover.json')) as f:
+            compare = json.loads(f.read())
+        self.assertDictEqual(report["coverage"], compare["coverage"])
+        self.assertDictEqual(report["meta"], compare["meta"])
+
     def test_console(self): 
         self.passed(self.command(**self.basics()))
 

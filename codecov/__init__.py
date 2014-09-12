@@ -30,11 +30,41 @@ def generate_report(path):
 
 def generate_json(xml):
     coverage = parseString(xml).getElementsByTagName('coverage')[0]
-    for package in coverage.getElementsByTagName('package'):
-        if package.getAttribute('name') == '':
-            return dict(meta=dict(package="coverage/v%s"%coverage.getAttribute('version'), version="codecov-python/v%s"%VERSION),
-                        stats=dict(branches=dict(map(_branches, coverage.getElementsByTagName('class')))),
-                        coverage=dict(map(_coverage, coverage.getElementsByTagName('class'))))
+    if coverage.getAttribute('generated'):
+        # clover xml
+        return dict(meta=dict(package="coverage/clover", version="codecov-python/v%s"%VERSION),
+                    coverage=dict(map(_clover_coverage, coverage.getElementsByTagName('file'))))
+    else:
+        # standard python coverage
+        for package in coverage.getElementsByTagName('package'):
+            if package.getAttribute('name') == '':
+                return dict(meta=dict(package="coverage/v%s"%coverage.getAttribute('version'), version="codecov-python/v%s"%VERSION),
+                            stats=dict(branches=dict(map(_branches, coverage.getElementsByTagName('class')))),
+                            coverage=dict(map(_coverage, coverage.getElementsByTagName('class'))))
+
+def _clover_coverage(_class):
+    """ex.
+    <file name="/Users/peak/Documents/codecov/codecov-php/src/Codecov/Coverage.php">
+      <class name="Coverage" namespace="Codecov">
+        <metrics methods="1" coveredmethods="0" conditionals="0" coveredconditionals="0" statements="4" coveredstatements="1" elements="5" coveredelements="1"/>
+      </class>
+      <line num="5" type="method" name="send" crap="154.69" count="1"/>
+      <line num="8" type="stmt" count="1"/>
+      <line num="18" type="stmt" count="0"/>
+      <line num="19" type="stmt" count="0"/>
+      <line num="20" type="stmt" count="0"/>
+      <metrics loc="83" ncloc="59" classes="1" methods="1" coveredmethods="0" conditionals="0" coveredconditionals="0" statements="4" coveredstatements="1" elements="5" coveredelements="1"/>
+    </file>
+    """
+    _lines = _class.getElementsByTagName('line')
+    if not _lines:
+        return _class.getAttribute('file'), []
+
+    lines = [None]*(max([int(line.getAttribute('num')) for line in  _lines])+1)
+    for line in _lines:
+        lines[int(line.getAttribute('num'))] = int(line.getAttribute('count') or 0)
+
+    return _class.getAttribute('name'), lines
 
 def _coverage(_class):
     """
