@@ -32,7 +32,7 @@ def generate_json(xml):
     coverage = parseString(xml).getElementsByTagName('coverage')[0]
     if coverage.getAttribute('generated'):
         # clover xml
-        return dict(meta=dict(package="coverage/v%s"%coverage.getAttribute('version'), version="codecov-python/v%s"%VERSION),
+        return dict(meta=dict(package="coverage/clover", version="codecov-python/v%s"%VERSION),
                     coverage=dict(map(_clover_coverage, coverage.getElementsByTagName('file'))))
     else:
         # standard python coverage
