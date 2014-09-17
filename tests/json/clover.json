@@ -29,6 +29,6 @@
     },
     "meta": {
         "package": "coverage/clover",
-        "version": "codecov-python/v0.2.3"
+        "version": "codecov-python/v%s"
     }
 }

@@ -45,7 +45,7 @@ class TestUploader(unittest.TestCase):
     def test_clover(self):
         report = codecov.generate_report(os.path.join(os.path.dirname(__file__), 'xml/clover.xml'))
         with open(os.path.join(os.path.dirname(__file__), 'json/clover.json')) as f:
-            compare = json.loads(f.read())
+            compare = json.loads(f.read()%codecov.version)
         self.assertDictEqual(report["coverage"], compare["coverage"])
         self.assertDictEqual(report["meta"], compare["meta"])
 
@@ -91,6 +91,14 @@ class TestUploader(unittest.TestCase):
         os.environ['CODECOV_TOKEN'] = '473c8c5b-10ee-4d83-86c6-bfd72a185a27'
         self.passed(self.command())
 
+    def test_min_coverage(self):
+        self.passed(self.command(xml=os.path.join(os.path.dirname(__file__), "xml/"),
+                                 token='473c8c5b-10ee-4d83-86c6-bfd72a185a27',
+                                 **{"min-coverage":"99"}))
+        self.passed(self.command(xml=os.path.join(os.path.dirname(__file__), "xml/"),
+                                 token='473c8c5b-10ee-4d83-86c6-bfd72a185a27',
+                                 **{"min-coverage":"10"}))
+
     def basics(self):
         return dict(token="473c8c5b-10ee-4d83-86c6-bfd72a185a27", 
                     xml=os.path.join(os.path.dirname(__file__), "xml/coverage.xml"),
@@ -102,8 +110,8 @@ class TestUploader(unittest.TestCase):
         args = dict(url=self.url)
         args.update(kwargs)
         inline = list(itertools.chain(*[['--%s'% key, value] for key, value in args.items() if value]))
-        print "\033[92m....\033[0m", inline
-        return codecov.main(*inline), args
+        data, passes = codecov.main(*inline)
+        return data, args
 
     def upload(self, **kwargs):
         args = self.basics()

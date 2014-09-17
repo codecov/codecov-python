@@ -9,7 +9,7 @@ from json import dumps
 from urllib import urlencode
 from xml.dom.minidom import parseString
 
-version = VERSION = __version__ = '0.3.0'
+version = VERSION = __version__ = '0.3.1'
 
 
 def generate_report(path):
@@ -136,7 +136,7 @@ def upload(xml, url, **kwargs):
         return result.json()
 
     except AssertionError as e:
-        return dict(message=str(e), uploaded=False)
+        return dict(message=str(e), uploaded=False, coverage=0)
 
 def main(*argv):
     defaults = dict(commit='', branch='', travis_job_id='', xml="coverage.xml", pull_request='')
@@ -200,6 +200,7 @@ def main(*argv):
                                      epilog="""Read more at https://codecov.io/""")
     parser.add_argument('--version', action='version', version='codecov '+version+" - https://codecov.io")
     parser.add_argument('--commit', default=defaults.pop('commit'), help="commit ref")
+    parser.add_argument('--min-coverage', default="0", help="min coverage goal, otherwise build fails")
     parser.add_argument('--branch', default=defaults.pop('branch'), help="commit branch name")
     parser.add_argument('--token', '-t', default=os.getenv("CODECOV_TOKEN"), help="codecov repository token")
     parser.add_argument('--xml', '-x', default=defaults.pop("xml"), help="coverage xml report relative path")
@@ -209,16 +210,21 @@ def main(*argv):
     else:
         codecov = parser.parse_args()
     
-    return upload(url=codecov.url,
+    data = upload(url=codecov.url,
                   xml=codecov.xml, 
                   branch=codecov.branch, 
                   commit=codecov.commit, 
                   token=codecov.token,
                   **defaults)
+    return data, int(codecov.min_coverage)
 
 def cli():
-   print dumps(main())
-   sys.exit(0) 
+    data, min_coverage = main()
+    sys.stdout.write(dumps(data)+"\n")
+    if int(data['coverage']) >= min_coverage:
+        sys.exit(0)
+    else:
+        sys.exit("requiring %s%% coverage, commit resulted in %s%%" % (str(min_coverage), str(data['coverage'])))
 
 if __name__ == '__main__':
     cli()
