@@ -92,12 +92,11 @@ class TestUploader(unittest.TestCase):
         self.passed(self.command())
 
     def test_min_coverage(self):
-        self.passed(self.command(xml=os.path.join(os.path.dirname(__file__), "xml/"),
-                                 token='473c8c5b-10ee-4d83-86c6-bfd72a185a27',
-                                 **{"min-coverage":"99"}))
-        self.passed(self.command(xml=os.path.join(os.path.dirname(__file__), "xml/"),
-                                 token='473c8c5b-10ee-4d83-86c6-bfd72a185a27',
-                                 **{"min-coverage":"10"}))
+        basics = self.basics()
+        basics['min-coverage'] = '99'
+        self.passed(self.command(**basics))
+        basics['min-coverage'] = '10'
+        self.passed(self.command(**basics))
 
     def basics(self):
         return dict(token="473c8c5b-10ee-4d83-86c6-bfd72a185a27", 
