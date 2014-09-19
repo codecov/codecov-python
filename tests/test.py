@@ -97,9 +97,9 @@ class TestUploader(unittest.TestCase):
         os.environ['TRAVIS_COMMIT'] = "c739768fcac68144a3a6d82305b9c4106934d31a"
         os.environ['TRAVIS_BUILD_DIR'] = os.path.join(os.path.dirname(__file__), "xml/")
         os.environ['TRAVIS_JOB_ID'] = "33116958"
-        status, output = commands.getstatusoutput("codecov --min-coverage=75")
+        status, output = commands.getstatusoutput("python -m codecov.__init__ --min-coverage=75")
         self.assertEqual(status, 0)
-        status, output = commands.getstatusoutput("codecov --min-coverage=90")
+        status, output = commands.getstatusoutput("python -m codecov.__init__ --min-coverage=90")
         self.assertEqual(status, 256)
 
     def test_cli(self):
