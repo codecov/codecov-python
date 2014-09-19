@@ -92,11 +92,26 @@ class TestUploader(unittest.TestCase):
         self.passed(self.command())
 
     def test_min_coverage(self):
-        basics = self.basics()
-        basics['min-coverage'] = '99'
-        self.passed(self.command(**basics))
-        basics['min-coverage'] = '10'
-        self.passed(self.command(**basics))
+        os.environ['TRAVIS'] = "true"
+        os.environ['TRAVIS_BRANCH'] = "master"
+        os.environ['TRAVIS_COMMIT'] = "c739768fcac68144a3a6d82305b9c4106934d31a"
+        os.environ['TRAVIS_BUILD_DIR'] = os.path.join(os.path.dirname(__file__), "xml/")
+        os.environ['TRAVIS_JOB_ID'] = "33116958"
+        status, output = commands.getstatusoutput("codecov --min-coverage=75")
+        self.assertEqual(status, 0)
+        status, output = commands.getstatusoutput("codecov --min-coverage=90")
+        self.assertEqual(status, 256)
+
+    def test_cli(self):
+        os.environ['TRAVIS'] = "true"
+        os.environ['TRAVIS_BRANCH'] = "master"
+        os.environ['TRAVIS_COMMIT'] = "c739768fcac68144a3a6d82305b9c4106934d31a"
+        os.environ['TRAVIS_BUILD_DIR'] = os.path.join(os.path.dirname(__file__), "xml/")
+        os.environ['TRAVIS_JOB_ID'] = "33116958"
+        status, output = commands.getstatusoutput("codecov")
+        self.assertEqual(status, 0)
+        output = output.replace('\nCoverage.py warning: No data was collected.', '')
+        self.assertEqual(output, """{"uploaded": true, "url": "http://codecov.io/github/codecov/ci-repo?ref=c739768fcac68144a3a6d82305b9c4106934d31a", "message": "Coverage reports upload successfully", "coverage": 80}""")
 
     def basics(self):
         return dict(token="473c8c5b-10ee-4d83-86c6-bfd72a185a27", 
