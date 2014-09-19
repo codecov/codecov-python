@@ -22,7 +22,7 @@ class TestUploader(unittest.TestCase):
             os.environ[key] = ""
 
     def test_command(self):
-        self.assertIn('usage: codecov', commands.getstatusoutput('codecov --hep')[1])
+        self.assertIn('usage: codecov', commands.getstatusoutput('python -m codecov.__init__ --hep')[1])
 
     def test_pass_1(self): self.passed(self.upload())
     def test_pass_2(self): self.passed(self.upload(travis_job_id="33116958", commit="c739768fcac68144a3a6d82305b9c4106934d31a"))
@@ -108,7 +108,7 @@ class TestUploader(unittest.TestCase):
         os.environ['TRAVIS_COMMIT'] = "c739768fcac68144a3a6d82305b9c4106934d31a"
         os.environ['TRAVIS_BUILD_DIR'] = os.path.join(os.path.dirname(__file__), "xml/")
         os.environ['TRAVIS_JOB_ID'] = "33116958"
-        status, output = commands.getstatusoutput("codecov")
+        status, output = commands.getstatusoutput("python -m codecov.__init__")
         self.assertEqual(status, 0)
         output = output.replace('\nCoverage.py warning: No data was collected.', '')
         self.assertEqual(output, """{"uploaded": true, "url": "http://codecov.io/github/codecov/ci-repo?ref=c739768fcac68144a3a6d82305b9c4106934d31a", "message": "Coverage reports upload successfully", "coverage": 80}""")
