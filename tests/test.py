@@ -111,7 +111,7 @@ class TestUploader(unittest.TestCase):
         status, output = commands.getstatusoutput("python -m codecov.__init__")
         self.assertEqual(status, 0)
         output = output.replace('\nCoverage.py warning: No data was collected.', '')
-        self.assertEqual(output, """{"uploaded": true, "url": "http://codecov.io/github/codecov/ci-repo?ref=c739768fcac68144a3a6d82305b9c4106934d31a", "message": "Coverage reports upload successfully", "coverage": 80}""")
+        self.assertDictEqual(json.loads(output), {"uploaded": True, "url": "http://codecov.io/github/codecov/ci-repo?ref=c739768fcac68144a3a6d82305b9c4106934d31a", "message": "Coverage reports upload successfully", "coverage": 80})
 
     def basics(self):
         return dict(token="473c8c5b-10ee-4d83-86c6-bfd72a185a27", 
