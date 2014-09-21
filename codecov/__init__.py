@@ -12,30 +12,24 @@ from xml.dom.minidom import parseString
 
 version = VERSION = __version__ = '0.3.2'
 
-
 def from_file(path):
     try:
         with open(path, 'r') as f:
             return to_json(f.read())
+    except IOError:
+        return None
+
+def from_path(path):
+    try:
+        # python only
+        commands.getstatusoutput('coverage xml')
     except:
-        try:
-            # python only
-            commands.getstatusoutput('coverage xml')
-            with open(path, 'r') as f:
-                return to_json(f.read())
-        except:
-            if path.endswith('.xml'):
-                try:
-                    return from_file(path.replace('.xml', '.txt'))
-                except:
-                    try:
-                        # Scalla support
-                        return from_file("target/scala-2.10/coverage-report/cobertura.xml")
-                    except:
-                        pass
+        pass
 
-            raise AssertionError("no coverage.xml file was found")
-
+    for f in ('coverage.xml', 'coverage.txt', "target/scala-2.10/coverage-report/cobertura.xml"):
+        result = from_file(os.path.join(path, f))
+        if result:
+            return result
 
 def to_json(report):
     if report.startswith('mode: count'):
@@ -49,11 +43,12 @@ def to_json(report):
                         coverage=dict(map(_clover_xml, coverage.getElementsByTagName('file'))))
         else:
             # cobertura (python)
+            report = dict(meta=dict(package="coverage/v%s"%coverage.getAttribute('version'), version="codecov-python/v%s"%VERSION),
+                          stats=dict(branches={}), coverage={})
             for package in coverage.getElementsByTagName('package'):
-                if package.getAttribute('name') == '':
-                    return dict(meta=dict(package="coverage/v%s"%coverage.getAttribute('version'), version="codecov-python/v%s"%VERSION),
-                                stats=dict(branches=dict(map(_branches, coverage.getElementsByTagName('class')))),
-                                coverage=dict(map(_cobertura_xml, coverage.getElementsByTagName('class'))))
+                report['stats']['branches'].update(dict(map(_branches, coverage.getElementsByTagName('class'))))
+                report['coverage'].update(dict(map(_cobertura_xml, coverage.getElementsByTagName('class'))))
+            return report
 
 def _golang_txt(report):
     """
@@ -152,7 +147,7 @@ def _branches(_class):
                                                     filter(lambda l: l.getAttribute('branch')=='true', 
                                                            _class.getElementsByTagName('line'))))
 
-def upload(xml, url, **kwargs):
+def upload(report, url, path=None, **kwargs):
     try:
         args = dict(commit='', branch='', travis_job_id='')
         args.update(kwargs)
@@ -160,8 +155,12 @@ def upload(xml, url, **kwargs):
         assert args.get('commit') not in ('', None), "commit hash is required"
         assert (args.get('travis_job_id') or args.get('token')) not in (None, ''), "travis_job_id or token are required"
 
-        coverage = from_file(xml)
-        assert coverage, "error no coverage.xml report found, could not upload to codecov"
+        if report is not None:
+            coverage = from_file(report)
+        else:
+            coverage = from_path(path)
+
+        assert coverage, "error no coverage report found, could not upload to codecov"
         
         url = "%s/upload/v1?%s" % (url, urlencode(dict([(k, v) for k, v in kwargs.items() if v is not None])))
         result = requests.post(url, headers={"Content-Type": "application/json"}, data=dumps(coverage))
@@ -171,7 +170,7 @@ def upload(xml, url, **kwargs):
         return dict(message=str(e), uploaded=False, coverage=0)
 
 def main(*argv):
-    defaults = dict(commit='', branch='', travis_job_id='', xml="coverage.xml", pull_request='')
+    defaults = dict(commit='', branch='', travis_job_id='', path=sys.argv[0] if sys.argv else None, pull_request='')
 
     # ---------
     # Travis CI
@@ -181,7 +180,7 @@ def main(*argv):
         defaults.update(dict(branch=os.getenv('TRAVIS_BRANCH'),
                              pull_request=os.getenv('TRAVIS_PULL_REQUEST') if os.getenv('TRAVIS_PULL_REQUEST')!='false' else '',
                              travis_job_id=os.getenv('TRAVIS_JOB_ID'),
-                             xml=os.path.join(os.getenv('TRAVIS_BUILD_DIR'), "coverage.xml"),
+                             path=os.getenv('TRAVIS_BUILD_DIR'),
                              commit=os.getenv('TRAVIS_COMMIT')))
 
     # --------
@@ -198,7 +197,7 @@ def main(*argv):
     elif os.getenv('CI') == "true" and os.getenv('CIRCLECI') == 'true':
         # https://circleci.com/docs/environment-variables
         defaults.update(dict(branch=os.getenv('CIRCLE_BRANCH'),
-                             xml=os.path.join(os.getenv('CIRCLE_ARTIFACTS'), "coverage.xml"),
+                             path=os.getenv('CIRCLE_ARTIFACTS'),
                              commit=os.getenv('CIRCLE_SHA1')))
 
     # ---------
@@ -207,7 +206,7 @@ def main(*argv):
     elif os.getenv('CI') == "true" and os.getenv('SEMAPHORE') == "true":
         # https://semaphoreapp.com/docs/available-environment-variables.html
         defaults.update(dict(branch=os.getenv('BRANCH_NAME'),
-                             xml=os.path.join(os.getenv('SEMAPHORE_PROJECT_DIR'), "coverage.xml"),
+                             path=os.getenv('SEMAPHORE_PROJECT_DIR'),
                              commit=os.getenv('SEMAPHORE_PROJECT_HASH_ID')))
     # --------
     # drone.io
@@ -215,7 +214,7 @@ def main(*argv):
     elif os.getenv('CI') == "true" and os.getenv('DRONE') == "true":
         # https://semaphoreapp.com/docs/available-environment-variables.html
         defaults.update(dict(branch=os.getenv('DRONE_BRANCH'),
-                             xml=os.path.join(os.getenv('DRONE_BUILD_DIR'), "coverage.xml"),
+                             path=os.getenv('DRONE_BUILD_DIR'),
                              commit=os.getenv('DRONE_COMMIT')))
 
     # ---
@@ -235,7 +234,7 @@ def main(*argv):
     parser.add_argument('--min-coverage', default="0", help="min coverage goal, otherwise build fails")
     parser.add_argument('--branch', default=defaults.pop('branch'), help="commit branch name")
     parser.add_argument('--token', '-t', default=os.getenv("CODECOV_TOKEN"), help="codecov repository token")
-    parser.add_argument('--xml', '-x', default=defaults.pop("xml"), help="coverage xml report relative path")
+    parser.add_argument('--report', '-x', help="coverage report")
     parser.add_argument('--url', default="https://codecov.io", help="url, used for debugging")
     if argv:
         codecov = parser.parse_args(argv)
@@ -243,7 +242,7 @@ def main(*argv):
         codecov = parser.parse_args()
     
     data = upload(url=codecov.url,
-                  xml=codecov.xml, 
+                  report=codecov.report, 
                   branch=codecov.branch, 
                   commit=codecov.commit, 
                   token=codecov.token,

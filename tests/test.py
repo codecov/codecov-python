@@ -28,7 +28,7 @@ class TestUploader(unittest.TestCase):
     def test_pass_2(self): self.passed(self.upload(travis_job_id="33116958", commit="c739768fcac68144a3a6d82305b9c4106934d31a"))
     def test_pass_3(self): self.passed(self.upload(branch="other-branch/strang_name"))
 
-    def test_fail_1(self): self.failed(self.upload(xml=""), "no coverage.xml file was found")
+    def test_fail_1(self): self.failed(self.upload(report=""), "error no coverage report found, could not upload to codecov")
     def test_fail_2(self): self.failed(self.upload(token=""), "travis_job_id or token are required")
     def test_fail_3(self): self.failed(self.upload(travis_job_id="12125215", token=""), "travis job commit and upload commit do not match")
     def test_fail_4(self): self.failed(self.upload(commit=""), "commit hash is required")
@@ -84,7 +84,7 @@ github.com/codecov/sample_go/sample_go.go:15.19,17.2 1 0
         os.environ['CI_BRANCH'] = 'master'
         os.environ['CI_COMMIT_ID'] = '743b04806ea677403aa2ff26c6bdeb85005de658'
         os.environ['CODECOV_TOKEN'] = '473c8c5b-10ee-4d83-86c6-bfd72a185a27'
-        self.passed(self.command(xml=os.path.join(os.path.dirname(__file__), "xml/coverage.xml")))
+        self.passed(self.command(report=os.path.join(os.path.dirname(__file__), "xml/coverage.xml")))
 
     def test_circleci(self):
         os.environ['CIRCLECI'] = 'true'
@@ -134,7 +134,7 @@ github.com/codecov/sample_go/sample_go.go:15.19,17.2 1 0
 
     def basics(self):
         return dict(token="473c8c5b-10ee-4d83-86c6-bfd72a185a27", 
-                    xml=os.path.join(os.path.dirname(__file__), "xml/coverage.xml"),
+                    report=os.path.join(os.path.dirname(__file__), "xml/coverage.xml"),
                     url=self.url,
                     commit="743b04806ea677403aa2ff26c6bdeb85005de658",
                     branch="master")
