@@ -30,7 +30,7 @@ def from_file(path):
                 except:
                     try:
                         # Scalla support
-                        return from_file(path.replace('coverage.xml', "target/scala-2.10/coverage-report/cobertura.xml"))
+                        return from_file("target/scala-2.10/coverage-report/cobertura.xml")
                     except:
                         pass
 
