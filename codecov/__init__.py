@@ -28,7 +28,12 @@ def from_file(path):
                 try:
                     return from_file(path.replace('.xml', '.txt'))
                 except:
-                    pass
+                    try:
+                        # Scalla support
+                        return from_file(path.replace('coverage.xml', "target/scala-2.10/coverage-report/cobertura.xml"))
+                    except:
+                        pass
+
             raise AssertionError("no coverage.xml file was found")
 
 
