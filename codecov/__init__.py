@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import re
 import os
 import sys
 import commands
@@ -9,40 +10,66 @@ from json import dumps
 from urllib import urlencode
 from xml.dom.minidom import parseString
 
-version = VERSION = __version__ = '0.3.1'
+version = VERSION = __version__ = '0.3.2'
 
 
-def generate_report(path):
+def from_file(path):
     try:
         with open(path, 'r') as f:
-            return generate_json(f.read())
+            return to_json(f.read())
     except:
         try:
+            # python only
             commands.getstatusoutput('coverage xml')
+            with open(path, 'r') as f:
+                return to_json(f.read())
         except:
-            return None
-        else:
-            try:
-                with open(path, 'r') as f:
-                    return generate_json(f.read())
-            except:
-                raise AssertionError("no coverage.xml file could be found or generated")
+            if path.endswith('.xml'):
+                try:
+                    return from_file(path.replace('.xml', '.txt'))
+                except:
+                    pass
+            raise AssertionError("no coverage.xml file was found")
 
-def generate_json(xml):
-    coverage = parseString(xml).getElementsByTagName('coverage')[0]
-    if coverage.getAttribute('generated'):
-        # clover xml
-        return dict(meta=dict(package="coverage/clover", version="codecov-python/v%s"%VERSION),
-                    coverage=dict(map(_clover_coverage, coverage.getElementsByTagName('file'))))
+
+def to_json(report):
+    if report.startswith('mode: count'):
+        # golang
+        return _golang_txt(report)
     else:
-        # standard python coverage
-        for package in coverage.getElementsByTagName('package'):
-            if package.getAttribute('name') == '':
-                return dict(meta=dict(package="coverage/v%s"%coverage.getAttribute('version'), version="codecov-python/v%s"%VERSION),
-                            stats=dict(branches=dict(map(_branches, coverage.getElementsByTagName('class')))),
-                            coverage=dict(map(_coverage, coverage.getElementsByTagName('class'))))
+        coverage = parseString(report).getElementsByTagName('coverage')[0]
+        if coverage.getAttribute('generated'):
+            # clover (php)
+            return dict(meta=dict(package="coverage/clover", version="codecov-python/v%s"%VERSION),
+                        coverage=dict(map(_clover_xml, coverage.getElementsByTagName('file'))))
+        else:
+            # cobertura (python)
+            for package in coverage.getElementsByTagName('package'):
+                if package.getAttribute('name') == '':
+                    return dict(meta=dict(package="coverage/v%s"%coverage.getAttribute('version'), version="codecov-python/v%s"%VERSION),
+                                stats=dict(branches=dict(map(_branches, coverage.getElementsByTagName('class')))),
+                                coverage=dict(map(_cobertura_xml, coverage.getElementsByTagName('class'))))
 
-def _clover_coverage(_class):
+def _golang_txt(report):
+    """
+    mode: count
+    github.com/codecov/sample_go/sample_go.go:7.14,9.2 1 1
+    github.com/codecov/sample_go/sample_go.go:11.26,13.2 1 1
+    github.com/codecov/sample_go/sample_go.go:15.19,17.2 1 0
+    """
+    pattern = re.compile(r"(?P<name>[^\:]+)\:(?P<start>\d+)\.\d+\,(?P<end>\d+)\.\d+\s\d+\s(?P<hits>\d+)")
+    fill = lambda l,x: l.extend([None]*(x-len(l)))
+    files = dict()
+    for line in report.split('\n')[1:]:
+        result = pattern.search(line)
+        if result:
+            data = result.groupdict()
+            fill(files.setdefault(data['name'], []), int(data['end'])+1)
+            for x in xrange(int(data['start']), int(data['end'])+1):
+                files[data['name']][x] = int(data['hits'])
+    return dict(coverage=files, meta=dict(package="coverage/go", version="codecov-python/v%s"%VERSION))
+
+def _clover_xml(_class):
     """ex.
     <file name="/Users/peak/Documents/codecov/codecov-php/src/Codecov/Coverage.php">
       <class name="Coverage" namespace="Codecov">
@@ -66,7 +93,7 @@ def _clover_coverage(_class):
 
     return _class.getAttribute('name'), lines
 
-def _coverage(_class):
+def _cobertura_xml(_class):
     """
     Lines Covered
     =============
@@ -128,7 +155,7 @@ def upload(xml, url, **kwargs):
         assert args.get('commit') not in ('', None), "commit hash is required"
         assert (args.get('travis_job_id') or args.get('token')) not in (None, ''), "travis_job_id or token are required"
 
-        coverage = generate_report(xml)
+        coverage = from_file(xml)
         assert coverage, "error no coverage.xml report found, could not upload to codecov"
         
         url = "%s/upload/v1?%s" % (url, urlencode(dict([(k, v) for k, v in kwargs.items() if v is not None])))

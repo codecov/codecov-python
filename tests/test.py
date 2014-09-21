@@ -28,14 +28,14 @@ class TestUploader(unittest.TestCase):
     def test_pass_2(self): self.passed(self.upload(travis_job_id="33116958", commit="c739768fcac68144a3a6d82305b9c4106934d31a"))
     def test_pass_3(self): self.passed(self.upload(branch="other-branch/strang_name"))
 
-    def test_fail_1(self): self.failed(self.upload(xml=""), "no coverage.xml file could be found or generated")
+    def test_fail_1(self): self.failed(self.upload(xml=""), "no coverage.xml file was found")
     def test_fail_2(self): self.failed(self.upload(token=""), "travis_job_id or token are required")
     def test_fail_3(self): self.failed(self.upload(travis_job_id="12125215", token=""), "travis job commit and upload commit do not match")
     def test_fail_4(self): self.failed(self.upload(commit=""), "commit hash is required")
     def test_fail_5(self): self.failed(self.upload(branch=""), "branch is required")
 
     def test_report_accuracy(self):
-        report = codecov.generate_report(os.path.join(os.path.dirname(__file__), 'xml/coverage.xml'))
+        report = codecov.from_file(os.path.join(os.path.dirname(__file__), 'xml/coverage.xml'))
         with open(os.path.join(os.path.dirname(__file__), 'json/coverage.json')) as f:
             compare = json.loads(f.read()%codecov.version)
         self.assertDictEqual(report["coverage"], compare["coverage"])
@@ -43,11 +43,30 @@ class TestUploader(unittest.TestCase):
         self.assertDictEqual(report["stats"], compare["stats"])
 
     def test_clover(self):
-        report = codecov.generate_report(os.path.join(os.path.dirname(__file__), 'xml/clover.xml'))
+        report = codecov.from_file(os.path.join(os.path.dirname(__file__), 'xml/clover.xml'))
         with open(os.path.join(os.path.dirname(__file__), 'json/clover.json')) as f:
             compare = json.loads(f.read()%codecov.version)
         self.assertDictEqual(report["coverage"], compare["coverage"])
         self.assertDictEqual(report["meta"], compare["meta"])
+
+    def test_golang(self):
+        result = codecov._golang_txt("""mode: count
+github.com/codecov/sample_go/sample_go.go:7.14,9.2 1 1
+github.com/codecov/sample_go/sample_go.go:11.26,13.2 1 1
+github.com/codecov/sample_go/sample_go.go:15.19,17.2 1 0
+""")
+        self.assertDictEqual(result, dict(coverage={"github.com/codecov/sample_go/sample_go.go":[None, None, None, None, None, None, None, 1, 1, 1, None, 1, 1, 1, None, 0, 0, 0]},
+                                          meta=dict(package="coverage/go", version="codecov-python/v%s"%codecov.VERSION)))
+
+        os.environ['TRAVIS'] = "true"
+        os.environ['TRAVIS_BRANCH'] = "master"
+        os.environ['TRAVIS_COMMIT'] = "c739768fcac68144a3a6d82305b9c4106934d31a"
+        os.environ['TRAVIS_BUILD_DIR'] = os.path.join(os.path.dirname(__file__), "txt/")
+        os.environ['TRAVIS_JOB_ID'] = "33116958"
+        status, output = commands.getstatusoutput("python -m codecov.__init__")
+        self.assertEqual(status, 0)
+        output = output.replace('\nCoverage.py warning: No data was collected.', '')
+        self.assertDictEqual(json.loads(output), {"uploaded": True, "url": "http://codecov.io/github/codecov/ci-repo?ref=c739768fcac68144a3a6d82305b9c4106934d31a", "message": "Coverage reports upload successfully", "coverage": 67})
 
     def test_console(self): 
         self.passed(self.command(**self.basics()))
