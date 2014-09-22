@@ -170,7 +170,7 @@ def upload(report, url, path=None, **kwargs):
         return dict(message=str(e), uploaded=False, coverage=0)
 
 def main(*argv):
-    defaults = dict(commit='', branch='', travis_job_id='', path=sys.argv[0] if sys.argv else None, pull_request='')
+    defaults = dict(commit='', branch='', travis_job_id='', path=os.getcwd() if sys.argv else None, pull_request='')
 
     # ---------
     # Travis CI
