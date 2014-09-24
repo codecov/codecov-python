@@ -2,11 +2,14 @@ venv
 *.pyc
 __pycache__
 dist
+*.egg
 *.egg-info
 build/
 dist/
 Watch
 coverage_html_report
+.tox
+coverage.xml
 .coverage
 .DS_Store
 htmlcov
