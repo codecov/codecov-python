@@ -107,27 +107,27 @@ github.com/codecov/sample_go/sample_go.go:15.19,17.2 1 0
         os.environ['CIRCLE_BUILD_NUM'] = "57"
         os.environ['CIRCLE_SHA1'] = "d653b934ed59c1a785cc1cc79d08c9aaa4eba73b"
         os.environ['CODECOV_TOKEN'] = '473c8c5b-10ee-4d83-86c6-bfd72a185a27'
-        self.passed(self.command(report=os.path.join(os.path.dirname(__file__), "xml/")))
+        self.passed(self.command(report=os.path.join(os.path.dirname(__file__), "xml/coverage.xml")))
 
     def test_semaphore(self):
         os.environ['SEMAPHORE'] = "true"
         os.environ['BRANCH_NAME'] = "master"
         os.environ['SEMAPHORE_PROJECT_HASH_ID'] = "743b04806ea677403aa2ff26c6bdeb85005de658"
         os.environ['CODECOV_TOKEN'] = '473c8c5b-10ee-4d83-86c6-bfd72a185a27'
-        self.passed(self.command(report=os.path.join(os.path.dirname(__file__), "xml/")))
+        self.passed(self.command(report=os.path.join(os.path.dirname(__file__), "xml/coverage.xml")))
 
     def test_drone(self):
         os.environ['DRONE'] = "true"
         os.environ['DRONE_BRANCH'] = "master"
         os.environ['DRONE_COMMIT'] = "743b04806ea677403aa2ff26c6bdeb85005de658"
         os.environ['CODECOV_TOKEN'] = '473c8c5b-10ee-4d83-86c6-bfd72a185a27'
-        self.passed(self.command(report=os.path.join(os.path.dirname(__file__), "xml/")))
+        self.passed(self.command(report=os.path.join(os.path.dirname(__file__), "xml/coverage.xml")))
 
     def test_min_coverage(self):
         os.environ['TRAVIS'] = "true"
         os.environ['TRAVIS_BRANCH'] = "master"
         os.environ['TRAVIS_COMMIT'] = "c739768fcac68144a3a6d82305b9c4106934d31a"
-        os.environ['TRAVIS_BUILD_DIR'] = os.path.join(os.path.dirname(__file__), "xml/")
+        os.environ['TRAVIS_BUILD_DIR'] = os.path.join(os.path.dirname(__file__), "xml")
         os.environ['TRAVIS_JOB_ID'] = "33116958"
         subprocess.check_output("python -m codecov.__init__ --min-coverage=75", shell=True)
         try:
