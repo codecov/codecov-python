@@ -31,11 +31,15 @@ def from_file(path):
 def from_path(path):
     try:
         # python only
+        print 'create file'
         subprocess.check_output('coverage xml', shell=True)
+        print 'end file'
     except Exception as e:
+        print type(e), str(e)
         pass
 
     for f in ('coverage.xml', 'coverage.txt', "target/scala-2.10/coverage-report/cobertura.xml"):
+        print 'trying at file', os.path.join(path, f), os.path.exists(os.path.join(path, f))
         if os.path.exists(os.path.join(path, f)):
             result = from_file(os.path.join(path, f))
             if result:
