@@ -3,7 +3,7 @@
 import re
 import os
 import sys
-import commands
+import subprocess
 import requests
 import argparse
 from json import dumps
@@ -31,7 +31,7 @@ def from_file(path):
 def from_path(path):
     try:
         # python only
-        commands.getstatusoutput('coverage xml')
+        subprocess.check_output('coverage xml', shell=True)
     except:
         pass
 
@@ -231,9 +231,9 @@ def main(*argv):
     # ---
     else:
         # find branch, commit, repo from git command
-        branch = commands.getstatusoutput('git rev-parse --abbrev-ref HEAD')[1]
+        branch = subprocess.check_output('git rev-parse --abbrev-ref HEAD', shell=True)
         defaults.update(dict(branch=branch if branch != 'HEAD' else 'master',
-                             commit=commands.getstatusoutput('git rev-parse HEAD')[1]))
+                             commit=subprocess.check_output('git rev-parse HEAD', shell=True)))
 
     parser = argparse.ArgumentParser(prog='codecov', add_help=True,
                                      formatter_class=argparse.RawDescriptionHelpFormatter,

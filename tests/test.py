@@ -2,7 +2,7 @@ import os
 import json
 import unittest
 import itertools
-import commands
+import subprocess
 
 import codecov
 
@@ -22,7 +22,12 @@ class TestUploader(unittest.TestCase):
             os.environ[key] = ""
 
     def test_command(self):
-        self.assertIn('usage: codecov', commands.getstatusoutput('python -m codecov.__init__ --hep')[1])
+        try:
+            subprocess.check_output('python -m codecov.__init__ --hep', stderr=subprocess.STDOUT, shell=True)
+        except subprocess.CalledProcessError as e:
+            self.assertIn(b'usage: codecov', e.output)
+        else:
+            raise AssertionError("Process exited with 0 status code")
 
     def test_pass_1(self): self.passed(self.upload())
     def test_pass_2(self): self.passed(self.upload(travis_job_id="33116958", commit="c739768fcac68144a3a6d82305b9c4106934d31a"))
@@ -63,10 +68,9 @@ github.com/codecov/sample_go/sample_go.go:15.19,17.2 1 0
         os.environ['TRAVIS_COMMIT'] = "c739768fcac68144a3a6d82305b9c4106934d31a"
         os.environ['TRAVIS_BUILD_DIR'] = os.path.join(os.path.dirname(__file__), "txt/")
         os.environ['TRAVIS_JOB_ID'] = "33116958"
-        status, output = commands.getstatusoutput("python -m codecov.__init__")
-        self.assertEqual(status, 0)
-        output = output.replace('\nCoverage.py warning: No data was collected.', '')
-        self.assertDictEqual(json.loads(output), {"uploaded": True, "url": "http://codecov.io/github/codecov/ci-repo?ref=c739768fcac68144a3a6d82305b9c4106934d31a", "message": "Coverage reports upload successfully", "coverage": 67})
+        output = subprocess.check_output("python -m codecov.__init__", shell=True)
+        output = output.replace(b'\nCoverage.py warning: No data was collected.', b'')
+        self.assertDictEqual(json.loads(output.decode('utf-8')), {"uploaded": True, "url": "http://codecov.io/github/codecov/ci-repo?ref=c739768fcac68144a3a6d82305b9c4106934d31a", "message": "Coverage reports upload successfully", "coverage": 67})
 
     def test_console(self): 
         self.passed(self.command(**self.basics()))
@@ -116,10 +120,13 @@ github.com/codecov/sample_go/sample_go.go:15.19,17.2 1 0
         os.environ['TRAVIS_COMMIT'] = "c739768fcac68144a3a6d82305b9c4106934d31a"
         os.environ['TRAVIS_BUILD_DIR'] = os.path.join(os.path.dirname(__file__), "xml/")
         os.environ['TRAVIS_JOB_ID'] = "33116958"
-        status, output = commands.getstatusoutput("python -m codecov.__init__ --min-coverage=75")
-        self.assertEqual(status, 0)
-        status, output = commands.getstatusoutput("python -m codecov.__init__ --min-coverage=90")
-        self.assertEqual(status, 256)
+        subprocess.check_output("python -m codecov.__init__ --min-coverage=75", shell=True)
+        try:
+            subprocess.check_output("python -m codecov.__init__ --min-coverage=90", shell=True)
+        except subprocess.CalledProcessError as e:
+            self.assertEqual(e.returncode, 256)
+        else:
+            raise AssertionError("Process exited with 0 status code")
 
     def test_cli(self):
         os.environ['TRAVIS'] = "true"
@@ -127,10 +134,9 @@ github.com/codecov/sample_go/sample_go.go:15.19,17.2 1 0
         os.environ['TRAVIS_COMMIT'] = "c739768fcac68144a3a6d82305b9c4106934d31a"
         os.environ['TRAVIS_BUILD_DIR'] = os.path.join(os.path.dirname(__file__), "xml/")
         os.environ['TRAVIS_JOB_ID'] = "33116958"
-        status, output = commands.getstatusoutput("python -m codecov.__init__")
-        self.assertEqual(status, 0)
-        output = output.replace('\nCoverage.py warning: No data was collected.', '')
-        self.assertDictEqual(json.loads(output), {"uploaded": True, "url": "http://codecov.io/github/codecov/ci-repo?ref=c739768fcac68144a3a6d82305b9c4106934d31a", "message": "Coverage reports upload successfully", "coverage": 80})
+        output = subprocess.check_output("python -m codecov.__init__", shell=True)
+        output = output.replace(b'\nCoverage.py warning: No data was collected.', b'')
+        self.assertDictEqual(json.loads(output.decode('utf-8')), {"uploaded": True, "url": "http://codecov.io/github/codecov/ci-repo?ref=c739768fcac68144a3a6d82305b9c4106934d31a", "message": "Coverage reports upload successfully", "coverage": 80})
 
     def basics(self):
         return dict(token="473c8c5b-10ee-4d83-86c6-bfd72a185a27", 
