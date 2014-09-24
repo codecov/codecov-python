@@ -173,10 +173,10 @@ def upload(report, url, path=None, **kwargs):
 
         assert coverage, "error no coverage report found, could not upload to codecov"
 
-        if kwargs.get('dir'):
+        if kwargs.get('append_path'):
             # in case you do this:
-            # cd some_folder && codecov --dir=some_folder
-            coverage['meta']['dir'] = kwargs.pop('dir')
+            # cd some_folder && codecov --append=some_folder
+            coverage['meta']['path'] = kwargs.pop('append_path')
 
         url = "%s/upload/v1?%s" % (url, urlencode(dict([(k, v.strip()) for k, v in kwargs.items() if v is not None])))
         result = requests.post(url, headers={"Content-Type": "application/json"}, data=dumps(coverage))
@@ -252,7 +252,7 @@ def main(*argv):
                                      epilog="""Read more at https://codecov.io/""")
     parser.add_argument('--version', action='version', version='codecov '+version+" - https://codecov.io")
     parser.add_argument('--commit', default=defaults.pop('commit'), help="commit ref")
-    parser.add_argument('--dir', help="extra path when sending reports")
+    parser.add_argument('--path', help="append file path for reporting properly")
     parser.add_argument('--min-coverage', default="0", help="min coverage goal, otherwise build fails")
     parser.add_argument('--branch', default=defaults.pop('branch'), help="commit branch name")
     parser.add_argument('--token', '-t', default=os.getenv("CODECOV_TOKEN"), help="codecov repository token")
@@ -264,6 +264,7 @@ def main(*argv):
         codecov = parser.parse_args()
     
     data = upload(url=codecov.url,
+                  append_path=codecov.path,
                   report=codecov.report, 
                   branch=codecov.branch, 
                   commit=codecov.commit, 

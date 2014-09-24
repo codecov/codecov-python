@@ -34,8 +34,8 @@ class TestUploader(unittest.TestCase):
     def test_pass_1(self): self.passed(self.upload())
     def test_pass_2(self): self.passed(self.upload(travis_job_id="33116958", commit="c739768fcac68144a3a6d82305b9c4106934d31a"))
     def test_pass_3(self): self.passed(self.upload(branch="other-branch/strang_name"))
-    def test_pass_4(self): self.passed(self.upload(dir="project"))
-    def test_pass_5(self): self.passed(self.upload(dir="other/folder"))
+    def test_pass_4(self): self.passed(self.upload(path="project"))
+    def test_pass_5(self): self.passed(self.upload(path="other/folder"))
 
     def test_fail_1(self): self.failed(self.upload(report=""), "error no coverage report found, could not upload to codecov")
     def test_fail_2(self): self.failed(self.upload(token=""), "missing token or other required argument(s)")
