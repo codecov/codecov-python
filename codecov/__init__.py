@@ -10,7 +10,7 @@ from json import dumps
 from urllib import urlencode
 from xml.dom.minidom import parseString
 
-version = VERSION = __version__ = '0.3.3'
+version = VERSION = __version__ = '0.4.0'
 
 def from_file(path):
     try:
@@ -161,7 +161,12 @@ def upload(report, url, path=None, **kwargs):
             coverage = from_path(path)
 
         assert coverage, "error no coverage report found, could not upload to codecov"
-        
+
+        if kwargs.get('dir'):
+            # in case you do this:
+            # cd some_folder && codecov --dir=some_folder
+            coverage['meta']['dir'] = kwargs.pop('dir')
+
         url = "%s/upload/v1?%s" % (url, urlencode(dict([(k, v.strip()) for k, v in kwargs.items() if v is not None])))
         result = requests.post(url, headers={"Content-Type": "application/json"}, data=dumps(coverage))
         return result.json()
@@ -231,6 +236,7 @@ def main(*argv):
                                      epilog="""Read more at https://codecov.io/""")
     parser.add_argument('--version', action='version', version='codecov '+version+" - https://codecov.io")
     parser.add_argument('--commit', default=defaults.pop('commit'), help="commit ref")
+    parser.add_argument('--dir', help="extra path when sending reports")
     parser.add_argument('--min-coverage', default="0", help="min coverage goal, otherwise build fails")
     parser.add_argument('--branch', default=defaults.pop('branch'), help="commit branch name")
     parser.add_argument('--token', '-t', default=os.getenv("CODECOV_TOKEN"), help="codecov repository token")
