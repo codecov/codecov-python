@@ -124,7 +124,7 @@ github.com/codecov/sample_go/sample_go.go:15.19,17.2 1 0
         try:
             subprocess.check_output("python -m codecov.__init__ --min-coverage=90", shell=True)
         except subprocess.CalledProcessError as e:
-            self.assertEqual(e.returncode, 256)
+            self.assertEqual(e.returncode, 1)
         else:
             raise AssertionError("Process exited with 0 status code")
 
