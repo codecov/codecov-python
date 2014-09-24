@@ -15,6 +15,12 @@ from xml.dom.minidom import parseString
 
 version = VERSION = __version__ = '0.3.2'
 
+# Add xrange variable to Python 3
+try:
+    xrange
+except NameError:
+    xrange = range
+
 def from_file(path):
     try:
         with open(path, 'r') as f:
