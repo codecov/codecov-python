@@ -7,7 +7,10 @@ import commands
 import requests
 import argparse
 from json import dumps
-from urllib import urlencode
+try:
+    from urllib.parse import urlencode
+except ImportError:
+    from urllib import urlencode
 from xml.dom.minidom import parseString
 
 version = VERSION = __version__ = '0.3.2'
