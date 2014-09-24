@@ -36,7 +36,7 @@ class TestUploader(unittest.TestCase):
     def test_pass_5(self): self.passed(self.upload(dir="other/folder"))
 
     def test_fail_1(self): self.failed(self.upload(report=""), "error no coverage report found, could not upload to codecov")
-    def test_fail_2(self): self.failed(self.upload(token=""), "travis_job_id or token are required")
+    def test_fail_2(self): self.failed(self.upload(token=""), "missing token or other required argument(s)")
     def test_fail_3(self): self.failed(self.upload(travis_job_id="12125215", token=""), "travis job commit and upload commit do not match")
     def test_fail_4(self): self.failed(self.upload(commit=""), "commit hash is required")
     def test_fail_5(self): self.failed(self.upload(branch=""), "branch is required")
@@ -94,9 +94,12 @@ github.com/codecov/sample_go/sample_go.go:15.19,17.2 1 0
 
     def test_circleci(self):
         os.environ['CIRCLECI'] = 'true'
-        os.environ['CIRCLE_BRANCH'] = "master"
+        os.environ['CIRCLE_BRANCH'] = "add-django-tests"
+        os.environ['CIRCLE_PROJECT_USERNAME'] = "FreeMusicNinja"
+        os.environ['CIRCLE_PROJECT_REPONAME'] = "freemusic.ninja"
+        os.environ['CIRCLE_BUILD_NUM'] = "57"
         os.environ['CIRCLE_ARTIFACTS'] = os.path.join(os.path.dirname(__file__), "xml/")
-        os.environ['CIRCLE_SHA1'] = "743b04806ea677403aa2ff26c6bdeb85005de658"
+        os.environ['CIRCLE_SHA1'] = "d653b934ed59c1a785cc1cc79d08c9aaa4eba73b"
         os.environ['CODECOV_TOKEN'] = '473c8c5b-10ee-4d83-86c6-bfd72a185a27'
         self.passed(self.command())
 
@@ -165,7 +168,7 @@ github.com/codecov/sample_go/sample_go.go:15.19,17.2 1 0
         if toserver.get('commit'):
             self.assertIn('github/codecov/ci-repo?ref=%s'%toserver['commit'], fromserver['url'])
         else:
-            self.assertRegexpMatches(fromserver['url'], r'/github/codecov/ci-repo\?ref=[a-z\d]{40}')
+            self.assertRegexpMatches(fromserver['url'], r'/(github|bitbucket)/[\w\-\.]+/[\w\-\.]+\?ref=[a-z\d]{40}')
         self.assertEqual(fromserver['message'], 'Coverage reports upload successfully')
 
     def failed(self, result, why):

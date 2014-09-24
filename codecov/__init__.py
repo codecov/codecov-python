@@ -13,7 +13,7 @@ except ImportError:
     from urllib import urlencode
 from xml.dom.minidom import parseString
 
-version = VERSION = __version__ = '0.3.4'
+version = VERSION = __version__ = '0.4.0'
 
 # Add xrange variable to Python 3
 try:
@@ -162,7 +162,8 @@ def upload(report, url, path=None, **kwargs):
         args.update(kwargs)
         assert args.get('branch') not in ('', None), "branch is required"
         assert args.get('commit') not in ('', None), "commit hash is required"
-        assert (args.get('travis_job_id') or args.get('token')) not in (None, ''), "travis_job_id or token are required"
+        assert (args.get('travis_job_id') or args.get('build_id') or args.get('token')) not in (None, ''), \
+               "missing token or other required argument(s)"
 
         if report is not None:
             coverage = from_file(report)
@@ -192,6 +193,7 @@ def main(*argv):
     if os.getenv('CI') == "true" and os.getenv('TRAVIS') == "true":
         # http://docs.travis-ci.com/user/ci-environment/#Environment-variables
         defaults.update(dict(branch=os.getenv('TRAVIS_BRANCH'),
+                             service='travis-org',
                              pull_request=os.getenv('TRAVIS_PULL_REQUEST') if os.getenv('TRAVIS_PULL_REQUEST')!='false' else '',
                              travis_job_id=os.getenv('TRAVIS_JOB_ID'),
                              path=os.getenv('TRAVIS_BUILD_DIR'),
@@ -211,6 +213,10 @@ def main(*argv):
     elif os.getenv('CI') == "true" and os.getenv('CIRCLECI') == 'true':
         # https://circleci.com/docs/environment-variables
         defaults.update(dict(branch=os.getenv('CIRCLE_BRANCH'),
+                             service='circleci',
+                             owner=os.getenv('CIRCLE_PROJECT_USERNAME'),
+                             repo=os.getenv('CIRCLE_PROJECT_REPONAME'),
+                             build_id=os.getenv('CIRCLE_BUILD_NUM'),
                              path=os.getenv('CIRCLE_ARTIFACTS'),
                              commit=os.getenv('CIRCLE_SHA1')))
 
