@@ -35,7 +35,7 @@ def from_path(path):
     except:
         pass
 
-    for f in ('coverage.xml', 'coverage.txt', "target/scala-2.10/coverage-report/cobertura.xml"):
+    for f in (os.getcwd(), 'coverage.xml', 'coverage.txt', "target/scala-2.10/coverage-report/cobertura.xml"):
         result = from_file(os.path.join(path, f))
         if result:
             return result
