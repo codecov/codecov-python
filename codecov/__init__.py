@@ -10,7 +10,7 @@ from json import dumps
 from urllib import urlencode
 from xml.dom.minidom import parseString
 
-version = VERSION = __version__ = '0.4.0'
+version = VERSION = __version__ = '0.3.4'
 
 def from_file(path):
     try:
