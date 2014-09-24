@@ -162,7 +162,7 @@ def upload(report, url, path=None, **kwargs):
 
         assert coverage, "error no coverage report found, could not upload to codecov"
         
-        url = "%s/upload/v1?%s" % (url, urlencode(dict([(k, v) for k, v in kwargs.items() if v is not None])))
+        url = "%s/upload/v1?%s" % (url, urlencode(dict([(k, v.strip()) for k, v in kwargs.items() if v is not None])))
         result = requests.post(url, headers={"Content-Type": "application/json"}, data=dumps(coverage))
         return result.json()
 
