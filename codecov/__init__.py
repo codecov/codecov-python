@@ -179,6 +179,7 @@ def upload(report, url, path=None, **kwargs):
 
         url = "%s/upload/v1?%s" % (url, urlencode(dict([(k, v.strip()) for k, v in kwargs.items() if v is not None])))
         result = requests.post(url, headers={"Content-Type": "application/json"}, data=dumps(coverage))
+        result.raise_for_status()
         return result.json()
 
     except AssertionError as e:
