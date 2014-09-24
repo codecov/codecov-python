@@ -31,15 +31,11 @@ def from_file(path):
 def from_path(path):
     try:
         # python only
-        print 'create file'
         subprocess.check_output('coverage xml', shell=True)
-        print 'end file'
     except Exception as e:
-        print type(e), str(e)
         pass
 
-    for f in (os.getcwd(), 'coverage.xml', 'coverage.txt', "target/scala-2.10/coverage-report/cobertura.xml"):
-        print 'trying at file', os.path.join(path, f), os.path.exists(os.path.join(path, f))
+    for f in ('coverage.xml', 'coverage.txt', "target/scala-2.10/coverage-report/cobertura.xml"):
         if os.path.exists(os.path.join(path, f)):
             result = from_file(os.path.join(path, f))
             if result:
@@ -222,7 +218,6 @@ def main(*argv):
                              owner=os.getenv('CIRCLE_PROJECT_USERNAME'),
                              repo=os.getenv('CIRCLE_PROJECT_REPONAME'),
                              build_id=os.getenv('CIRCLE_BUILD_NUM'),
-                             path=os.getenv('CIRCLE_ARTIFACTS'),
                              commit=os.getenv('CIRCLE_SHA1')))
 
     # ---------
@@ -231,7 +226,7 @@ def main(*argv):
     elif os.getenv('CI') == "true" and os.getenv('SEMAPHORE') == "true":
         # https://semaphoreapp.com/docs/available-environment-variables.html
         defaults.update(dict(branch=os.getenv('BRANCH_NAME'),
-                             path=os.getenv('SEMAPHORE_PROJECT_DIR'),
+                             # path=os.getenv('SEMAPHORE_PROJECT_DIR'),
                              commit=os.getenv('SEMAPHORE_PROJECT_HASH_ID')))
     # --------
     # drone.io
@@ -239,7 +234,7 @@ def main(*argv):
     elif os.getenv('CI') == "true" and os.getenv('DRONE') == "true":
         # https://semaphoreapp.com/docs/available-environment-variables.html
         defaults.update(dict(branch=os.getenv('DRONE_BRANCH'),
-                             path=os.getenv('DRONE_BUILD_DIR'),
+                             # path=os.getenv('DRONE_BUILD_DIR'),
                              commit=os.getenv('DRONE_COMMIT')))
 
     # ---
