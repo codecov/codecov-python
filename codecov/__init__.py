@@ -31,14 +31,19 @@ def from_file(path):
 def from_path(path):
     try:
         # python only
+        print 'create file'
         subprocess.check_output('coverage xml', shell=True)
-    except:
+        print 'end file'
+    except Exception as e:
+        print type(e), str(e)
         pass
 
     for f in (os.getcwd(), 'coverage.xml', 'coverage.txt', "target/scala-2.10/coverage-report/cobertura.xml"):
-        result = from_file(os.path.join(path, f))
-        if result:
-            return result
+        print 'trying at file', os.path.join(path, f), os.path.exists(os.path.join(path, f))
+        if os.path.exists(os.path.join(path, f)):
+            result = from_file(os.path.join(path, f))
+            if result:
+                return result
 
 def to_json(report):
     if report.startswith('mode: count'):
@@ -272,6 +277,7 @@ def main(*argv):
 
 def cli():
     data, min_coverage = main()
+    data['version'] = version
     sys.stdout.write(dumps(data)+"\n")
     if int(data['coverage']) >= min_coverage:
         sys.exit(0)
