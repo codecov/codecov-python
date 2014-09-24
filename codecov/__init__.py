@@ -35,10 +35,11 @@ def from_path(path):
     except:
         pass
 
-    for f in (os.getcwd(), 'coverage.xml', 'coverage.txt', "target/scala-2.10/coverage-report/cobertura.xml"):
-        result = from_file(os.path.join(path, f))
-        if result:
-            return result
+    for f in ('coverage.xml', 'coverage.txt', "target/scala-2.10/coverage-report/cobertura.xml"):
+        if os.path.exists(os.path.join(path, f)):
+            result = from_file(os.path.join(path, f))
+            if result:
+                return result
 
 def to_json(report):
     if report.startswith('mode: count'):
@@ -218,7 +219,6 @@ def main(*argv):
                              owner=os.getenv('CIRCLE_PROJECT_USERNAME'),
                              repo=os.getenv('CIRCLE_PROJECT_REPONAME'),
                              build_id=os.getenv('CIRCLE_BUILD_NUM'),
-                             path=os.getenv('CIRCLE_ARTIFACTS'),
                              commit=os.getenv('CIRCLE_SHA1')))
 
     # ---------
@@ -227,7 +227,7 @@ def main(*argv):
     elif os.getenv('CI') == "true" and os.getenv('SEMAPHORE') == "true":
         # https://semaphoreapp.com/docs/available-environment-variables.html
         defaults.update(dict(branch=os.getenv('BRANCH_NAME'),
-                             path=os.getenv('SEMAPHORE_PROJECT_DIR'),
+                             # path=os.getenv('SEMAPHORE_PROJECT_DIR'),
                              commit=os.getenv('SEMAPHORE_PROJECT_HASH_ID')))
     # --------
     # drone.io
@@ -235,7 +235,7 @@ def main(*argv):
     elif os.getenv('CI') == "true" and os.getenv('DRONE') == "true":
         # https://semaphoreapp.com/docs/available-environment-variables.html
         defaults.update(dict(branch=os.getenv('DRONE_BRANCH'),
-                             path=os.getenv('DRONE_BUILD_DIR'),
+                             # path=os.getenv('DRONE_BUILD_DIR'),
                              commit=os.getenv('DRONE_COMMIT')))
 
     # ---
@@ -273,6 +273,7 @@ def main(*argv):
 
 def cli():
     data, min_coverage = main()
+    data['version'] = version
     sys.stdout.write(dumps(data)+"\n")
     if int(data['coverage']) >= min_coverage:
         sys.exit(0)
