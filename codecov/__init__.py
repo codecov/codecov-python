@@ -13,7 +13,7 @@ except ImportError:
     from urllib import urlencode
 from xml.dom.minidom import parseString
 
-version = VERSION = __version__ = '0.4.0'
+version = VERSION = __version__ = '0.4.1'
 
 # Add xrange variable to Python 3
 try:
@@ -163,7 +163,7 @@ def upload(report, url, path=None, **kwargs):
         args.update(kwargs)
         assert args.get('branch') not in ('', None), "branch is required"
         assert args.get('commit') not in ('', None), "commit hash is required"
-        assert (args.get('travis_job_id') or args.get('build_id') or args.get('token')) not in (None, ''), \
+        assert (args.get('travis_job_id') or args.get('job') or args.get('token')) not in (None, ''), \
                "missing token or other required argument(s)"
 
         if report is not None:
@@ -196,6 +196,7 @@ def main(*argv):
         # http://docs.travis-ci.com/user/ci-environment/#Environment-variables
         defaults.update(dict(branch=os.getenv('TRAVIS_BRANCH'),
                              service='travis-org',
+                             build=os.getenv('TRAVIS_JOB_NUMBER'),
                              pull_request=os.getenv('TRAVIS_PULL_REQUEST') if os.getenv('TRAVIS_PULL_REQUEST')!='false' else '',
                              travis_job_id=os.getenv('TRAVIS_JOB_ID'),
                              path=os.getenv('TRAVIS_BUILD_DIR'),
@@ -207,8 +208,8 @@ def main(*argv):
     elif os.getenv('CI') == "true" and os.getenv('CI_NAME') == 'codeship':
         # https://www.codeship.io/documentation/continuous-integration/set-environment-variables/
         defaults.update(dict(branch=os.getenv('CI_BRANCH'),
+                             build=os.getenv('CI_BUILD_NUMBER'),
                              commit=os.getenv('CI_COMMIT_ID')))
-
     # ---------
     # Circle CI
     # ---------
@@ -216,28 +217,26 @@ def main(*argv):
         # https://circleci.com/docs/environment-variables
         defaults.update(dict(branch=os.getenv('CIRCLE_BRANCH'),
                              service='circleci',
+                             build=os.getenv('CIRCLE_BUILD_NUM'),
                              owner=os.getenv('CIRCLE_PROJECT_USERNAME'),
                              repo=os.getenv('CIRCLE_PROJECT_REPONAME'),
-                             build_id=os.getenv('CIRCLE_BUILD_NUM'),
                              commit=os.getenv('CIRCLE_SHA1')))
-
     # ---------
     # Semaphore
     # ---------
     elif os.getenv('CI') == "true" and os.getenv('SEMAPHORE') == "true":
         # https://semaphoreapp.com/docs/available-environment-variables.html
         defaults.update(dict(branch=os.getenv('BRANCH_NAME'),
-                             # path=os.getenv('SEMAPHORE_PROJECT_DIR'),
+                             build=os.getenv('SEMAPHORE_BUILD_NUMBER'),
                              commit=os.getenv('SEMAPHORE_PROJECT_HASH_ID')))
     # --------
     # drone.io
     # --------
     elif os.getenv('CI') == "true" and os.getenv('DRONE') == "true":
-        # https://semaphoreapp.com/docs/available-environment-variables.html
+        # http://docs.drone.io/env.html
         defaults.update(dict(branch=os.getenv('DRONE_BRANCH'),
-                             # path=os.getenv('DRONE_BUILD_DIR'),
+                             build=os.getenv('BUILD_ID'),
                              commit=os.getenv('DRONE_COMMIT')))
-
     # ---
     # git
     # ---

@@ -90,17 +90,20 @@ github.com/codecov/sample_go/sample_go.go:15.19,17.2 1 0
         os.environ['TRAVIS_COMMIT'] = "c739768fcac68144a3a6d82305b9c4106934d31a"
         os.environ['TRAVIS_BUILD_DIR'] = os.path.join(os.path.dirname(__file__), "xml/")
         os.environ['TRAVIS_JOB_ID'] = "33116958"
+        os.environ['TRAVIS_JOB_NUMBER'] = "4.1"
         self.passed(self.command())
 
     def test_codeship(self):
         os.environ['CI_NAME'] = 'codeship'
         os.environ['CI_BRANCH'] = 'master'
+        os.environ['CI_BUILD_NUMBER'] = '20'
         os.environ['CI_COMMIT_ID'] = '743b04806ea677403aa2ff26c6bdeb85005de658'
         os.environ['CODECOV_TOKEN'] = '473c8c5b-10ee-4d83-86c6-bfd72a185a27'
         self.passed(self.command(report=os.path.join(os.path.dirname(__file__), "xml/coverage.xml")))
 
     def test_circleci(self):
         os.environ['CIRCLECI'] = 'true'
+        os.environ['CIRCLE_BUILD_NUM'] = "40"
         os.environ['CIRCLE_BRANCH'] = "add-django-tests"
         os.environ['CIRCLE_PROJECT_USERNAME'] = "FreeMusicNinja"
         os.environ['CIRCLE_PROJECT_REPONAME'] = "freemusic.ninja"
@@ -112,12 +115,14 @@ github.com/codecov/sample_go/sample_go.go:15.19,17.2 1 0
     def test_semaphore(self):
         os.environ['SEMAPHORE'] = "true"
         os.environ['BRANCH_NAME'] = "master"
+        os.environ['SEMAPHORE_BUILD_NUMBER'] = "10"
         os.environ['SEMAPHORE_PROJECT_HASH_ID'] = "743b04806ea677403aa2ff26c6bdeb85005de658"
         os.environ['CODECOV_TOKEN'] = '473c8c5b-10ee-4d83-86c6-bfd72a185a27'
         self.passed(self.command(report=os.path.join(os.path.dirname(__file__), "xml/coverage.xml")))
 
     def test_drone(self):
         os.environ['DRONE'] = "true"
+        os.environ['BUILD_ID'] = "10"
         os.environ['DRONE_BRANCH'] = "master"
         os.environ['DRONE_COMMIT'] = "743b04806ea677403aa2ff26c6bdeb85005de658"
         os.environ['CODECOV_TOKEN'] = '473c8c5b-10ee-4d83-86c6-bfd72a185a27'
