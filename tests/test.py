@@ -76,7 +76,7 @@ github.com/codecov/sample_go/sample_go.go:15.19,17.2 1 0
         output = output.replace(b'\nCoverage.py warning: No data was collected.', b'')
         self.assertDictEqual(json.loads(output.decode('utf-8')), 
                              {"uploaded": True, 
-                              "version": "0.4.0", 
+                              "version": codecov.version, 
                               "url": "http://codecov.io/github/codecov/ci-repo?ref=c739768fcac68144a3a6d82305b9c4106934d31a", 
                               "message": "Coverage reports upload successfully", 
                               "coverage": 67})
@@ -152,7 +152,7 @@ github.com/codecov/sample_go/sample_go.go:15.19,17.2 1 0
         output = output.replace(b'\nCoverage.py warning: No data was collected.', b'')
         self.assertDictEqual(json.loads(output.decode('utf-8')), 
                              {"uploaded": True, 
-                              "version": "0.4.0", 
+                              "version": codecov.version, 
                               "url": "http://codecov.io/github/codecov/ci-repo?ref=c739768fcac68144a3a6d82305b9c4106934d31a", 
                               "message": "Coverage reports upload successfully", 
                               "coverage": 80})
