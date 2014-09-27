@@ -192,6 +192,17 @@ def upload(report, url, path=None, **kwargs):
 def main(*argv):
     defaults = dict(commit='', branch='', travis_job_id='', path=os.getcwd() if sys.argv else None, pull_request='', build_url='')
 
+    # -------
+    # Jenkins
+    # -------
+    if os.getenv('JENKINS_URL'):
+        # https://wiki.jenkins-ci.org/display/JENKINS/Building+a+software+project
+        defaults.update(dict(branch=os.getenv('GIT_BRANCH'),
+                             service='jenkins',
+                             commit=os.getenv('GIT_COMMIT'),
+                             build=os.getenv('BUILD_NUMBER'),
+                             path=os.getenv('WORKSPACE'),
+                             build_url=os.getenv('BUILD_URL')))
     # ---------
     # Travis CI
     # ---------

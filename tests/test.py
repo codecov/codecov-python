@@ -87,6 +87,15 @@ github.com/codecov/sample_go/sample_go.go:15.19,17.2 1 0
     def test_console(self): 
         self.passed(self.command(**self.basics()))
 
+    def test_jenkins(self): 
+        os.environ['JENKINS_URL'] = "https://...."
+        os.environ['GIT_BRANCH'] = "master"
+        os.environ['GIT_COMMIT'] = "c739768fcac68144a3a6d82305b9c4106934d31a"
+        os.environ['WORKSPACE'] = os.path.join(os.path.dirname(__file__), "xml/")
+        os.environ['BUILD_NUMBER'] = "41"
+        os.environ['CODECOV_TOKEN'] = '473c8c5b-10ee-4d83-86c6-bfd72a185a27'
+        self.passed(self.command())
+
     def test_travis(self): 
         os.environ['TRAVIS'] = "true"
         os.environ['TRAVIS_BRANCH'] = "master"
