@@ -178,6 +178,9 @@ def upload(report, url, path=None, **kwargs):
             # cd some_folder && codecov --append=some_folder
             coverage['meta']['path'] = kwargs.pop('append_path')
 
+        if kwargs.get('build_url'):
+            coverage['meta']['build_url'] = kwargs.pop('build_url')
+
         url = "%s/upload/v1?%s" % (url, urlencode(dict([(k, v.strip()) for k, v in kwargs.items() if v is not None])))
         result = requests.post(url, headers={"Content-Type": "application/json"}, data=dumps(coverage))
         result.raise_for_status()
@@ -187,28 +190,31 @@ def upload(report, url, path=None, **kwargs):
         return dict(message=str(e), uploaded=False, coverage=0)
 
 def main(*argv):
-    defaults = dict(commit='', branch='', travis_job_id='', path=os.getcwd() if sys.argv else None, pull_request='')
+    defaults = dict(commit='', branch='', travis_job_id='', path=os.getcwd() if sys.argv else None, pull_request='', build_url='')
 
     # ---------
     # Travis CI
     # ---------
-    if os.getenv('CI') == "true" and os.getenv('TRAVIS') == "true":
+    elif os.getenv('CI') == "true" and os.getenv('TRAVIS') == "true":
         # http://docs.travis-ci.com/user/ci-environment/#Environment-variables
         defaults.update(dict(branch=os.getenv('TRAVIS_BRANCH'),
                              service='travis-org',
                              build=os.getenv('TRAVIS_JOB_NUMBER'),
                              pull_request=os.getenv('TRAVIS_PULL_REQUEST') if os.getenv('TRAVIS_PULL_REQUEST')!='false' else '',
                              travis_job_id=os.getenv('TRAVIS_JOB_ID'),
+                             owner=os.getenv('TRAVIS_REPO_SLUG').split('/',1)[0],
+                             repo=os.getenv('TRAVIS_REPO_SLUG').split('/',1)[1],
                              path=os.getenv('TRAVIS_BUILD_DIR'),
                              commit=os.getenv('TRAVIS_COMMIT')))
-
     # --------
     # Codeship
     # --------
     elif os.getenv('CI') == "true" and os.getenv('CI_NAME') == 'codeship':
         # https://www.codeship.io/documentation/continuous-integration/set-environment-variables/
         defaults.update(dict(branch=os.getenv('CI_BRANCH'),
+                             service='codeship',
                              build=os.getenv('CI_BUILD_NUMBER'),
+                             build_url=os.getenv('CI_BUILD_URL'),
                              commit=os.getenv('CI_COMMIT_ID')))
     # ---------
     # Circle CI
@@ -227,7 +233,10 @@ def main(*argv):
     elif os.getenv('CI') == "true" and os.getenv('SEMAPHORE') == "true":
         # https://semaphoreapp.com/docs/available-environment-variables.html
         defaults.update(dict(branch=os.getenv('BRANCH_NAME'),
+                             service='semaphore',
                              build=os.getenv('SEMAPHORE_BUILD_NUMBER'),
+                             owner=os.getenv('SEMAPHORE_REPO_SLUG').split('/',1)[0],
+                             repo=os.getenv('SEMAPHORE_REPO_SLUG').split('/',1)[1],
                              commit=os.getenv('SEMAPHORE_PROJECT_HASH_ID')))
     # --------
     # drone.io
@@ -235,7 +244,9 @@ def main(*argv):
     elif os.getenv('CI') == "true" and os.getenv('DRONE') == "true":
         # http://docs.drone.io/env.html
         defaults.update(dict(branch=os.getenv('DRONE_BRANCH'),
+                             service='drone.io',
                              build=os.getenv('BUILD_ID'),
+                             build_url=os.getenv('DRONE_BUILD_URL'),
                              commit=os.getenv('DRONE_COMMIT')))
     # ---
     # git
