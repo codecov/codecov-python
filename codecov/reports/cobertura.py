@@ -1,4 +1,4 @@
-def from_xml(xml):
+def from_xml(xml, path=None):
     coverage, branches = {}, {}
     package = xml.getElementsByTagName('coverage')[0]
     coverage.update(dict(map(_line, package.getElementsByTagName('class'))))

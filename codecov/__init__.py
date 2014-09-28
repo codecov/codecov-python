@@ -22,10 +22,10 @@ except NameError:
 
 import reports
 
-def from_file(path):
+def from_file(path, root=None):
     try:
         with open(path, 'r') as f:
-            result = to_json(f.read())
+            result = to_json(f.read(), root)
             result['meta']['version'] = "codecov-python/v%s"%VERSION
             return result
     except IOError:
@@ -40,20 +40,18 @@ def from_path(path):
 
     accepting = set(('coverage.xml', 'coverage.txt', 'cobertura.xml', 'jacoco.xml'))
     for root, dirs, files in os.walk(path):
-        print "\033[92m....\033[0m", files
+        print "\033[92m....\033[0m", root, dirs, files
         if files and accepting & set(files):
-            print "\033[93m....\033[0m", files
             for f in files:
                 if f in accepting:
-                    print "\033[94m....\033[0m", os.path.join(root, f)
-                    result = from_file(os.path.join(root, f))
+                    result = from_file(os.path.join(root, f), path)
                     if result:
                         return result
 
-def to_json(report):
+def to_json(report, path):
     if report.startswith('mode: count'):
         # golang
-        return reports.go.from_txt(report)
+        return reports.go.from_txt(report, path)
     elif report.startswith('<?xml'):
         # xml
         xml = parseString(report)
@@ -61,14 +59,14 @@ def to_json(report):
         if coverage:
             if coverage[0].getAttribute('generated'):
                 # clover (php)
-                return reports.clover.from_xml(xml)
+                return reports.clover.from_xml(xml, path)
             else:
                 # cobertura (python)
-                return reports.cobertura.from_xml(xml)
+                return reports.cobertura.from_xml(xml, path)
                 
         elif xml.getElementsByTagName('sourcefile'):
             # jacoco
-            return reports.jacoco.from_xml(xml)
+            return reports.jacoco.from_xml(xml, path)
 
     # send to https://codecov.io/upload/unknown
     raise ValueError('sorry, unrecognized report') 
@@ -84,7 +82,7 @@ def upload(report, url, path=None, **kwargs):
                "missing token or other required argument(s)"
 
         if report is not None:
-            coverage = from_file(report)
+            coverage = from_file(report, path)
         else:
             coverage = from_path(path)
 
