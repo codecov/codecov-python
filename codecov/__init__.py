@@ -31,8 +31,10 @@ def from_file(path, root=None):
     except IOError:
         return None
 
-def from_path(path, _and_build=True):
-    # (java) mvn does not create coverage reports automatically, maybe the user did...
+def from_path(path):
+    # (python)
+    try_to_run('coverage xml')
+
     accepting = set(('coverage.xml', 'coverage.txt', 'cobertura.xml', 'jacoco.xml'))
     for root, dirs, files in os.walk(path):
         if files and accepting & set(files):
@@ -42,19 +44,11 @@ def from_path(path, _and_build=True):
                     if result:
                         return result
 
-    if _and_build:
-        # (java)
-        try_to_run('mvn clean test')
-        # (python)
-        try_to_run('coverage xml')
-        return from_path(path, False)
-
 def try_to_run(cmd):
     try:
         subprocess.check_output(cmd, shell=True)
     except:
         pass
-
 
 def to_json(report, path):
     if report.startswith('mode: count'):
