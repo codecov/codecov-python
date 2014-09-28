@@ -43,15 +43,17 @@ def from_path(path, _and_build=True):
                         return result
 
     if _and_build:
-        try:
-            # (python)
-            subprocess.check_output('coverage xml', shell=True)
-            # (java)
-            subprocess.check_output('mvn clean test', shell=True)
-        except:
-            pass
-        finally:
-            return from_path(path, False)
+        # (java)
+        try_to_run('mvn clean test')
+        # (python)
+        try_to_run('coverage xml')
+        return from_path(path, False)
+
+def try_to_run(cmd):
+    try:
+        subprocess.check_output(cmd, shell=True)
+    except:
+        pass
 
 
 def to_json(report, path):
