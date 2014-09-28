@@ -12,7 +12,7 @@ except ImportError:
     from urllib import urlencode
 from xml.dom.minidom import parseString
 
-version = VERSION = __version__ = '0.5.0'
+version = VERSION = __version__ = '0.5.1'
 
 # Add xrange variable to Python 3
 try:
