@@ -35,11 +35,21 @@ def from_path(path):
     except:
         pass
 
-    for f in ('coverage.xml', 'coverage.txt', "target/scala-2.10/coverage-report/cobertura.xml"):
+    for f in ('coverage.xml', 'coverage.txt'):
         if os.path.exists(os.path.join(path, f)):
             result = from_file(os.path.join(path, f))
             if result:
                 return result
+     # walk through scala targets
+    if os.path.exists(os.path.join(path, "./target/")):
+        for root, dirs, files in os.walk(os.path.join(path, "./target/")):
+            for name in dirs:
+                p = os.path.join(path, "./target/", name, "/coverage-report/cobertura.xml")
+                if os.path.exists(p):
+                    result = from_file(p)
+                    if result:
+                        return result
+
 
 def to_json(report):
     if report.startswith('mode: count'):
