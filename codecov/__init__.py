@@ -89,7 +89,7 @@ def upload(report, url, path=None, **kwargs):
 
         if kwargs.get('append_path'):
             # in case you do this:
-            # cd some_folder && codecov --append=some_folder
+            # cd some_folder && codecov --path=some_folder
             coverage['meta']['path'] = kwargs.pop('append_path')
 
         if kwargs.get('build_url'):
