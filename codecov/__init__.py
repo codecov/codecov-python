@@ -40,9 +40,12 @@ def from_path(path):
 
     accepting = set(('coverage.xml', 'coverage.txt', 'cobertura.xml', 'jacoco.xml'))
     for root, dirs, files in os.walk(path):
+        print "\033[92m....\033[0m", files
         if files and accepting & set(files):
+            print "\033[93m....\033[0m", files
             for f in files:
                 if f in accepting:
+                    print "\033[94m....\033[0m", os.path.join(root, f)
                     result = from_file(os.path.join(root, f))
                     if result:
                         return result
