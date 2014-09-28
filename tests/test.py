@@ -59,14 +59,21 @@ class TestUploader(unittest.TestCase):
         self.assertDictEqual(report["coverage"], compare["coverage"])
         self.assertDictEqual(report["meta"], compare["meta"])
 
+    def test_jacoco_xml(self):
+        report = codecov.from_file(os.path.join(os.path.dirname(__file__), 'xml/jacoco.xml'))
+        with open(os.path.join(os.path.dirname(__file__), 'json/jacoco.json')) as f:
+            compare = json.loads(f.read()%codecov.version)
+        print "\033[92m....\033[0m", report, compare
+        self.assertDictEqual(report, compare)
+
     def test_golang(self):
-        result = codecov._golang_txt("""mode: count
+        result = codecov.reports.go.from_txt("""mode: count
 github.com/codecov/sample_go/sample_go.go:7.14,9.2 1 1
 github.com/codecov/sample_go/sample_go.go:11.26,13.2 1 1
 github.com/codecov/sample_go/sample_go.go:15.19,17.2 1 0
 """)
         self.assertDictEqual(result, dict(coverage={"github.com/codecov/sample_go/sample_go.go":[None, None, None, None, None, None, None, 1, 1, 1, None, 1, 1, 1, None, 0, 0, 0]},
-                                          meta=dict(package="coverage/go", version="codecov-python/v%s"%codecov.VERSION)))
+                                          meta=dict(report="go.txt")))
 
         os.environ['TRAVIS'] = "true"
         os.environ['TRAVIS_BRANCH'] = "master"

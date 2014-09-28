@@ -1,6 +1,5 @@
 #!/usr/bin/python
 
-import re
 import os
 import sys
 import subprocess
@@ -21,10 +20,14 @@ try:
 except NameError:
     xrange = range
 
+import reports
+
 def from_file(path):
     try:
         with open(path, 'r') as f:
-            return to_json(f.read())
+            result = to_json(f.read())
+            result['meta']['version'] = "codecov-python/v%s"%VERSION
+            return result
     except IOError:
         return None
 
@@ -35,137 +38,38 @@ def from_path(path):
     except:
         pass
 
-    for f in ('coverage.xml', 'coverage.txt'):
-        if os.path.exists(os.path.join(path, f)):
-            result = from_file(os.path.join(path, f))
-            if result:
-                return result
-
-    # walk around to find it
-    if os.path.exists(os.path.join(path)):
-        for name in os.listdir(os.path.join(path, "./target/")):
-            p = os.path.join(path, "./target/", name, "./coverage-report/cobertura.xml")
-            if os.path.exists(p):
-                result = from_file(p)
-                if result:
-                    return result
-
+    accepting = set(('coverage.xml', 'coverage.txt', 'cobertura.xml', 'jacoco.xml'))
+    for root, dirs, files in os.walk(path):
+        if files and accepting & set(files):
+            for f in files:
+                if f in accepting:
+                    result = from_file(os.path.join(root, f))
+                    if result:
+                        return result
 
 def to_json(report):
     if report.startswith('mode: count'):
         # golang
-        return _golang_txt(report)
-    else:
-        coverage = parseString(report).getElementsByTagName('coverage')[0]
-        if coverage.getAttribute('generated'):
-            # clover (php)
-            return dict(meta=dict(package="coverage/clover", version="codecov-python/v%s"%VERSION),
-                        coverage=dict(map(_clover_xml, coverage.getElementsByTagName('file'))))
-        else:
-            # cobertura (python)
-            report = dict(meta=dict(package="coverage/v%s"%coverage.getAttribute('version'), version="codecov-python/v%s"%VERSION),
-                          stats=dict(branches={}), coverage={})
-            for package in coverage.getElementsByTagName('package'):
-                report['stats']['branches'].update(dict(map(_branches, coverage.getElementsByTagName('class'))))
-                report['coverage'].update(dict(map(_cobertura_xml, coverage.getElementsByTagName('class'))))
-            return report
+        return reports.go.from_txt(report)
+    elif report.startswith('<?xml'):
+        # xml
+        xml = parseString(report)
+        coverage = xml.getElementsByTagName('coverage')
+        if coverage:
+            if coverage[0].getAttribute('generated'):
+                # clover (php)
+                return reports.clover.from_xml(xml)
+            else:
+                # cobertura (python)
+                return reports.cobertura.from_xml(xml)
+                
+        elif xml.getElementsByTagName('sourcefile'):
+            # jacoco
+            return reports.jacoco.from_xml(xml)
 
-def _golang_txt(report):
-    """
-    mode: count
-    github.com/codecov/sample_go/sample_go.go:7.14,9.2 1 1
-    github.com/codecov/sample_go/sample_go.go:11.26,13.2 1 1
-    github.com/codecov/sample_go/sample_go.go:15.19,17.2 1 0
-    """
-    pattern = re.compile(r"(?P<name>[^\:]+)\:(?P<start>\d+)\.\d+\,(?P<end>\d+)\.\d+\s\d+\s(?P<hits>\d+)")
-    fill = lambda l,x: l.extend([None]*(x-len(l)))
-    files = dict()
-    for line in report.split('\n')[1:]:
-        result = pattern.search(line)
-        if result:
-            data = result.groupdict()
-            fill(files.setdefault(data['name'], []), int(data['end'])+1)
-            for x in xrange(int(data['start']), int(data['end'])+1):
-                files[data['name']][x] = int(data['hits'])
-    return dict(coverage=files, meta=dict(package="coverage/go", version="codecov-python/v%s"%VERSION))
+    # send to https://codecov.io/upload/unknown
+    raise ValueError('sorry, unrecognized report') 
 
-def _clover_xml(_class):
-    """ex.
-    <file name="/Users/peak/Documents/codecov/codecov-php/src/Codecov/Coverage.php">
-      <class name="Coverage" namespace="Codecov">
-        <metrics methods="1" coveredmethods="0" conditionals="0" coveredconditionals="0" statements="4" coveredstatements="1" elements="5" coveredelements="1"/>
-      </class>
-      <line num="5" type="method" name="send" crap="154.69" count="1"/>
-      <line num="8" type="stmt" count="1"/>
-      <line num="18" type="stmt" count="0"/>
-      <line num="19" type="stmt" count="0"/>
-      <line num="20" type="stmt" count="0"/>
-      <metrics loc="83" ncloc="59" classes="1" methods="1" coveredmethods="0" conditionals="0" coveredconditionals="0" statements="4" coveredstatements="1" elements="5" coveredelements="1"/>
-    </file>
-    """
-    _lines = _class.getElementsByTagName('line')
-    if not _lines:
-        return _class.getAttribute('file'), []
-
-    lines = [None]*(max([int(line.getAttribute('num')) for line in  _lines])+1)
-    for line in _lines:
-        lines[int(line.getAttribute('num'))] = int(line.getAttribute('count') or 0)
-
-    return _class.getAttribute('name'), lines
-
-def _cobertura_xml(_class):
-    """
-    Lines Covered
-    =============
-
-    <class branch-rate="0" complexity="0" filename="file.py" line-rate="1" name="module">
-        <methods/>
-        <lines>
-            <line hits="1" number="1"/>
-            <line branch="true" condition-coverage="100% (2/2)" hits="1" number="2"/>
-            <line branch="true" condition-coverage="500% (1/2)" hits="1" number="3"/>
-            <line hits="0" number="4"/>
-        </lines>
-    </class>
-
-    {
-        "file.py": [None, 1, True, 0]
-    }
-    """
-    # available: branch
-    _lines = _class.getElementsByTagName('line')
-    if not _lines:
-        return _class.getAttribute('filename'), []
-
-    lines = [None]*(max([int(line.getAttribute('number')) for line in  _lines])+1)
-    for line in _lines:
-        cc = str(line.getAttribute('condition-coverage'))
-        lines[int(line.getAttribute('number'))] = True if cc and '100%' not in cc else int(line.getAttribute('hits') or 0)
-
-    return _class.getAttribute('filename'), lines
-
-def _branches(_class):
-    """
-    How many branches found
-    =======================
-
-    <class branch-rate="0" complexity="0" filename="file.py" line-rate="1" name="module">
-        <methods/>
-        <lines>
-            <line hits="1" number="1"/>
-            <line branch="true" condition-coverage="100% (2/2)" hits="1" number="2"/>
-            <line branch="true" condition-coverage="500% (1/2)" hits="1" number="3"/>
-            <line hits="0" number="4"/>
-        </lines>
-    </class>
-
-    {
-        "file.py": 2
-    }
-    """
-    return _class.getAttribute('filename'), sum(map(lambda l: int(l.getAttribute('condition-coverage').split('/')[1][:-1]), 
-                                                    filter(lambda l: l.getAttribute('branch')=='true', 
-                                                           _class.getElementsByTagName('line'))))
 
 def upload(report, url, path=None, **kwargs):
     try:

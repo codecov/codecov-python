@@ -17,7 +17,7 @@
         "tests/test_with.py": [null, 1, 1, null, 1, null, null, 1, 1, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 1, null, 1, 1, null, 1, 1, null, 1, 1, null, 1, 1, null, 1, 1, null, null, 1, 1, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 1, null, 1, 1, null, 1, 1, null, 1, 1, null, 1, 1, null, 1, 1]
     },
     "meta": {
-        "package": "coverage/v3.7.1",
+        "report": "cobertura.xml",
         "version": "codecov-python/v%s"
     },
     "stats": {

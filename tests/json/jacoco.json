@@ -1,0 +1,23 @@
+{
+ "meta": {
+   "report": "jacoco.xml", 
+   "version": "codecov-python/v%s"
+ }, 
+ "stats": {
+   "classes": {
+     "org/jacoco/examples/maven/java/HelloWorld.java": 1
+   }, 
+   "branches": {
+     "org/jacoco/examples/maven/java/HelloWorld.java": 2
+   }, 
+   "methods": {
+     "org/jacoco/examples/maven/java/HelloWorld.java": 2
+   }, 
+   "instructions": {
+     "org/jacoco/examples/maven/java/HelloWorld.java": 9
+   }
+ }, 
+ "coverage": {
+   "org/jacoco/examples/maven/java/HelloWorld.java": [null, null, null, 3, null, null, true, 0, null, 2]
+ }
+}
