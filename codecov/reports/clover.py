@@ -1,4 +1,4 @@
-def from_xml(xml):
+def from_xml(xml, path=None):
     coverage = {}
     for f in xml.getElementsByTagName('coverage')[0].getElementsByTagName('file'):
         _lines = f.getElementsByTagName('line')

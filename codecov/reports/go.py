@@ -1,6 +1,6 @@
 import re
 
-def from_txt(report):
+def from_txt(report, path=None):
     """
     mode: count
     github.com/codecov/sample_go/sample_go.go:7.14,9.2 1 1

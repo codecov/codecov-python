@@ -22,50 +22,53 @@ except NameError:
 
 import reports
 
-def from_file(path):
+def from_file(path, root=None):
     try:
         with open(path, 'r') as f:
-            result = to_json(f.read())
+            result = to_json(f.read(), root)
             result['meta']['version'] = "codecov-python/v%s"%VERSION
             return result
     except IOError:
         return None
 
 def from_path(path):
-    try:
-        # python only
-        subprocess.check_output('coverage xml', shell=True)
-    except:
-        pass
+    # (python)
+    try_to_run('coverage xml')
 
     accepting = set(('coverage.xml', 'coverage.txt', 'cobertura.xml', 'jacoco.xml'))
     for root, dirs, files in os.walk(path):
         if files and accepting & set(files):
             for f in files:
                 if f in accepting:
-                    result = from_file(os.path.join(root, f))
+                    result = from_file(os.path.join(root, f), path)
                     if result:
                         return result
 
-def to_json(report):
+def try_to_run(cmd):
+    try:
+        subprocess.check_output(cmd, shell=True)
+    except:
+        pass
+
+def to_json(report, path):
     if report.startswith('mode: count'):
-        # golang
-        return reports.go.from_txt(report)
+        # (go)
+        return reports.go.from_txt(report, path)
     elif report.startswith('<?xml'):
         # xml
         xml = parseString(report)
         coverage = xml.getElementsByTagName('coverage')
         if coverage:
             if coverage[0].getAttribute('generated'):
-                # clover (php)
-                return reports.clover.from_xml(xml)
+                # (php) clover
+                return reports.clover.from_xml(xml, path)
             else:
-                # cobertura (python)
-                return reports.cobertura.from_xml(xml)
+                # (python+) cobertura
+                return reports.cobertura.from_xml(xml, path)
                 
         elif xml.getElementsByTagName('sourcefile'):
-            # jacoco
-            return reports.jacoco.from_xml(xml)
+            # (java+) jacoco
+            return reports.jacoco.from_xml(xml, path)
 
     # send to https://codecov.io/upload/unknown
     raise ValueError('sorry, unrecognized report') 
@@ -81,7 +84,7 @@ def upload(report, url, path=None, **kwargs):
                "missing token or other required argument(s)"
 
         if report is not None:
-            coverage = from_file(report)
+            coverage = from_file(report, path)
         else:
             coverage = from_path(path)
 
@@ -89,7 +92,7 @@ def upload(report, url, path=None, **kwargs):
 
         if kwargs.get('append_path'):
             # in case you do this:
-            # cd some_folder && codecov --append=some_folder
+            # cd some_folder && codecov --path=some_folder
             coverage['meta']['path'] = kwargs.pop('append_path')
 
         if kwargs.get('build_url'):
