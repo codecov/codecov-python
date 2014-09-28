@@ -31,16 +31,10 @@ def from_file(path, root=None):
     except IOError:
         return None
 
-def from_path(path):
-    try:
-        # python only
-        subprocess.check_output('coverage xml', shell=True)
-    except:
-        pass
-
+def from_path(path, _and_build=True):
+    # (java) mvn does not create coverage reports automatically, maybe the user did...
     accepting = set(('coverage.xml', 'coverage.txt', 'cobertura.xml', 'jacoco.xml'))
     for root, dirs, files in os.walk(path):
-        print "\033[92m....\033[0m", root, dirs, files
         if files and accepting & set(files):
             for f in files:
                 if f in accepting:
@@ -48,9 +42,21 @@ def from_path(path):
                     if result:
                         return result
 
+    if _and_build:
+        try:
+            # (python)
+            subprocess.check_output('coverage xml', shell=True)
+            # (java)
+            subprocess.check_output('mvn clean test', shell=True)
+        except:
+            pass
+        finally:
+            return from_path(path, False)
+
+
 def to_json(report, path):
     if report.startswith('mode: count'):
-        # golang
+        # (go)
         return reports.go.from_txt(report, path)
     elif report.startswith('<?xml'):
         # xml
@@ -58,14 +64,14 @@ def to_json(report, path):
         coverage = xml.getElementsByTagName('coverage')
         if coverage:
             if coverage[0].getAttribute('generated'):
-                # clover (php)
+                # (php) clover
                 return reports.clover.from_xml(xml, path)
             else:
-                # cobertura (python)
+                # (python+) cobertura
                 return reports.cobertura.from_xml(xml, path)
                 
         elif xml.getElementsByTagName('sourcefile'):
-            # jacoco
+            # (java+) jacoco
             return reports.jacoco.from_xml(xml, path)
 
     # send to https://codecov.io/upload/unknown
