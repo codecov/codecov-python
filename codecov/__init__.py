@@ -40,15 +40,15 @@ def from_path(path):
             result = from_file(os.path.join(path, f))
             if result:
                 return result
-     # walk through scala targets
-    if os.path.exists(os.path.join(path, "./target/")):
-        for root, dirs, files in os.walk(os.path.join(path, "./target/")):
-            for name in dirs:
-                p = os.path.join(path, "./target/", name, "/coverage-report/cobertura.xml")
-                if os.path.exists(p):
-                    result = from_file(p)
-                    if result:
-                        return result
+
+    # walk around to find it
+    if os.path.exists(os.path.join(path)):
+        for name in os.listdir(os.path.join(path, "./target/")):
+            p = os.path.join(path, "./target/", name, "./coverage-report/cobertura.xml")
+            if os.path.exists(p):
+                result = from_file(p)
+                if result:
+                    return result
 
 
 def to_json(report):
