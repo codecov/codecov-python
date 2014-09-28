@@ -63,7 +63,6 @@ class TestUploader(unittest.TestCase):
         report = codecov.from_file(os.path.join(os.path.dirname(__file__), 'xml/jacoco.xml'))
         with open(os.path.join(os.path.dirname(__file__), 'json/jacoco.json')) as f:
             compare = json.loads(f.read()%codecov.version)
-        print "\033[92m....\033[0m", report, compare
         self.assertDictEqual(report, compare)
 
     def test_golang(self):

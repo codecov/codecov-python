@@ -1,5 +1,11 @@
 import re
 
+# Add xrange variable to Python 3
+try:
+    xrange
+except NameError:
+    xrange = range
+
 def from_txt(report, path=None):
     """
     mode: count

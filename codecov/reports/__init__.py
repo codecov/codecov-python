@@ -1,4 +1,4 @@
-import go
-import jacoco
-import clover
-import cobertura
+from . import go
+from . import jacoco
+from . import clover
+from . import cobertura

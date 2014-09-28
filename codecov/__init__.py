@@ -20,7 +20,7 @@ try:
 except NameError:
     xrange = range
 
-import reports
+from . import reports
 
 def from_file(path, root=None):
     try:
