@@ -29,6 +29,7 @@ def from_xml(xml, path=None):
             for root, dirs, files in os.walk(path):
                 for d in dirs:
                     if os.path.exists(os.path.join((root, file_name))):
+                        print "\033[92m....\033[0m", path, root
                         path = root.replace(path, '')
                         raise Exception
         except:

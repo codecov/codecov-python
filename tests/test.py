@@ -172,7 +172,7 @@ github.com/codecov/sample_go/sample_go.go:15.19,17.2 1 0
         os.environ['TRAVIS_BUILD_DIR'] = os.path.join(os.path.dirname(__file__), "xml/")
         os.environ['TRAVIS_REPO_SLUG'] = 'codecov/ci-repo'
         os.environ['TRAVIS_JOB_ID'] = "33116958"
-        output = subprocess.check_output("python -m codecov.__init__", shell=True)
+        output = subprocess.check_output("python -m codecov.__init__ --report=xml/coverage.xml", shell=True)
         output = output.replace(b'\nCoverage.py warning: No data was collected.', b'')
         self.assertDictEqual(json.loads(output.decode('utf-8')), 
                              {"uploaded": True, 
