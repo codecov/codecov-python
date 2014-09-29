@@ -40,7 +40,7 @@ class TestUploader(unittest.TestCase):
 
     def test_fail_1(self): self.failed(self.upload(report=""), "error no coverage report found, could not upload to codecov")
     def test_fail_2(self): self.failed(self.upload(token=""), "missing token or other required argument(s)")
-    def test_fail_3(self): self.assertRaisesRegexp(requests.exceptions.HTTPError, "travis job commit and upload commit do not match", self.upload, travis_job_id="12125215", token="")
+    def test_fail_3(self): self.assertRaisesRegexp(requests.exceptions.HTTPError, "commit sha mismatch", self.upload, travis_job_id="12125215", token="")
     def test_fail_4(self): self.failed(self.upload(commit=""), "commit hash is required")
     def test_fail_5(self): self.failed(self.upload(branch=""), "branch is required")
 

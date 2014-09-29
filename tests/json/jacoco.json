@@ -1,7 +1,8 @@
 {
  "meta": {
    "report": "jacoco.xml", 
-   "version": "codecov-python/v%s"
+   "version": "codecov-python/v%s",
+   "path": null
  }, 
  "stats": {
    "classes": {
