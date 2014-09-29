@@ -24,12 +24,11 @@ def from_xml(xml, path=None):
     
     # find a source file to append report path
     if path:
-        a_file_path = coverage.keys()[0]
         # look for that path
         try:
             for root, dirs, files in os.walk(path):
                 for d in dirs:
-                    if os.path.exists(os.path.join((root, a_file_path))):
+                    if os.path.exists(os.path.join((root, file_name))):
                         path = root
                         raise Exception
         except:
