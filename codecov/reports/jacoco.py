@@ -1,7 +1,7 @@
 import os
 
 
-def from_xml(xml, path=None):
+def from_xml(xml, root=None):
     """
     nr = line number
     mi = missed instructions
@@ -22,18 +22,18 @@ def from_xml(xml, path=None):
                 if typ:
                     stats[typ][file_name] = int(c.getAttribute('missed')) + int(c.getAttribute('covered'))
     
-    # find a source file to append report path
-    if path:
-        # look for that path
-        try:
-            for root, dirs, files in os.walk(path):
-                for d in dirs:
-                    if os.path.exists(os.path.join((root, file_name))):
-                        print "\033[92m....\033[0m", path, root
-                        path = root.replace(path, '')
-                        raise Exception
-        except:
-            pass
+    # look for that path
+    print "\033[92m....\033[0m", 'pre path', root
+    path = None
+    try:
+        for _root, dirs, files in os.walk(root):
+            for d in dirs:
+                if os.path.exists(os.path.join((_root, file_name))):
+                    print "\033[92m....\033[0m", _root, root
+                    path = root.replace(root, '')
+                    raise Exception
+    except:
+        pass
 
     return dict(coverage=coverage, 
                 stats=stats,

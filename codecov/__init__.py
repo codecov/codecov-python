@@ -31,16 +31,16 @@ def from_file(path, root=None):
     except IOError:
         return None
 
-def from_path(path):
+def from_path(root):
     # (python)
     try_to_run('coverage xml')
 
     accepting = set(('coverage.xml', 'coverage.txt', 'cobertura.xml', 'jacoco.xml'))
-    for root, dirs, files in os.walk(path):
+    for root, dirs, files in os.walk(root):
         if files and accepting & set(files):
             for f in files:
                 if f in accepting:
-                    result = from_file(os.path.join(root, f), path)
+                    result = from_file(os.path.join(root, f), root)
                     if result:
                         return result
 
@@ -50,10 +50,10 @@ def try_to_run(cmd):
     except:
         pass
 
-def to_json(report, path):
+def to_json(report, root):
     if report.startswith('mode: count'):
         # (go)
-        return reports.go.from_txt(report, path)
+        return reports.go.from_txt(report, root)
     elif report.startswith('<?xml'):
         # xml
         xml = parseString(report)
@@ -61,20 +61,20 @@ def to_json(report, path):
         if coverage:
             if coverage[0].getAttribute('generated'):
                 # (php) clover
-                return reports.clover.from_xml(xml, path)
+                return reports.clover.from_xml(xml, root)
             else:
                 # (python+) cobertura
-                return reports.cobertura.from_xml(xml, path)
+                return reports.cobertura.from_xml(xml, root)
                 
         elif xml.getElementsByTagName('sourcefile'):
             # (java+) jacoco
-            return reports.jacoco.from_xml(xml, path)
+            return reports.jacoco.from_xml(xml, root)
 
     # send to https://codecov.io/upload/unknown
     raise ValueError('sorry, unrecognized report') 
 
 
-def upload(report, url, path=None, **kwargs):
+def upload(report, url, root=None, **kwargs):
     try:
         args = dict(commit='', branch='', travis_job_id='')
         args.update(kwargs)
@@ -84,16 +84,16 @@ def upload(report, url, path=None, **kwargs):
                "missing token or other required argument(s)"
 
         if report is not None:
-            coverage = from_file(report, path)
+            coverage = from_file(report, root)
         else:
-            coverage = from_path(path)
+            coverage = from_path(root)
 
         assert coverage, "error no coverage report found, could not upload to codecov"
 
-        if kwargs.get('append_path'):
+        if kwargs.get('path'):
             # in case you do this:
             # cd some_folder && codecov --path=some_folder
-            coverage['meta']['path'] = kwargs.pop('append_path')
+            coverage['meta']['path'] = kwargs.pop('path')
 
         if kwargs.get('build_url'):
             coverage['meta']['build_url'] = kwargs.pop('build_url')
@@ -107,7 +107,7 @@ def upload(report, url, path=None, **kwargs):
         return dict(message=str(e), uploaded=False, coverage=0)
 
 def main(*argv):
-    defaults = dict(commit='', branch='', travis_job_id='', path=os.getcwd() if sys.argv else None, pull_request='', build_url='')
+    defaults = dict(commit='', branch='', travis_job_id='', root=os.getcwd() if sys.argv else None, pull_request='', build_url='')
 
     # -------
     # Jenkins
@@ -118,7 +118,7 @@ def main(*argv):
                              service='jenkins',
                              commit=os.getenv('GIT_COMMIT'),
                              build=os.getenv('BUILD_NUMBER'),
-                             path=os.getenv('WORKSPACE'),
+                             root=os.getenv('WORKSPACE'),
                              build_url=os.getenv('BUILD_URL')))
     # ---------
     # Travis CI
@@ -132,7 +132,7 @@ def main(*argv):
                              travis_job_id=os.getenv('TRAVIS_JOB_ID'),
                              owner=os.getenv('TRAVIS_REPO_SLUG').split('/',1)[0],
                              repo=os.getenv('TRAVIS_REPO_SLUG').split('/',1)[1],
-                             path=os.getenv('TRAVIS_BUILD_DIR'),
+                             root=os.getenv('TRAVIS_BUILD_DIR'),
                              commit=os.getenv('TRAVIS_COMMIT')))
     # --------
     # Codeship
@@ -202,7 +202,7 @@ def main(*argv):
         codecov = parser.parse_args()
     
     data = upload(url=codecov.url,
-                  append_path=codecov.path,
+                  path=codecov.path,
                   report=codecov.report, 
                   branch=codecov.branch, 
                   commit=codecov.commit, 

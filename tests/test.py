@@ -45,7 +45,7 @@ class TestUploader(unittest.TestCase):
     def test_fail_5(self): self.failed(self.upload(branch=""), "branch is required")
 
     def test_report_accuracy(self):
-        report = codecov.from_file(os.path.join(os.path.dirname(__file__), 'xml/coverage.xml'))
+        report = codecov.from_file(os.path.join(os.path.dirname(__file__), 'xml/cobertura/coverage.xml'))
         with open(os.path.join(os.path.dirname(__file__), 'json/coverage.json')) as f:
             compare = json.loads(f.read()%codecov.version)
         self.assertDictEqual(report["coverage"], compare["coverage"])
@@ -53,14 +53,14 @@ class TestUploader(unittest.TestCase):
         self.assertDictEqual(report["stats"], compare["stats"])
 
     def test_clover(self):
-        report = codecov.from_file(os.path.join(os.path.dirname(__file__), 'xml/clover.xml'))
+        report = codecov.from_file(os.path.join(os.path.dirname(__file__), 'xml/clover/clover.xml'))
         with open(os.path.join(os.path.dirname(__file__), 'json/clover.json')) as f:
             compare = json.loads(f.read()%codecov.version)
         self.assertDictEqual(report["coverage"], compare["coverage"])
         self.assertDictEqual(report["meta"], compare["meta"])
 
     def test_jacoco_xml(self):
-        report = codecov.from_file(os.path.join(os.path.dirname(__file__), 'xml/jacoco.xml'))
+        report = codecov.from_file(os.path.join(os.path.dirname(__file__), 'xml/jacoco/jacoco.xml'))
         with open(os.path.join(os.path.dirname(__file__), 'json/jacoco.json')) as f:
             compare = json.loads(f.read()%codecov.version)
         self.assertDictEqual(report, compare)
@@ -97,7 +97,7 @@ github.com/codecov/sample_go/sample_go.go:15.19,17.2 1 0
         os.environ['JENKINS_URL'] = "https://...."
         os.environ['GIT_BRANCH'] = "master"
         os.environ['GIT_COMMIT'] = "c739768fcac68144a3a6d82305b9c4106934d31a"
-        os.environ['WORKSPACE'] = os.path.join(os.path.dirname(__file__), "xml/")
+        os.environ['WORKSPACE'] = os.path.join(os.path.dirname(__file__), "xml/cobertura")
         os.environ['BUILD_NUMBER'] = "41"
         os.environ['CODECOV_TOKEN'] = '473c8c5b-10ee-4d83-86c6-bfd72a185a27'
         self.passed(self.command())
@@ -106,7 +106,7 @@ github.com/codecov/sample_go/sample_go.go:15.19,17.2 1 0
         os.environ['TRAVIS'] = "true"
         os.environ['TRAVIS_BRANCH'] = "master"
         os.environ['TRAVIS_COMMIT'] = "c739768fcac68144a3a6d82305b9c4106934d31a"
-        os.environ['TRAVIS_BUILD_DIR'] = os.path.join(os.path.dirname(__file__), "xml/")
+        os.environ['TRAVIS_BUILD_DIR'] = os.path.join(os.path.dirname(__file__), "xml/cobertura")
         os.environ['TRAVIS_REPO_SLUG'] = 'codecov/ci-repo'
         os.environ['TRAVIS_JOB_ID'] = "33116958"
         os.environ['TRAVIS_JOB_NUMBER'] = "4.1"
@@ -119,7 +119,7 @@ github.com/codecov/sample_go/sample_go.go:15.19,17.2 1 0
         os.environ['CI_BUILD_URL'] = 'htts://codeship.io/build/1'
         os.environ['CI_COMMIT_ID'] = '743b04806ea677403aa2ff26c6bdeb85005de658'
         os.environ['CODECOV_TOKEN'] = '473c8c5b-10ee-4d83-86c6-bfd72a185a27'
-        self.passed(self.command(report=os.path.join(os.path.dirname(__file__), "xml/coverage.xml")))
+        self.passed(self.command(report=os.path.join(os.path.dirname(__file__), "xml/cobertura/coverage.xml")))
 
     def test_circleci(self):
         os.environ['CIRCLECI'] = 'true'
@@ -130,7 +130,7 @@ github.com/codecov/sample_go/sample_go.go:15.19,17.2 1 0
         os.environ['CIRCLE_BUILD_NUM'] = "57"
         os.environ['CIRCLE_SHA1'] = "d653b934ed59c1a785cc1cc79d08c9aaa4eba73b"
         os.environ['CODECOV_TOKEN'] = '473c8c5b-10ee-4d83-86c6-bfd72a185a27'
-        self.passed(self.command(report=os.path.join(os.path.dirname(__file__), "xml/coverage.xml")))
+        self.passed(self.command(report=os.path.join(os.path.dirname(__file__), "xml/cobertura/coverage.xml")))
 
     def test_semaphore(self):
         os.environ['SEMAPHORE'] = "true"
@@ -139,7 +139,7 @@ github.com/codecov/sample_go/sample_go.go:15.19,17.2 1 0
         os.environ['SEMAPHORE_REPO_SLUG'] = 'codecov/ci-repo'
         os.environ['SEMAPHORE_PROJECT_HASH_ID'] = "743b04806ea677403aa2ff26c6bdeb85005de658"
         os.environ['CODECOV_TOKEN'] = '473c8c5b-10ee-4d83-86c6-bfd72a185a27'
-        self.passed(self.command(report=os.path.join(os.path.dirname(__file__), "xml/coverage.xml")))
+        self.passed(self.command(report=os.path.join(os.path.dirname(__file__), "xml/cobertura/coverage.xml")))
 
     def test_drone(self):
         os.environ['DRONE'] = "true"
@@ -148,7 +148,7 @@ github.com/codecov/sample_go/sample_go.go:15.19,17.2 1 0
         os.environ['DRONE_BUILD_URL'] = "htts://drone.io/github/builds/1"
         os.environ['DRONE_COMMIT'] = "743b04806ea677403aa2ff26c6bdeb85005de658"
         os.environ['CODECOV_TOKEN'] = '473c8c5b-10ee-4d83-86c6-bfd72a185a27'
-        self.passed(self.command(report=os.path.join(os.path.dirname(__file__), "xml/coverage.xml")))
+        self.passed(self.command(report=os.path.join(os.path.dirname(__file__), "xml/cobertura/coverage.xml")))
 
     def test_min_coverage(self):
         os.environ['TRAVIS'] = "true"
@@ -169,10 +169,10 @@ github.com/codecov/sample_go/sample_go.go:15.19,17.2 1 0
         os.environ['TRAVIS'] = "true"
         os.environ['TRAVIS_BRANCH'] = "master"
         os.environ['TRAVIS_COMMIT'] = "c739768fcac68144a3a6d82305b9c4106934d31a"
-        os.environ['TRAVIS_BUILD_DIR'] = os.path.join(os.path.dirname(__file__), "xml/")
+        os.environ['TRAVIS_BUILD_DIR'] = os.path.join(os.path.dirname(__file__), "xml/cobertura")
         os.environ['TRAVIS_REPO_SLUG'] = 'codecov/ci-repo'
         os.environ['TRAVIS_JOB_ID'] = "33116958"
-        output = subprocess.check_output("python -m codecov.__init__ --report=xml/coverage.xml", shell=True)
+        output = subprocess.check_output("python -m codecov.__init__", shell=True)
         output = output.replace(b'\nCoverage.py warning: No data was collected.', b'')
         self.assertDictEqual(json.loads(output.decode('utf-8')), 
                              {"uploaded": True, 
@@ -184,7 +184,7 @@ github.com/codecov/sample_go/sample_go.go:15.19,17.2 1 0
 
     def basics(self):
         return dict(token="473c8c5b-10ee-4d83-86c6-bfd72a185a27", 
-                    report=os.path.join(os.path.dirname(__file__), "xml/coverage.xml"),
+                    report=os.path.join(os.path.dirname(__file__), "xml/cobertura/coverage.xml"),
                     url=self.url,
                     commit="743b04806ea677403aa2ff26c6bdeb85005de658",
                     branch="master")
