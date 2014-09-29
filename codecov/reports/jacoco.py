@@ -24,13 +24,14 @@ def from_xml(xml, root=None):
     
     # fix file path
     path = None
-    for _root, dirs, files in os.walk(root):
-        if path:
-            break
-        for d in dirs:
-            if os.path.exists(os.path.join(_root, d, file_name)):
-                path = os.path.join(_root, d).replace(root, '')[1:]
+    if root:
+        for _root, dirs, files in os.walk(root):
+            if path:
                 break
+            for d in dirs:
+                if os.path.exists(os.path.join(_root, d, file_name)):
+                    path = os.path.join(_root, d).replace(root, '')[1:]
+                    break
 
     return dict(coverage=coverage, 
                 stats=stats,
