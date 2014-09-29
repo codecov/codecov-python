@@ -155,7 +155,7 @@ github.com/codecov/sample_go/sample_go.go:15.19,17.2 1 0
         os.environ['TRAVIS_BRANCH'] = "master"
         os.environ['TRAVIS_COMMIT'] = "c739768fcac68144a3a6d82305b9c4106934d31a"
         os.environ['TRAVIS_REPO_SLUG'] = 'codecov/ci-repo'
-        os.environ['TRAVIS_BUILD_DIR'] = os.path.join(os.path.dirname(__file__), "xml")
+        os.environ['TRAVIS_BUILD_DIR'] = os.path.join(os.path.dirname(__file__), "xml/cobertura")
         os.environ['TRAVIS_JOB_ID'] = "33116958"
         subprocess.check_output("python -m codecov.__init__ --min-coverage=75", shell=True)
         try:
