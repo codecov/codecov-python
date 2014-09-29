@@ -22,18 +22,15 @@ def from_xml(xml, root=None):
                 if typ:
                     stats[typ][file_name] = int(c.getAttribute('missed')) + int(c.getAttribute('covered'))
     
-    # look for that path
-    print "\033[92m....\033[0m", 'pre path', root
+    # fix file path
     path = None
-    try:
-        for _root, dirs, files in os.walk(root):
-            for d in dirs:
-                if os.path.exists(os.path.join((_root, d, file_name))):
-                    print "\033[92m....\033[0m", _root, d, root
-                    path = os.path.join((root, d)).replace(root, '')[1:]
-                    raise Exception
-    except:
-        pass
+    for _root, dirs, files in os.walk(root):
+        if path:
+            break
+        for d in dirs:
+            if os.path.exists(os.path.join(_root, d, file_name)):
+                path = os.path.join(_root, d).replace(root, '')[1:]
+                break
 
     return dict(coverage=coverage, 
                 stats=stats,
