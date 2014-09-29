@@ -36,11 +36,11 @@ def from_path(root):
     try_to_run('coverage xml')
 
     accepting = set(('coverage.xml', 'coverage.txt', 'cobertura.xml', 'jacoco.xml'))
-    for root, dirs, files in os.walk(root):
+    for _root, dirs, files in os.walk(root):
         if files and accepting & set(files):
             for f in files:
                 if f in accepting:
-                    result = from_file(os.path.join(root, f), root)
+                    result = from_file(os.path.join(_root, f), root)
                     if result:
                         return result
 
