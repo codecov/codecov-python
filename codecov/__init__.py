@@ -23,13 +23,13 @@ def build_reports(root):
     try_to_run('coverage xml')
 
     reports = []
-    table_of_contents = [root]
+    table_of_contents = []
     accepting = set(('coverage.xml', 'coverage.txt', 'cobertura.xml', 'jacoco.xml', 'coverage.lcov', 'coverage.gcov'))
     for _root, dirs, files in os.walk(root):
         if SKIP_DIRECTORIES.search(_root): continue
         # add data to tboc
         for _file in files:
-            fp = os.path.join(_root, _file).replace(root, '')
+            fp = os.path.join(_root, _file).replace(root+"/", '')
             if not (SKIP_DIRECTORIES.search(fp) or SKIP_FILES.search(fp)):
                 table_of_contents.append(fp)
         # is there a coverage report?
