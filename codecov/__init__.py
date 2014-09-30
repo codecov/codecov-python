@@ -3,10 +3,11 @@
 import os
 import re
 import sys
-import subprocess
 import requests
 import argparse
+import subprocess
 from json import dumps
+
 try:
     from urllib.parse import urlencode
 except ImportError: # pragma: no cover
@@ -15,29 +16,26 @@ except ImportError: # pragma: no cover
 version = VERSION = __version__ = '1.0.0'
 
 SKIP_DIRECTORIES = re.compile(r'\/(\..+|(virtualenv|venv\/(lib|bin)))\/')
-SKIP_FILES = re.compile(r'(\.tar\.gz|\.pyc|\.egg)$')
-WHITESPACE = re.compile(r'(\n|\s{2,})')
-
-def trim_white_space(yes, data):
-    if yes:
-        return WHITESPACE.sub('', data).strip()
-    return data
+SKIP_FILES = re.compile(r'(\.tar\.gz|\.pyc|\.egg|(\/\..+))$')
 
 def build_reports(root):
     # (python)
     try_to_run('coverage xml')
 
     reports = []
-    table_of_contents = []
+    table_of_contents = [root]
     accepting = set(('coverage.xml', 'coverage.txt', 'cobertura.xml', 'jacoco.xml', 'coverage.lcov', 'coverage.gcov'))
     for _root, dirs, files in os.walk(root):
         if SKIP_DIRECTORIES.search(_root): continue
         # add data to tboc
-        table_of_contents.extend([os.path.join(_root, _file) for _file in files])
+        for _file in files:
+            fp = os.path.join(_root, _file).replace(root, '')
+            if not (SKIP_DIRECTORIES.search(fp) or SKIP_FILES.search(fp)):
+                table_of_contents.append(fp)
         # is there a coverage report?
         for coverage in (accepting & set(files)):
             with open(os.path.join(_root, coverage), 'r') as coverage_file:
-                reports.append(trim_white_space(coverage.endswith('xml'), coverage_file.read()))
+                reports.append(coverage_file.read())
 
     # add out table of contents
     reports.insert(0, "\n".join(table_of_contents))
@@ -67,7 +65,6 @@ def upload(report, url, root=None, **kwargs):
 
         url = "%s/upload/v2?%s" % (url, urlencode(dict([(k, v.strip()) for k, v in kwargs.items() if v is not None])))
         print "\033[92m....\033[0m", url, reports
-        return
         result = requests.post(url, data=reports)
         result.raise_for_status()
         return result.json()
