@@ -73,7 +73,7 @@ class TestUploader(unittest.TestCase):
 
     def test_required(self):
         output = subprocess.check_output('python -m codecov.__init__', stderr=subprocess.STDOUT, shell=True)
-        self.assertDictEqual(json.loads(output), {"uploaded": False, "version": codecov.version, "message": "missing token or other required argument(s)", "coverage": 0})
+        self.assertDictEqual(json.loads(output.decode('utf-8')), {"uploaded": False, "version": codecov.version, "message": "missing token or other required argument(s)", "coverage": 0})
 
     def test_pass_1(self): 
         self.passed(self.upload())
