@@ -37,6 +37,8 @@ def build_reports(root):
             with open(os.path.join(_root, coverage), 'r') as coverage_file:
                 reports.append(coverage_file.read())
 
+    assert len(reports) > 0, "error no coverage report found, could not upload to codecov"
+
     # add out table of contents
     reports.insert(0, "\n".join(table_of_contents))
     # join reports together
@@ -48,14 +50,17 @@ def try_to_run(cmd):
     except:
         pass
 
-def upload(report, url, root=None, **kwargs):
+def upload(url, root, **kwargs):
     try:
+        if not root:
+            root = os.getcwd()
         args = dict(commit='', branch='', travis_job_id='')
         args.update(kwargs)
         assert args.get('branch') not in ('', None), "branch is required"
         assert args.get('commit') not in ('', None), "commit hash is required"
-        assert (args.get('travis_job_id') or args.get('job') or args.get('token')) not in (None, ''), \
-               "missing token or other required argument(s)"
+        assert any((args.get('travis_job_id'),
+                   (args.get('build') and args.get('service')=='circleci'),
+                   args.get('token'))), "missing token or other required argument(s)"
 
         reports = build_reports(root)
 
@@ -64,7 +69,6 @@ def upload(report, url, root=None, **kwargs):
         kwargs['package'] = "codecov@v%s" % VERSION
 
         url = "%s/upload/v2?%s" % (url, urlencode(dict([(k, v.strip()) for k, v in kwargs.items() if v is not None])))
-        print "\033[92m....\033[0m", url, reports
         result = requests.post(url, data=reports)
         result.raise_for_status()
         return result.json()
@@ -73,7 +77,7 @@ def upload(report, url, root=None, **kwargs):
         return dict(message=str(e), uploaded=False, coverage=0)
 
 def main(*argv):
-    defaults = dict(commit='', branch='', travis_job_id='', root=os.getcwd() if sys.argv else None, pull_request='', build_url='')
+    defaults = dict(commit='', branch='', travis_job_id='', root=None, pull_request='', build_url='')
 
     # -------
     # Jenkins
@@ -159,19 +163,13 @@ def main(*argv):
     parser.add_argument('--min-coverage', default="0", help="min coverage goal, otherwise build fails")
     parser.add_argument('--branch', default=defaults.pop('branch'), help="commit branch name")
     parser.add_argument('--token', '-t', default=os.getenv("CODECOV_TOKEN"), help="codecov repository token")
-    parser.add_argument('--report', '-x', help="coverage report")
-    parser.add_argument('--url', default="https://codecov.io", help="url, used for debugging")
+    parser.add_argument('--url', default=os.getenv("CODECOV_ENDPOINT", "https://codecov.io"), help="url for enteprise customers")
     if argv:
         codecov = parser.parse_args(argv)
     else:
         codecov = parser.parse_args()
     
-    data = upload(url=codecov.url,
-                  report=codecov.report, 
-                  branch=codecov.branch, 
-                  commit=codecov.commit, 
-                  token=codecov.token,
-                  **defaults)
+    data = upload(url=codecov.url, branch=codecov.branch, commit=codecov.commit, token=codecov.token, **defaults)
     return data, int(codecov.min_coverage)
 
 def cli():
