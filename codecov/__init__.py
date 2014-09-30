@@ -8,71 +8,34 @@ import argparse
 from json import dumps
 try:
     from urllib.parse import urlencode
-except ImportError:
+except ImportError: # pragma: no cover
     from urllib import urlencode
-from xml.dom.minidom import parseString
 
-version = VERSION = __version__ = '0.5.2'
+version = VERSION = __version__ = '1.0.0'
 
-# Add xrange variable to Python 3
-try:
-    xrange
-except NameError:
-    xrange = range
 
-from . import reports
-
-def from_file(path, root=None):
-    try:
-        with open(path, 'r') as f:
-            result = to_json(f.read(), root)
-            result['meta']['version'] = "codecov-python/v%s"%VERSION
-            return result
-    except IOError:
-        return None
+def from_file(path):
+    with open(path, 'r') as f:
+        return f.read()
 
 def from_path(root):
     # (python)
     try_to_run('coverage xml')
 
-    accepting = set(('coverage.xml', 'coverage.txt', 'cobertura.xml', 'jacoco.xml'))
+    reports = []
+    accepting = set(('coverage.xml', 'coverage.txt', 'cobertura.xml', 'jacoco.xml', 'coverage.lcov', 'coverage.gcov'))
     for _root, dirs, files in os.walk(root):
         if files and accepting & set(files):
             for f in files:
                 if f in accepting:
-                    result = from_file(os.path.join(_root, f), root)
-                    if result:
-                        return result
+                    reports.append(from_file(os.path.join(_root, f)))
+    return "\n<<<<<< EOF\n".join(reports)
 
 def try_to_run(cmd):
     try:
         subprocess.check_output(cmd, shell=True)
     except:
         pass
-
-def to_json(report, root):
-    if report.startswith('mode: count'):
-        # (go)
-        return reports.go.from_txt(report, root)
-    elif report.startswith('<?xml'):
-        # xml
-        xml = parseString(report)
-        coverage = xml.getElementsByTagName('coverage')
-        if coverage:
-            if coverage[0].getAttribute('generated'):
-                # (php) clover
-                return reports.clover.from_xml(xml, root)
-            else:
-                # (python+) cobertura
-                return reports.cobertura.from_xml(xml, root)
-                
-        elif xml.getElementsByTagName('sourcefile'):
-            # (java+) jacoco
-            return reports.jacoco.from_xml(xml, root)
-
-    # send to https://codecov.io/upload/unknown
-    raise ValueError('sorry, unrecognized report') 
-
 
 def upload(report, url, root=None, **kwargs):
     try:
@@ -84,22 +47,16 @@ def upload(report, url, root=None, **kwargs):
                "missing token or other required argument(s)"
 
         if report is not None:
-            coverage = from_file(report, root)
+            reports = from_file(report)
         else:
-            coverage = from_path(root)
+            reports = from_path(root)
 
-        assert coverage, "error no coverage report found, could not upload to codecov"
+        assert reports, "error no coverage report found, could not upload to codecov"
 
-        if kwargs.get('path'):
-            # in case you do this:
-            # cd some_folder && codecov --path=some_folder
-            coverage['meta']['path'] = kwargs.pop('path')
+        kwargs['package'] = "codecov@v%s" % VERSION
 
-        if kwargs.get('build_url'):
-            coverage['meta']['build_url'] = kwargs.pop('build_url')
-
-        url = "%s/upload/v1?%s" % (url, urlencode(dict([(k, v.strip()) for k, v in kwargs.items() if v is not None])))
-        result = requests.post(url, headers={"Content-Type": "application/json"}, data=dumps(coverage))
+        url = "%s/upload/v2?%s" % (url, urlencode(dict([(k, v.strip()) for k, v in kwargs.items() if v is not None])))
+        result = requests.post(url, data=reports)
         result.raise_for_status()
         return result.json()
 
@@ -190,7 +147,6 @@ def main(*argv):
                                      epilog="""Read more at https://codecov.io/""")
     parser.add_argument('--version', action='version', version='codecov '+version+" - https://codecov.io")
     parser.add_argument('--commit', default=defaults.pop('commit'), help="commit ref")
-    parser.add_argument('--path', help="append file path for reporting properly")
     parser.add_argument('--min-coverage', default="0", help="min coverage goal, otherwise build fails")
     parser.add_argument('--branch', default=defaults.pop('branch'), help="commit branch name")
     parser.add_argument('--token', '-t', default=os.getenv("CODECOV_TOKEN"), help="codecov repository token")
@@ -202,7 +158,6 @@ def main(*argv):
         codecov = parser.parse_args()
     
     data = upload(url=codecov.url,
-                  path=codecov.path,
                   report=codecov.report, 
                   branch=codecov.branch, 
                   commit=codecov.commit, 
