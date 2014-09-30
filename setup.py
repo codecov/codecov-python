@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from setuptools import setup
 
-version = '0.5.2'
+version = '1.0.0'
 classifiers = ["Development Status :: 4 - Beta",
                "Environment :: Plugins",
                "Intended Audience :: Developers",
@@ -9,6 +9,7 @@ classifiers = ["Development Status :: 4 - Beta",
                "Programming Language :: Python :: 2.7",
                "Programming Language :: Python :: 3",
                "Programming Language :: Python :: 3.4",
+               "Programming Language :: Python :: Implementation :: PyPy",
                "License :: OSI Approved :: Apache Software License",
                "Topic :: Software Development :: Testing"]
 
