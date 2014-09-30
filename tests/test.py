@@ -68,11 +68,11 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(fromserver['message'], why)
 
     def test_command(self):
-        output = subprocess.check_output('python -m codecov.__init__ --help', stderr=subprocess.STDOUT, shell=True)
+        output = subprocess.check_output('python -m codecov.__init__ --help', shell=True)
         self.assertIn(b'usage: codecov', output)
 
     def test_required(self):
-        output = subprocess.check_output('python -m codecov.__init__', stderr=subprocess.STDOUT, shell=True)
+        output = subprocess.check_output('python -m codecov.__init__', shell=True)
         self.assertDictEqual(json.loads(output), {"uploaded": False, "version": codecov.version, "message": "missing token or other required argument(s)", "coverage": 0})
 
     def test_pass_1(self): 
@@ -182,7 +182,7 @@ class TestUploader(unittest.TestCase):
                      TRAVIS_BUILD_DIR=self.a_report,
                      TRAVIS_REPO_SLUG='codecov/ci-repo',
                      TRAVIS_JOB_ID="33116958")
-        output = subprocess.check_output("python -m codecov.__init__", stderr=subprocess.STDOUT, shell=True)
+        output = subprocess.check_output("python -m codecov.__init__", shell=True)
         output = output.replace(b'\nCoverage.py warning: No data was collected.', b'')
         output = json.loads(output.decode('utf-8'))
         self.assertTrue(output['uploaded'])
