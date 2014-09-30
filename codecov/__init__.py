@@ -15,8 +15,8 @@ except ImportError: # pragma: no cover
 
 version = VERSION = __version__ = '1.0.0'
 
-SKIP_DIRECTORIES = re.compile(r'\/(\..+|(virtualenv|venv\/(lib|bin)))\/')
-SKIP_FILES = re.compile(r'(\.tar\.gz|\.pyc|\.egg|(\/\..+))$')
+SKIP_DIRECTORIES = re.compile(r'\/(\..+|(virtualenv|venv\/(lib|bin)|build\/lib|\.git|\.egg\-info))\/')
+SKIP_FILES = re.compile(r'(\.tar\.gz|\.pyc|\.egg|(\/\..+)|\.txt)$')
 
 def build_reports(root):
     # (python)
@@ -30,7 +30,7 @@ def build_reports(root):
         # add data to tboc
         for _file in files:
             fp = os.path.join(_root, _file).replace(root+"/", '')
-            if not (SKIP_DIRECTORIES.search(fp) or SKIP_FILES.search(fp)):
+            if not (SKIP_DIRECTORIES.search(fp) or SKIP_FILES.search(fp)) and '/' in fp:
                 table_of_contents.append(fp)
         # is there a coverage report?
         for coverage in (accepting & set(files)):
@@ -66,7 +66,7 @@ def upload(url, root, **kwargs):
 
         assert reports, "error no coverage report found, could not upload to codecov"
 
-        kwargs['package'] = "codecov@v%s" % VERSION
+        kwargs['package'] = "codecov-v%s" % VERSION
 
         url = "%s/upload/v2?%s" % (url, urlencode(dict([(k, v.strip()) for k, v in kwargs.items() if v is not None])))
         result = requests.post(url, data=reports)
