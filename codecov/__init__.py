@@ -176,10 +176,20 @@ def cli():
     data, min_coverage = main()
     data['version'] = version
     sys.stdout.write(dumps(data)+"\n")
-    if int(data['coverage']) >= min_coverage:
-        sys.exit(0)
-    else:
-        sys.exit("requiring %s%% coverage, commit resulted in %s%%" % (str(min_coverage), str(data['coverage'])))
+    if min_coverage > 0:
+        # we need to wait for the job to complete
+        # waiting up to 3 timeouts
+        for x in (1,2,3):
+            sys.stdout.write('Waiting for codecov build (%d/3)...'%x)
+            response = requests.get(data['wait_url'])
+            if response.status_code == 200:
+                if response.text == 'n/a':
+                    sys.stdout.write("Min-Coverage could not be determined in approriate time... sorry")
+                    sys.exit(0)
+                elif int(response.text) >= min_coverage:
+                    sys.exit(0)
+                else:
+                    sys.exit("requiring %s%% coverage, commit resulted in %s%%" % (str(min_coverage), str(data['coverage'])))
 
 if __name__ == '__main__':
     cli()
