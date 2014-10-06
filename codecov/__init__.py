@@ -24,7 +24,7 @@ def build_reports(root):
 
     reports = []
     table_of_contents = []
-    accepting = set(('coverage.xml', 'coverage.txt', 'cobertura.xml', 'jacoco.xml', 'coverage.lcov', 'coverage.gcov'))
+    accepting = set(('coverage.xml', 'clover.xml', 'coverage.txt', 'cobertura.xml', 'jacoco.xml', 'coverage.lcov', 'coverage.gcov'))
     for _root, dirs, files in os.walk(root):
         if SKIP_DIRECTORIES.search(_root): continue
         # add data to tboc
