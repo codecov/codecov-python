@@ -15,18 +15,18 @@ except ImportError: # pragma: no cover
 
 version = VERSION = __version__ = '1.0.2'
 
-SKIP_DIRECTORIES = re.compile(r'\/?(\..+|(virtualenv|venv\/(lib|bin)|build\/lib|\.git|\.egg\-info))\/')
+SKIP_DIRECTORIES = re.compile(r'\/(\..+|(vendor|virtualenv|venv\/(lib|bin)|build\/lib|\.git|\.egg\-info))\/')
 SKIP_FILES = re.compile(r'(\.tar\.gz|\.pyc|\.egg|(\/\..+)|\.txt)$')
 
 def build_reports(root):
     # (python)
-    try_to_run('coverage xml')
+    try_to_run('coverage xml -o _codecov_coverage.xml')
 
     reports = []
     table_of_contents = []
-    accepting = set(('coverage.xml', 'clover.xml', 'coverage.txt', 'cobertura.xml', 'jacoco.xml', 'coverage.lcov', 'coverage.gcov'))
+    accepting = set(('coverage.xml', '_codecov_coverage.xml', 'clover.xml', 'coverage.txt', 'cobertura.xml', 'jacoco.xml', 'coverage.lcov', 'coverage.gcov'))
+
     for _root, dirs, files in os.walk(root):
-        print "\033[92m....\033[0m", _root, SKIP_DIRECTORIES.search(_root), files
         if SKIP_DIRECTORIES.search(_root): continue
         # add data to tboc
         for _file in files:
@@ -38,7 +38,6 @@ def build_reports(root):
             with open(os.path.join(_root, coverage), 'r') as coverage_file:
                 reports.append(coverage_file.read())
 
-    print "\033[92m....\033[0m", reports
     assert len(reports) > 0, "error no coverage report found, could not upload to codecov"
 
     # add out table of contents
