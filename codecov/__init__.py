@@ -13,7 +13,7 @@ try:
 except ImportError: # pragma: no cover
     from urllib import urlencode
 
-version = VERSION = __version__ = '1.0.3'
+version = VERSION = __version__ = '1.1.0'
 
 SKIP_DIRECTORIES = re.compile(r'\/(\..+|(vendor|virtualenv|venv\/(lib|bin)|build\/lib|\.git|\.egg\-info))\/')
 SKIP_FILES = re.compile(r'(\.tar\.gz|\.pyc|\.egg|(\/\..+)|\.txt)$')
@@ -191,6 +191,9 @@ def cli():
                     sys.exit(0)
                 else:
                     sys.exit("requiring %s%% coverage, commit resulted in %s%%" % (str(min_coverage), str(data['coverage'])))
+            else:
+                sys.stdout.write('Min-Coverage feature is currently unavailable. Sorry for the inconvenience.\n%s'%response.text)
+                sys.exit(0)
 
 if __name__ == '__main__':
     cli()

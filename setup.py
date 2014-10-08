@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from setuptools import setup
 
-version = '1.0.3'
+version = '1.1.0'
 classifiers = ["Development Status :: 4 - Beta",
                "Environment :: Plugins",
                "Intended Audience :: Developers",
