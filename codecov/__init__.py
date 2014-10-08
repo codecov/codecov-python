@@ -26,6 +26,7 @@ def build_reports(root):
     table_of_contents = []
     accepting = set(('coverage.xml', 'clover.xml', 'coverage.txt', 'cobertura.xml', 'jacoco.xml', 'coverage.lcov', 'coverage.gcov'))
     for _root, dirs, files in os.walk(root):
+        print "\033[92m....\033[0m", _root, SKIP_DIRECTORIES.search(_root), files
         if SKIP_DIRECTORIES.search(_root): continue
         # add data to tboc
         for _file in files:
@@ -37,6 +38,7 @@ def build_reports(root):
             with open(os.path.join(_root, coverage), 'r') as coverage_file:
                 reports.append(coverage_file.read())
 
+    print "\033[92m....\033[0m", reports
     assert len(reports) > 0, "error no coverage report found, could not upload to codecov"
 
     # add out table of contents
