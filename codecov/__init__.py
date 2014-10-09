@@ -163,6 +163,7 @@ def main(*argv):
     parser.add_argument('--commit', default=defaults.pop('commit'), help="commit ref")
     parser.add_argument('--min-coverage', default="0", help="min coverage goal, otherwise build fails")
     parser.add_argument('--branch', default=defaults.pop('branch'), help="commit branch name")
+    parser.add_argument('--json', action="store_true", help="output json data only")
     parser.add_argument('--token', '-t', default=os.getenv("CODECOV_TOKEN"), help="codecov repository token")
     parser.add_argument('--url', default=os.getenv("CODECOV_ENDPOINT", "https://codecov.io"), help="url for enteprise customers")
     if argv:
@@ -171,12 +172,17 @@ def main(*argv):
         codecov = parser.parse_args()
     
     data = upload(url=codecov.url, branch=codecov.branch, commit=codecov.commit, token=codecov.token, **defaults)
-    return data, int(codecov.min_coverage)
+    return data, codecov
 
 def cli():
-    data, min_coverage = main()
-    data['version'] = version
-    sys.stdout.write(dumps(data)+"\n")
+    defaults = dict(uploaded=False, url="n/a", version=version, message="unknown")
+    data, codecov = main()
+    min_coverage = int(codecov.min_coverage)
+    defaults.update(data)
+    if codecov.json:
+        sys.stdout.write(dumps(defaults))
+    else:
+        sys.stdout.write("Uploaded: %(uploaded)s\nReport URL: %(url)s\nUpload Version: codecov-v%(version)s\nMessage: %(message)s\n" % defaults)
     if min_coverage > 0:
         # we need to wait for the job to complete
         # waiting up to 3 timeouts
@@ -185,15 +191,19 @@ def cli():
             response = requests.get(data['wait_url'])
             if response.status_code == 200:
                 if response.text == 'n/a':
-                    sys.stdout.write("Min-Coverage could not be determined in approriate time... sorry")
+                    if not codecov.json:
+                        sys.stdout.write("min-coverage could not be determined in approriate time... sorry")
                     sys.exit(0)
                 elif int(response.text) >= min_coverage:
-                    sys.stdout.write("Coverage passed at %s%%"%response.text)
+                    if not codecov.json:
+                        sys.stdout.write("Coverage passed at %s%%"%response.text)
                     sys.exit(0)
                 else:
-                    sys.exit("requiring %s%% coverage, commit resulted in %s%%" % (str(min_coverage), str(response.text)))
+                    if not codecov.json:
+                        sys.exit("requiring %s%% coverage, commit resulted in %s%%" % (str(min_coverage), str(response.text)))
             else:
-                sys.stdout.write('Min-Coverage feature is currently unavailable. Sorry for the inconvenience.\n%s'%response.text)
+                if not codecov.json:
+                    sys.stdout.write('Min-Coverage feature is currently unavailable. Sorry for the inconvenience.\n%s'%response.text)
                 sys.exit(0)
 
 if __name__ == '__main__':

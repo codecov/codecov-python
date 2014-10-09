@@ -73,7 +73,7 @@ class TestUploader(unittest.TestCase):
 
     def test_required(self):
         output = subprocess.check_output('python -m codecov.__init__', stderr=subprocess.STDOUT, shell=True)
-        self.assertDictEqual(json.loads(output.decode('utf-8')), {"uploaded": False, "version": codecov.version, "message": "missing token or other required argument(s)", "coverage": 0})
+        self.assertIn("Message: missing token or other required argument(s)", output.decode('utf-8'))
 
     def test_pass_1(self): 
         self.passed(self.upload())
@@ -183,6 +183,21 @@ class TestUploader(unittest.TestCase):
                      TRAVIS_REPO_SLUG='codecov/ci-repo',
                      TRAVIS_JOB_ID="33116958")
         output = subprocess.check_output("python -m codecov.__init__", shell=True)
+        output = output.replace(b'\nCoverage.py warning: No data was collected.', b'')
+        output = output.split('\n')
+        self.assertEqual(output[0], "Uploaded: True")
+        self.assertRegexpMatches(output[1], r"Report URL: https?://\w+(\:?\d*|\.io)?/github/codecov/ci-repo\?ref=c739768fcac68144a3a6d82305b9c4106934d31a$")
+        self.assertEqual(output[2], "Upload Version: codecov-v%s"%codecov.version)
+        self.assertEqual(output[3], "Message: Coverage reports upload successfully")
+
+    def test_cli_json(self):
+        self.set_env(TRAVIS="true",
+                     TRAVIS_BRANCH="master",
+                     TRAVIS_COMMIT="c739768fcac68144a3a6d82305b9c4106934d31a",
+                     TRAVIS_BUILD_DIR=self.a_report,
+                     TRAVIS_REPO_SLUG='codecov/ci-repo',
+                     TRAVIS_JOB_ID="33116958")
+        output = subprocess.check_output("python -m codecov.__init__ --json", shell=True)
         output = output.replace(b'\nCoverage.py warning: No data was collected.', b'')
         output = json.loads(output.decode('utf-8'))
         self.assertTrue(output['uploaded'])
