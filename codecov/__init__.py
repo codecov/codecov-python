@@ -19,12 +19,9 @@ SKIP_DIRECTORIES = re.compile(r'\/(\..+|(vendor|virtualenv|venv\/(lib|bin)|build
 SKIP_FILES = re.compile(r'(\.tar\.gz|\.pyc|\.egg|(\/\..+)|\.txt)$')
 
 def build_reports(root):
-    # (python)
-    try_to_run('coverage xml -o _codecov_coverage.xml')
-
     reports = []
     table_of_contents = []
-    accepting = set(('coverage.xml', '_codecov_coverage.xml', 'clover.xml', 'coverage.txt', 'cobertura.xml', 'jacoco.xml', 'coverage.lcov', 'coverage.gcov'))
+    accepting = set(('coverage.xml', 'clover.xml', 'coverage.txt', 'cobertura.xml', 'jacoco.xml', 'coverage.lcov', 'coverage.gcov'))
 
     for _root, dirs, files in os.walk(root):
         if SKIP_DIRECTORIES.search(_root): continue
@@ -35,8 +32,15 @@ def build_reports(root):
                 table_of_contents.append(fp)
         # is there a coverage report?
         for coverage in (accepting & set(files)):
-            with open(os.path.join(_root, coverage), 'r') as coverage_file:
-                reports.append(coverage_file.read())
+            with open(os.path.join(_root, coverage), 'r') as f:
+                reports.append(f.read())
+
+    if len(reports) == 0:
+        # (python)
+        try_to_run('coverage xml -o coverage.xml')
+        if os.path.exists(os.path.join(root, 'coverage.xml')):
+            with open(os.path.join(root, 'coverage.xml'), 'r') as f:
+                reports.append(f.read())
 
     assert len(reports) > 0, "error no coverage report found, could not upload to codecov"
 
