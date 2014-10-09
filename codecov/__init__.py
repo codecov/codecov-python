@@ -188,6 +188,7 @@ def cli():
                     sys.stdout.write("Min-Coverage could not be determined in approriate time... sorry")
                     sys.exit(0)
                 elif int(response.text) >= min_coverage:
+                    sys.stdout.write("Coverage passed at %s%%"%response.text)
                     sys.exit(0)
                 else:
                     sys.exit("requiring %s%% coverage, commit resulted in %s%%" % (str(min_coverage), str(response.text)))
