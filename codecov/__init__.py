@@ -190,7 +190,7 @@ def cli():
                 elif int(response.text) >= min_coverage:
                     sys.exit(0)
                 else:
-                    sys.exit("requiring %s%% coverage, commit resulted in %s%%" % (str(min_coverage), str(data['coverage'])))
+                    sys.exit("requiring %s%% coverage, commit resulted in %s%%" % (str(min_coverage), str(response.text)))
             else:
                 sys.stdout.write('Min-Coverage feature is currently unavailable. Sorry for the inconvenience.\n%s'%response.text)
                 sys.exit(0)

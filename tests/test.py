@@ -186,8 +186,6 @@ class TestUploader(unittest.TestCase):
         output = output.replace(b'\nCoverage.py warning: No data was collected.', b'')
         output = json.loads(output.decode('utf-8'))
         self.assertTrue(output['uploaded'])
-        self.assertEqual(output['features'], {})
         self.assertEqual(output['version'], codecov.version)
         self.assertRegexpMatches(output['url'], r"\/github\/codecov\/ci-repo\?ref\=c739768fcac68144a3a6d82305b9c4106934d31a$")
         self.assertEqual(output["message"], "Coverage reports upload successfully")
-        self.assertEqual(output["coverage"], 80)
