@@ -13,7 +13,7 @@ try:
 except ImportError: # pragma: no cover
     from urllib import urlencode
 
-version = VERSION = __version__ = '1.1.0'
+version = VERSION = __version__ = '1.1.1'
 
 SKIP_DIRECTORIES = re.compile(r'\/(\..+|(vendor|virtualenv|venv\/(lib|bin)|build\/lib|\.git|\.egg\-info))\/')
 SKIP_FILES = re.compile(r'(\.tar\.gz|\.pyc|\.egg|(\/\..+)|\.txt)$')
@@ -37,10 +37,14 @@ def build_reports(root):
 
     if len(reports) == 0:
         # (python)
-        try_to_run('coverage xml -o coverage.xml')
+        try_to_run('coverage xml')
         if os.path.exists(os.path.join(root, 'coverage.xml')):
             with open(os.path.join(root, 'coverage.xml'), 'r') as f:
                 reports.append(f.read())
+
+    if os.getenv('TRAVIS_PYTHON_VERSION'):
+        # send `coverage debug sys` to rollbar
+        sys.stdout.write("Coverage output error. You may need to add a coverage config file. Visit http://bit.ly/1slucpy for configuration help.")
 
     assert len(reports) > 0, "error no coverage report found, could not upload to codecov"
 
