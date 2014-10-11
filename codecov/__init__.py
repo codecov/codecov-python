@@ -35,13 +35,12 @@ def build_reports(root):
             with open(os.path.join(_root, coverage), 'r') as f:
                 reports.append(f.read())
 
-    if os.getenv('TRAVIS_PYTHON_VERSION'):
-        # (python), try to generate a report
-        if len(reports) == 0:
-            try_to_run('coverage xml')
-            if os.path.exists(os.path.join(root, 'coverage.xml')):
-                with open(os.path.join(root, 'coverage.xml'), 'r') as f:
-                    reports.append(f.read())
+    # (python), try to generate a report
+    if len(reports) == 0:
+        try_to_run('coverage xml')
+        if os.path.exists(os.path.join(root, 'coverage.xml')):
+            with open(os.path.join(root, 'coverage.xml'), 'r') as f:
+                reports.append(f.read())
 
         # warn when no reports found and is python
         if len(reports)==0:
