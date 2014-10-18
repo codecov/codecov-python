@@ -4,10 +4,10 @@ import os
 import re
 import sys
 import time
+import json
 import requests
 import argparse
 import subprocess
-from json import dumps
 
 try:
     from urllib.parse import urlencode
@@ -16,7 +16,7 @@ except ImportError: # pragma: no cover
 
 version = VERSION = __version__ = '1.1.1'
 
-SKIP_DIRECTORIES = re.compile(r'\/(\..+|(vendor|virtualenv|venv\/(lib|bin)|build\/lib|\.git|\.egg\-info))\/')
+SKIP_DIRECTORIES = re.compile(r'\/(\..+|((Sites\/www\/bower)|node_modules|vendor|virtualenv|venv\/(lib|bin)|build\/lib|\.git|\.egg\-info))\/')
 SKIP_FILES = re.compile(r'(\.tar\.gz|\.pyc|\.egg|(\/\..+)|\.txt)$')
 
 def build_reports(root):
@@ -80,6 +80,7 @@ def upload(url, root, **kwargs):
         kwargs['package'] = "codecov-v%s" % VERSION
 
         url = "%s/upload/v2?%s" % (url, urlencode(dict([(k, v.strip()) for k, v in kwargs.items() if v is not None])))
+
         result = requests.post(url, data=reports)
         result.raise_for_status()
         return result.json()
@@ -169,18 +170,18 @@ def main(*argv):
     parser = argparse.ArgumentParser(prog='codecov', add_help=True,
                                      formatter_class=argparse.RawDescriptionHelpFormatter,
                                      epilog="""Read more at https://codecov.io/""")
-    parser.add_argument('--version', action='version', version='codecov '+version+" - https://codecov.io")
+    parser.add_argument('--version', action='version', version='codecov-python v'+version+" - https://codecov.io/")
     parser.add_argument('--commit', default=defaults.pop('commit'), help="commit ref")
     parser.add_argument('--min-coverage', default="0", help="min coverage goal, otherwise build fails")
     parser.add_argument('--branch', default=defaults.pop('branch'), help="commit branch name")
-    parser.add_argument('--json', action="store_true", help="output json data only")
+    parser.add_argument('--json', action="store_true", default=False, help="output json data only")
     parser.add_argument('--token', '-t', default=os.getenv("CODECOV_TOKEN"), help="codecov repository token")
     parser.add_argument('--url', default=os.getenv("CODECOV_ENDPOINT", "https://codecov.io"), help="url for enteprise customers")
     if argv:
         codecov = parser.parse_args(argv)
     else:
         codecov = parser.parse_args()
-    
+
     data = upload(url=codecov.url, branch=codecov.branch, commit=codecov.commit, token=codecov.token, **defaults)
     return data, codecov
 
@@ -190,7 +191,7 @@ def cli():
     min_coverage = int(codecov.min_coverage)
     defaults.update(data)
     if codecov.json:
-        sys.stdout.write(dumps(defaults))
+        sys.stdout.write(json.dumps(defaults))
     else:
         sys.stdout.write("Uploaded: %(uploaded)s\nReport URL: %(url)s\nUpload Version: codecov-v%(version)s\nMessage: %(message)s\n" % defaults)
     if min_coverage > 0:
@@ -199,25 +200,25 @@ def cli():
         for x in (1,2,3,4,5):
             sys.stdout.write('Waiting for codecov build (%d/5)...'%x)
             try:
-                response = requests.get(data['wait_url'], timeout=20)
+                response = requests.get(data['wait_url'], timeout=15)
             except requests.exceptions.Timeout:
                 time.sleep(.001)
             else:
                 if response.status_code == 200:
-                    if response.text == 'n/a':
-                        if not codecov.json:
-                            sys.stdout.write("min-coverage could not be determined in approriate time... sorry")
+                    try:
+                        coverage = json.loads(response.text).get('coverage')
+                    except:
+                        coverage = response.text
+                    if coverage in ('n/a', None):
+                        sys.stdout.write("min-coverage could not be determined in approriate time... sorry")
                         sys.exit(0)
-                    elif int(response.text) >= min_coverage:
-                        if not codecov.json:
-                            sys.stdout.write("Coverage passed at %s%%"%response.text)
+                    elif int(coverage) >= min_coverage:
+                        sys.stdout.write("Coverage passed at %s%%"%coverage)
                         sys.exit(0)
                     else:
-                        if not codecov.json:
-                            sys.exit("requiring %s%% coverage, commit resulted in %s%%" % (str(min_coverage), str(response.text)))
+                        sys.exit("requiring %s%% coverage, commit resulted in %s%%" % (str(min_coverage), str(coverage)))
                 else:
-                    if not codecov.json:
-                        sys.stdout.write('Min-Coverage feature is currently unavailable. Sorry for the inconvenience.\n%s'%response.text)
+                    sys.stdout.write('Min-Coverage feature is currently unavailable. Sorry for the inconvenience.\n%s'%coverage)
                     sys.exit(0)
 
 if __name__ == '__main__':
