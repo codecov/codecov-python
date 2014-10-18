@@ -3,6 +3,7 @@
 import os
 import re
 import sys
+import time
 import requests
 import argparse
 import subprocess
@@ -195,25 +196,29 @@ def cli():
     if min_coverage > 0:
         # we need to wait for the job to complete
         # waiting up to 3 timeouts
-        for x in (1,2,3):
-            sys.stdout.write('Waiting for codecov build (%d/3)...'%x)
-            response = requests.get(data['wait_url'])
-            if response.status_code == 200:
-                if response.text == 'n/a':
-                    if not codecov.json:
-                        sys.stdout.write("min-coverage could not be determined in approriate time... sorry")
-                    sys.exit(0)
-                elif int(response.text) >= min_coverage:
-                    if not codecov.json:
-                        sys.stdout.write("Coverage passed at %s%%"%response.text)
-                    sys.exit(0)
+        for x in (1,2,3,4,5):
+            sys.stdout.write('Waiting for codecov build (%d/5)...'%x)
+            try:
+                response = requests.get(data['wait_url'], timeout=20)
+            except requests.exceptions.Timeout:
+                time.sleep(.001)
+            else:
+                if response.status_code == 200:
+                    if response.text == 'n/a':
+                        if not codecov.json:
+                            sys.stdout.write("min-coverage could not be determined in approriate time... sorry")
+                        sys.exit(0)
+                    elif int(response.text) >= min_coverage:
+                        if not codecov.json:
+                            sys.stdout.write("Coverage passed at %s%%"%response.text)
+                        sys.exit(0)
+                    else:
+                        if not codecov.json:
+                            sys.exit("requiring %s%% coverage, commit resulted in %s%%" % (str(min_coverage), str(response.text)))
                 else:
                     if not codecov.json:
-                        sys.exit("requiring %s%% coverage, commit resulted in %s%%" % (str(min_coverage), str(response.text)))
-            else:
-                if not codecov.json:
-                    sys.stdout.write('Min-Coverage feature is currently unavailable. Sorry for the inconvenience.\n%s'%response.text)
-                sys.exit(0)
+                        sys.stdout.write('Min-Coverage feature is currently unavailable. Sorry for the inconvenience.\n%s'%response.text)
+                    sys.exit(0)
 
 if __name__ == '__main__':
     cli()
