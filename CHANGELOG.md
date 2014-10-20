@@ -3,3 +3,4 @@
 - now defaulting output to **plain text**. Use `--json` to return json results
 - added `jacocoTestReport.xml` to search list
 - changed `--min-coverage` waiting methods to, `5 tries @ 15s` each
+- added `Sites/www/bower` and `node_modules` to ignored table of contents
