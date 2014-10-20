@@ -198,7 +198,7 @@ def cli():
         # we need to wait for the job to complete
         # waiting up to 3 timeouts
         for x in (1,2,3,4,5):
-            sys.stdout.write('Waiting for codecov build (%d/5)...'%x)
+            sys.stdout.write('Waiting for codecov build (%d/5)...\n'%x)
             try:
                 response = requests.get(data['wait_url'], timeout=15)
             except requests.exceptions.Timeout:
@@ -210,15 +210,15 @@ def cli():
                     except:
                         coverage = response.text
                     if coverage in ('n/a', None):
-                        sys.stdout.write("min-coverage could not be determined in approriate time... sorry")
+                        sys.stdout.write("min-coverage could not be determined in approriate time... sorry\n")
                         sys.exit(0)
                     elif int(coverage) >= min_coverage:
                         sys.stdout.write("Coverage passed at %s%%"%coverage)
                         sys.exit(0)
                     else:
-                        sys.exit("requiring %s%% coverage, commit resulted in %s%%" % (str(min_coverage), str(coverage)))
+                        sys.exit("requiring %s%% coverage, commit resulted in %s%%\n" % (str(min_coverage), str(coverage)))
                 else:
-                    sys.stdout.write('Min-Coverage feature is currently unavailable. Sorry for the inconvenience.\n%s'%coverage)
+                    sys.stdout.write('Min-Coverage feature is currently unavailable. Sorry for the inconvenience.\n%s\n'%str(coverage))
                     sys.exit(0)
 
 if __name__ == '__main__':
