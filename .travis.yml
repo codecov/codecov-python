@@ -13,4 +13,9 @@ install:
 script:
   - nosetests --rednose --with-cov --cov-config=.coveragerc
 after_success:
-  codecov
+  # remove test coverage files
+  # this command is not needed in your setup
+  # only this project
+  - rm -rf tests/coverages
+  # now send just codecov-python coverage stats out
+  - codecov
