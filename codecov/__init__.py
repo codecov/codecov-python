@@ -197,12 +197,13 @@ def cli():
     if min_coverage > 0:
         # we need to wait for the job to complete
         # waiting up to 3 timeouts
+        time.sleep(.1)
         for x in (1,2,3,4,5):
             sys.stdout.write('Waiting for codecov build (%d/5)...\n'%x)
             try:
                 response = requests.get(data['wait_url'], timeout=15)
             except requests.exceptions.Timeout:
-                time.sleep(.001)
+                time.sleep(.1)
             else:
                 if response.status_code == 200:
                     try:
