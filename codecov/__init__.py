@@ -61,7 +61,7 @@ def try_to_run(cmd):
     except:
         pass
 
-def upload(url, root, **kwargs):
+def upload(url, root, env=None, **kwargs):
     try:
         if not root:
             root = os.getcwd()
@@ -76,6 +76,9 @@ def upload(url, root, **kwargs):
         reports = build_reports(root)
 
         assert reports, "error no coverage report found, could not upload to codecov"
+
+        if env:
+            reports = "\n<<<<<< ENV\n".join(("\n".join(["%s=%s"%(k,os.getenv(k,'')) for k in env]), reports))
 
         kwargs['package'] = "codecov-v%s" % VERSION
 
@@ -175,6 +178,7 @@ def main(*argv):
     parser.add_argument('--min-coverage', default="0", help="min coverage goal, otherwise build fails")
     parser.add_argument('--branch', default=defaults.pop('branch'), help="commit branch name")
     parser.add_argument('--json', action="store_true", default=False, help="output json data only")
+    parser.add_argument('--env', nargs="*", help="store config variables for coverage builds")
     parser.add_argument('--token', '-t', default=os.getenv("CODECOV_TOKEN"), help="codecov repository token")
     parser.add_argument('--url', default=os.getenv("CODECOV_ENDPOINT", "https://codecov.io"), help="url for enteprise customers")
     if argv:
@@ -182,7 +186,7 @@ def main(*argv):
     else:
         codecov = parser.parse_args()
 
-    data = upload(url=codecov.url, branch=codecov.branch, commit=codecov.commit, token=codecov.token, **defaults)
+    data = upload(url=codecov.url, branch=codecov.branch, commit=codecov.commit, token=codecov.token, env=codecov.env, **defaults)
     return data, codecov
 
 def cli():
