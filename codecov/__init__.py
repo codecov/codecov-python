@@ -14,7 +14,7 @@ try:
 except ImportError: # pragma: no cover
     from urllib import urlencode
 
-version = VERSION = __version__ = '1.1.1'
+version = VERSION = __version__ = '1.1.2'
 
 SKIP_DIRECTORIES = re.compile(r'\/(\..+|((Sites\/www\/bower)|node_modules|vendor|virtualenv|venv\/(lib|bin)|build\/lib|\.git|\.egg\-info))\/')
 SKIP_FILES = re.compile(r'(\.tar\.gz|\.pyc|\.egg|(\/\..+)|\.txt)$')

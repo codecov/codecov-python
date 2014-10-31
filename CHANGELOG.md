@@ -1,3 +1,8 @@
+### `1.1.2`
+- search for `lcov.info` files 
+- pause for `.1` before checking for min-coverage
+- accept `--env` variables which are stored in front-end for build specs
+
 ### 1.1.1
 - build python coverage xml only when no reports found to fix overriding reports
 - now defaulting output to **plain text**. Use `--json` to return json results

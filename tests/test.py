@@ -12,6 +12,7 @@ class TestUploader(unittest.TestCase):
     url = os.getenv("DEBUG_URL", "https://codecov.io")
     maxDiff = None
     a_report = os.path.join(os.path.dirname(__file__), "coverages/xml/cobertura/")
+    upload_token = "473c8c5b-10ee-4d83-86c6-bfd72a185a27"
 
     def setUp(self):
         # set all environ back
@@ -35,7 +36,7 @@ class TestUploader(unittest.TestCase):
     def basics(self):
         """Default information for testing
         """
-        return dict(token="473c8c5b-10ee-4d83-86c6-bfd72a185a27", 
+        return dict(token=self.upload_token, 
                     root=os.path.join(os.path.dirname(__file__), "coverages/"),
                     url=self.url, 
                     commit="743b04806ea677403aa2ff26c6bdeb85005de658", 
@@ -110,7 +111,7 @@ class TestUploader(unittest.TestCase):
                      GIT_COMMIT="c739768fcac68144a3a6d82305b9c4106934d31a",
                      WORKSPACE=self.a_report, 
                      BUILD_NUMBER="41", 
-                     CODECOV_TOKEN='473c8c5b-10ee-4d83-86c6-bfd72a185a27')
+                     CODECOV_TOKEN=self.upload_token)
         self.passed(self.command())
 
     def test_ci_travis(self): 
@@ -129,7 +130,7 @@ class TestUploader(unittest.TestCase):
                      CI_BUILD_NUMBER='20',
                      CI_BUILD_URL='https://codeship.io/build/1',
                      CI_COMMIT_ID='743b04806ea677403aa2ff26c6bdeb85005de658',
-                     CODECOV_TOKEN='473c8c5b-10ee-4d83-86c6-bfd72a185a27')
+                     CODECOV_TOKEN=self.upload_token)
         self.passed(self.command())
 
     def test_ci_circleci(self):
@@ -147,7 +148,7 @@ class TestUploader(unittest.TestCase):
                      SEMAPHORE_BUILD_NUMBER="10",
                      SEMAPHORE_REPO_SLUG='codecov/ci-repo',
                      SEMAPHORE_PROJECT_HASH_ID="743b04806ea677403aa2ff26c6bdeb85005de658",
-                     CODECOV_TOKEN='473c8c5b-10ee-4d83-86c6-bfd72a185a27')
+                     CODECOV_TOKEN=self.upload_token)
         self.passed(self.command())
 
     def test_ci_drone(self):
@@ -156,7 +157,7 @@ class TestUploader(unittest.TestCase):
                      DRONE_BRANCH="master",
                      DRONE_BUILD_URL="https://drone.io/github/builds/1",
                      DRONE_COMMIT="743b04806ea677403aa2ff26c6bdeb85005de658",
-                     CODECOV_TOKEN='473c8c5b-10ee-4d83-86c6-bfd72a185a27')
+                     CODECOV_TOKEN=self.upload_token)
         self.passed(self.command())
 
     def test_min_coverage(self):
