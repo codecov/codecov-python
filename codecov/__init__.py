@@ -16,7 +16,7 @@ except ImportError: # pragma: no cover
 
 version = VERSION = __version__ = '1.1.2'
 
-SKIP_DIRECTORIES = re.compile(r'\/(\..+|((Sites\/www\/bower)|node_modules|vendor|virtualenv|venv\/(lib|bin)|build\/lib|\.git|\.egg\-info))\/')
+SKIP_DIRECTORIES = re.compile(r'\/(\..+|((Sites\/www\/bower)|node_modules|vendor|bower_components|virtualenv|venv\/(lib|bin)|build\/lib|\.git|\.egg\-info))\/')
 SKIP_FILES = re.compile(r'(\.tar\.gz|\.pyc|\.egg|(\/\..+)|\.txt)$')
 
 def build_reports(root):
