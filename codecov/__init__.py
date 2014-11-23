@@ -161,6 +161,17 @@ def main(*argv):
                              build=os.getenv('BUILD_ID'),
                              build_url=os.getenv('DRONE_BUILD_URL'),
                              commit=os.getenv('DRONE_COMMIT')))
+    # --------
+    # AppVeyor
+    # --------
+    elif os.getenv('CI') == "True" and os.getenv('APPVEYOR') == 'True':
+        # http://www.appveyor.com/docs/environment-variables
+        defaults.update(dict(branch=os.getenv('APPVEYOR_REPO_BRANCH'),
+                             service='appveyor',
+                             build=os.getenv('APPVEYOR_BUILD_NUMBER'),
+                             owner=os.getenv('APPVEYOR_PROJECT_SLUG').split('/',1)[0],
+                             repo=os.getenv('APPVEYOR_PROJECT_SLUG').split('/',1)[1],
+                             commit=os.getenv('APPVEYOR_REPO_COMMIT')))
     # ---
     # git
     # ---
