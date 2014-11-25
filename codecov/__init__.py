@@ -167,10 +167,9 @@ def main(*argv):
     elif os.getenv('CI') == "True" and os.getenv('APPVEYOR') == 'True':
         # http://www.appveyor.com/docs/environment-variables
         defaults.update(dict(branch=os.getenv('APPVEYOR_REPO_BRANCH'),
-                             service='appveyor',
                              build=os.getenv('APPVEYOR_BUILD_NUMBER'),
-                             owner=os.getenv('APPVEYOR_PROJECT_SLUG').split('/',1)[0],
-                             repo=os.getenv('APPVEYOR_PROJECT_SLUG').split('/',1)[1],
+                             owner=os.getenv('APPVEYOR_REPO_NAME').split('/',1)[0],
+                             repo=os.getenv('APPVEYOR_REPO_NAME').split('/',1)[1],
                              commit=os.getenv('APPVEYOR_REPO_COMMIT')))
     # ---
     # git
