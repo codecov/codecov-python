@@ -24,7 +24,8 @@ class TestUploader(unittest.TestCase):
                     "SEMAPHORE", "BRANCH_NAME", "SEMAPHORE_PROJECT_DIR", "SEMAPHORE_PROJECT_HASH_ID", 
                     "DRONE", "DRONE_BRANCH", "DRONE_BUILD_DIR", "DRONE_COMMIT", "JENKINS_URL",
                     "GIT_BRANCH", "GIT_COMMIT", "WORKSPACE", "BUILD_NUMBER", "CI_BUILD_URL", "SEMAPHORE_REPO_SLUG",
-                    "DRONE_BUILD_URL", "TRAVIS_REPO_SLUG", "CODECOV_TOKEN"):
+                    "DRONE_BUILD_URL", "TRAVIS_REPO_SLUG", "CODECOV_TOKEN", "APPVEYOR", "APPVEYOR_REPO_BRANCH",
+                    "APPVEYOR_BUILD_NUMBER", "APPVEYOR_REPO_NAME", "APPVEYOR_REPO_COMMIT"):
             os.environ[key] = ""
 
     def set_env(self, **kwargs):
@@ -157,6 +158,15 @@ class TestUploader(unittest.TestCase):
                      DRONE_BRANCH="master",
                      DRONE_BUILD_URL="https://drone.io/github/builds/1",
                      DRONE_COMMIT="743b04806ea677403aa2ff26c6bdeb85005de658",
+                     CODECOV_TOKEN=self.upload_token)
+        self.passed(self.command())
+
+    def test_ci_appveyor(self):
+        self.set_env(APPVEYOR='True',
+                     APPVEYOR_BUILD_NUMBER="57",
+                     APPVEYOR_REPO_BRANCH="add-django-tests",
+                     APPVEYOR_REPO_NAME="FreeMusicNinja/freemusic.ninja",
+                     APPVEYOR_REPO_COMMIT="d653b934ed59c1a785cc1cc79d08c9aaa4eba73b",
                      CODECOV_TOKEN=self.upload_token)
         self.passed(self.command())
 
