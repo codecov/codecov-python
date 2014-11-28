@@ -1,11 +1,15 @@
 import os
 import json
 import requests
-import unittest
+import unittest2 as unittest
 import itertools
-import subprocess
 
 import codecov
+
+try:
+    import subprocess32 as subprocess
+except ImportError:
+    import subprocess
 
 
 class TestUploader(unittest.TestCase):

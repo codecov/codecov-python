@@ -7,12 +7,16 @@ import time
 import json
 import requests
 import argparse
-import subprocess
 
 try:
     from urllib.parse import urlencode
 except ImportError: # pragma: no cover
     from urllib import urlencode
+
+try:
+    import subprocess32 as subprocess
+except ImportError:
+    import subprocess
 
 version = VERSION = __version__ = '1.1.3'
 

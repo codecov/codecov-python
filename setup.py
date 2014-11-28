@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from setuptools import setup
+import sys
 
 version = '1.1.3'
 classifiers = ["Development Status :: 4 - Beta",
@@ -26,5 +27,6 @@ setup(name='codecov',
       packages=['codecov'],
       include_package_data=True,
       zip_safe=True,
-      install_requires=["requests>=2.0.0", "coverage"],
+      install_requires=["requests>=2.0.0", "coverage"] + (["subprocess32"] if sys.version_info[:2] == (2, 6) else []),
+      tests_require=["unittest2"],
       entry_points={'console_scripts': ['codecov=codecov:cli']})
