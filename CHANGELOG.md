@@ -1,3 +1,7 @@
+### `1.1.4`
+- added support for pyhton 2.6 by @Robpol86
+- added AppVeyor support by @Robpol86
+
 ### `1.1.3`
 - added more ignore paths
 

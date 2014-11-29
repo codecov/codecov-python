@@ -18,7 +18,7 @@ try:
 except ImportError:
     import subprocess
 
-version = VERSION = __version__ = '1.1.3'
+version = VERSION = __version__ = '1.1.4'
 
 SKIP_DIRECTORIES = re.compile(r'\/(\..+|((Sites\/www\/bower)|node_modules|vendor|bower_components|(coverage\/instrumented)|virtualenv|venv\/(lib|bin)|build\/lib|\.git|\.egg\-info))\/')
 SKIP_FILES = re.compile(r'(\.tar\.gz|\.pyc|\.egg|(\/\..+)|\.txt)$')
