@@ -195,7 +195,7 @@ def main(*argv):
                                      epilog="""Read more at https://codecov.io/""")
     parser.add_argument('--version', action='version', version='codecov-python v'+version+" - https://codecov.io/")
     parser.add_argument('--commit', default=defaults.pop('commit'), help="commit ref")
-    parser.add_argument('--min-coverage', default="0", help="min coverage goal, otherwise build fails")
+    parser.add_argument('--min-coverage', default="0", help="DEPRECIATING SOON, min coverage goal, otherwise build fails")
     parser.add_argument('--branch', default=defaults.pop('branch'), help="commit branch name")
     parser.add_argument('--json', action="store_true", default=False, help="output json data only")
     parser.add_argument('--env', nargs="*", help="store config variables for coverage builds")
@@ -219,6 +219,7 @@ def cli():
     else:
         sys.stdout.write("Uploaded: %(uploaded)s\nReport URL: %(url)s\nUpload Version: codecov-v%(version)s\nMessage: %(message)s\n" % defaults)
     if min_coverage > 0:
+        sys.stdout.write("WARNING: --min-coverage will be depreciated soon. Please use Github Status updates found in your features. Thank you!!!")
         # we need to wait for the job to complete
         # waiting up to 3 timeouts
         time.sleep(.1)
