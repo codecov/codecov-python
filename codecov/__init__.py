@@ -26,7 +26,7 @@ SKIP_FILES = re.compile(r'(\.tar\.gz|\.pyc|\.egg|(\/\..+)|\.txt)$')
 def build_reports(root):
     reports = []
     table_of_contents = []
-    accepting = set(('coverage.xml', 'jacocoTestReport.xml', 'clover.xml', 'coverage.txt', 'cobertura.xml', 'jacoco.xml', 'lcov.info', 'coverage.lcov', 'coverage.gcov'))
+    accepting = set(('coverage.xml', 'jacocoTestReport.xml', 'clover.xml', 'coverage.txt', 'cobertura.xml', 'jacoco.xml', 'lcov.info'))
 
     for _root, dirs, files in os.walk(root):
         if SKIP_DIRECTORIES.search(_root): continue
@@ -40,6 +40,12 @@ def build_reports(root):
             with open(os.path.join(_root, coverage), 'r') as f:
                 reports.append(f.read())
 
+        # search for all .lcov|.gcov
+        for filepath in files:
+            if filepath.endswith('.lcov') or filepath.endswith('.gcov'):
+                with open(os.path.join(_root, filepath), 'r') as f:
+                    reports.append(f.read())
+
     # (python), try to generate a report
     if len(reports) == 0:
         try_to_run('coverage xml')
@@ -50,7 +56,7 @@ def build_reports(root):
         # warn when no reports found and is python
         if len(reports)==0:
             # TODO send `coverage debug sys` to rollbar
-            sys.stdout.write("Coverage output error. You may need to add a coverage config file. Visit http://bit.ly/1slucpy for configuration help.")
+            sys.stdout.write("No reports found. You may need to add a coverage config file. Visit http://bit.ly/1slucpy for configuration help.")
 
     assert len(reports) > 0, "error no coverage report found, could not upload to codecov"
 
