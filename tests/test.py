@@ -174,22 +174,6 @@ class TestUploader(unittest.TestCase):
                      CODECOV_TOKEN=self.upload_token)
         self.passed(self.command())
 
-    def test_min_coverage(self):
-        self.set_env(TRAVIS="true",
-                     TRAVIS_BRANCH="master",
-                     TRAVIS_COMMIT="c739768fcac68144a3a6d82305b9c4106934d31a",
-                     TRAVIS_REPO_SLUG='codecov/ci-repo',
-                     TRAVIS_BUILD_DIR=self.a_report,
-                     TRAVIS_JOB_ID="33116958")
-        subprocess.check_output("python -m codecov.__init__ --min-coverage=75", shell=True)
-
-        try:
-            subprocess.check_output("python -m codecov.__init__ --min-coverage=90", shell=True)
-        except subprocess.CalledProcessError as e:
-            self.assertEqual(e.returncode, 1)
-        else:
-            raise AssertionError("Process exited with 0 status code")
-
     def test_cli(self):
         self.set_env(TRAVIS="true",
                      TRAVIS_BRANCH="master",
@@ -202,7 +186,7 @@ class TestUploader(unittest.TestCase):
         output = output.decode('utf-8')
         output = output.split('\n')
         self.assertEqual(output[0], "Uploaded: True")
-        self.assertRegexpMatches(output[1], r"Report URL: https?://\w+(\:?\d*|\.io)?/github/codecov/ci-repo\?ref=c739768fcac68144a3a6d82305b9c4106934d31a$")
+        self.assertRegexpMatches(output[1], r"Report URL: https?://[\w\-]+(\:?\d*|\.io)?/github/codecov/ci-repo\?ref=c739768fcac68144a3a6d82305b9c4106934d31a$")
         self.assertEqual(output[2], "Upload Version: codecov-v%s"%codecov.version)
         self.assertEqual(output[3], "Message: Coverage reports upload successfully")
 
