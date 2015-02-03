@@ -195,7 +195,6 @@ def main(*argv):
                                      epilog="""Read more at https://codecov.io/""")
     parser.add_argument('--version', action='version', version='codecov-python v'+version+" - https://codecov.io/")
     parser.add_argument('--commit', default=defaults.pop('commit'), help="commit ref")
-    parser.add_argument('--min-coverage', default="0", help="DEPRECIATING SOON, min coverage goal, otherwise build fails")
     parser.add_argument('--branch', default=defaults.pop('branch'), help="commit branch name")
     parser.add_argument('--json', action="store_true", default=False, help="output json data only")
     parser.add_argument('--env', nargs="*", help="store config variables for coverage builds")
@@ -212,40 +211,11 @@ def main(*argv):
 def cli():
     defaults = dict(uploaded=False, url="n/a", version=version, message="unknown")
     data, codecov = main()
-    min_coverage = int(codecov.min_coverage)
     defaults.update(data)
     if codecov.json:
         sys.stdout.write(json.dumps(defaults))
     else:
         sys.stdout.write("Uploaded: %(uploaded)s\nReport URL: %(url)s\nUpload Version: codecov-v%(version)s\nMessage: %(message)s\n" % defaults)
-    if min_coverage > 0:
-        sys.stdout.write("WARNING: --min-coverage will be depreciated soon. Please use Github Status updates found in your features. Thank you!!!")
-        # we need to wait for the job to complete
-        # waiting up to 3 timeouts
-        time.sleep(.1)
-        for x in (1,2,3,4,5):
-            sys.stdout.write('Waiting for codecov build (%d/5)...\n'%x)
-            try:
-                response = requests.get(data['wait_url'], timeout=15)
-            except requests.exceptions.Timeout:
-                time.sleep(.1)
-            else:
-                if response.status_code == 200:
-                    try:
-                        coverage = json.loads(response.text).get('coverage')
-                    except:
-                        coverage = response.text
-                    if coverage in ('n/a', None):
-                        sys.stdout.write("min-coverage could not be determined in approriate time... sorry\n")
-                        sys.exit(0)
-                    elif int(coverage) >= min_coverage:
-                        sys.stdout.write("Coverage passed at %s%%"%coverage)
-                        sys.exit(0)
-                    else:
-                        sys.exit("requiring %s%% coverage, commit resulted in %s%%\n" % (str(min_coverage), str(coverage)))
-                else:
-                    sys.stdout.write('Min-Coverage feature is currently unavailable. Sorry for the inconvenience.\n%s\n'%str(coverage))
-                    sys.exit(0)
 
 if __name__ == '__main__':
     cli()
