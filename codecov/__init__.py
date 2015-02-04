@@ -110,6 +110,8 @@ def upload(url, root, env=None, **kwargs):
         url = "%s/upload/v2?%s" % (url, urlencode(dict([(k, v.strip()) for k, v in kwargs.items() if v is not None])))
 
         result = requests.post(url, data=reports)
+        if result.status_code != 200:
+            sys.stdout.write(result.text)
         result.raise_for_status()
         return result.json()
 
