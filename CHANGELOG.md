@@ -1,6 +1,7 @@
 ### `1.1.5`
 - search for all `lcov|gcov` files
 - depreciate `--min-coverage`, use Github Status Update feature
+- pre-process xml => json
 
 ### `1.1.4`
 - added support for pyhton 2.6 by @Robpol86

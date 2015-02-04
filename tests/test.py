@@ -97,7 +97,7 @@ class TestUploader(unittest.TestCase):
         self.failed(self.upload(token=""), "missing token or other required argument(s)")
 
     def test_fail_3(self): 
-        self.assertRaisesRegexp(requests.exceptions.HTTPError, "commit sha mismatch", self.upload, travis_job_id="12125215", token="")
+        self.assertRaises(requests.exceptions.HTTPError, self.upload, travis_job_id="12125215", token="")
 
     def test_fail_4(self): 
         self.failed(self.upload(commit=""), "commit hash is required")

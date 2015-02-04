@@ -3,10 +3,15 @@
 import os
 import re
 import sys
-import time
 import json
 import requests
 import argparse
+from json import dumps
+import xml.etree.cElementTree as etree
+
+from codecov import jacoco
+from codecov import clover
+from codecov import cobertura
 
 try:
     from urllib.parse import urlencode
@@ -18,7 +23,7 @@ try:
 except ImportError:
     import subprocess
 
-version = VERSION = __version__ = '1.1.4'
+version = VERSION = __version__ = '1.1.5'
 
 SKIP_DIRECTORIES = re.compile(r'\/(\..+|((Sites\/www\/bower)|node_modules|vendor|bower_components|(coverage\/instrumented)|virtualenv|venv\/(lib|bin)|build\/lib|\.git|\.egg\-info))\/')
 SKIP_FILES = re.compile(r'(\.tar\.gz|\.pyc|\.egg|(\/\..+)|\.txt)$')
@@ -38,7 +43,17 @@ def build_reports(root):
         # is there a coverage report?
         for coverage in (accepting & set(files)):
             with open(os.path.join(_root, coverage), 'r') as f:
-                reports.append(f.read())
+                if coverage in ('jacoco.xml', 'jacocoTestReport.xml'):
+                    reports.append(dumps(jacoco.from_xml(f.read())))
+                elif coverage.endswith('xml'):
+                    xml = etree.fromstring(f.read())
+                    if xml.attrib.get('generated'):
+                        reports.append(dumps(clover.from_xml(xml)))
+                    else:
+                        reports.append(dumps(cobertura.from_xml(xml)))
+                    del xml
+                else:
+                    reports.append(f.read())
 
         # search for all .lcov|.gcov
         for filepath in files:
