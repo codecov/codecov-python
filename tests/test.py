@@ -186,7 +186,7 @@ class TestUploader(unittest.TestCase):
         output = output.decode('utf-8')
         output = output.split('\n')
         self.assertEqual(output[0], "Uploaded: True")
-        self.assertRegexpMatches(output[1], r"Report URL: https?://[\w\-]+(\:?\d*|\.io)?/github/codecov/ci-repo\?ref=c739768fcac68144a3a6d82305b9c4106934d31a$")
+        self.assertRegexpMatches(output[1], r"Report URL: https?://[\w\-\.]+(\:?\d*|\.io)?/github/codecov/ci-repo\?ref=c739768fcac68144a3a6d82305b9c4106934d31a$")
         self.assertEqual(output[2], "Upload Version: codecov-v%s"%codecov.version)
         self.assertEqual(output[3], "Message: Coverage reports upload successfully")
 
