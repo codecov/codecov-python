@@ -43,11 +43,11 @@ def build_reports(root):
         # is there a coverage report?
         for coverage in (accepting & set(files)):
             with open(os.path.join(_root, coverage), 'r') as f:
-                if coverage in ('jacoco.xml', 'jacocoTestReport.xml'):
-                    reports.append(dumps(jacoco.from_xml(f.read())))
-                elif coverage.endswith('xml'):
+                if coverage.endswith('xml'):
                     xml = etree.fromstring(f.read())
-                    if xml.attrib.get('generated'):
+                    if coverage in ('jacoco.xml', 'jacocoTestReport.xml'):
+                        reports.append(dumps(jacoco.from_xml(xml)))
+                    elif xml.attrib.get('generated'):
                         reports.append(dumps(clover.from_xml(xml)))
                     else:
                         reports.append(dumps(cobertura.from_xml(xml)))
@@ -66,7 +66,7 @@ def build_reports(root):
         try_to_run('coverage xml')
         if os.path.exists(os.path.join(root, 'coverage.xml')):
             with open(os.path.join(root, 'coverage.xml'), 'r') as f:
-                reports.append(f.read())
+                reports.append(dumps(cobertura.from_xml(etree.fromstring(f.read()))))
 
         # warn when no reports found and is python
         if len(reports)==0:
