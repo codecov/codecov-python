@@ -58,4 +58,4 @@ test:
 
 ## Copyright
 
-> Copyright 2014 codecov
+> Copyright 2014-2015 codecov
