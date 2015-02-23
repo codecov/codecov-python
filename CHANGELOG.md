@@ -1,5 +1,6 @@
 ### `1.1.6`
 - fix semaphore commit revision number
+- preprocess reports from xml
 
 ### `1.1.5`
 - search for all `lcov|gcov` files
