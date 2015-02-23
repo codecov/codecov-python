@@ -1,3 +1,6 @@
+### `1.1.6`
+- fix semaphore commit revision number
+
 ### `1.1.5`
 - search for all `lcov|gcov` files
 - depreciate `--min-coverage`, use Github Status Update feature

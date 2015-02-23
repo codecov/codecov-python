@@ -25,7 +25,7 @@ class TestUploader(unittest.TestCase):
         for key in ("TRAVIS", "TRAVIS_BRANCH", "TRAVIS_COMMIT", "TRAVIS_BUILD_DIR", "TRAVIS_JOB_ID",
                     "CI_NAME", "CI_BRANCH", "CI_COMMIT_ID", 
                     "CIRCLECI", "CIRCLE_BRANCH", "CIRCLE_ARTIFACTS", "CIRCLE_SHA1", 
-                    "SEMAPHORE", "BRANCH_NAME", "SEMAPHORE_PROJECT_DIR", "SEMAPHORE_PROJECT_HASH_ID", 
+                    "SEMAPHORE", "BRANCH_NAME", "SEMAPHORE_PROJECT_DIR", "REVISION", 
                     "DRONE", "DRONE_BRANCH", "DRONE_BUILD_DIR", "DRONE_COMMIT", "JENKINS_URL",
                     "GIT_BRANCH", "GIT_COMMIT", "WORKSPACE", "BUILD_NUMBER", "CI_BUILD_URL", "SEMAPHORE_REPO_SLUG",
                     "DRONE_BUILD_URL", "TRAVIS_REPO_SLUG", "CODECOV_TOKEN", "APPVEYOR", "APPVEYOR_REPO_BRANCH",
@@ -152,7 +152,7 @@ class TestUploader(unittest.TestCase):
                      BRANCH_NAME="master",
                      SEMAPHORE_BUILD_NUMBER="10",
                      SEMAPHORE_REPO_SLUG='codecov/ci-repo',
-                     SEMAPHORE_PROJECT_HASH_ID="743b04806ea677403aa2ff26c6bdeb85005de658",
+                     REVISION="743b04806ea677403aa2ff26c6bdeb85005de658",
                      CODECOV_TOKEN=self.upload_token)
         self.passed(self.command())
 

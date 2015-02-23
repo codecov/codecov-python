@@ -23,7 +23,7 @@ try:
 except ImportError:
     import subprocess
 
-version = VERSION = __version__ = '1.1.5'
+version = VERSION = __version__ = '1.1.6'
 
 SKIP_DIRECTORIES = re.compile(r'\/(\..+|((Sites\/www\/bower)|node_modules|vendor|bower_components|(coverage\/instrumented)|virtualenv|venv\/(lib|bin)|build\/lib|\.git|\.egg\-info))\/')
 SKIP_FILES = re.compile(r'(\.tar\.gz|\.pyc|\.egg|(\/\..+)|\.txt)$')
@@ -177,7 +177,7 @@ def main(*argv):
                              build=os.getenv('SEMAPHORE_BUILD_NUMBER'),
                              owner=os.getenv('SEMAPHORE_REPO_SLUG').split('/',1)[0],
                              repo=os.getenv('SEMAPHORE_REPO_SLUG').split('/',1)[1],
-                             commit=os.getenv('SEMAPHORE_PROJECT_HASH_ID')))
+                             commit=os.getenv('REVISION')))
     # --------
     # drone.io
     # --------
