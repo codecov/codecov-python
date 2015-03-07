@@ -177,7 +177,7 @@ class TestUploader(unittest.TestCase):
         self.passed(self.command())
 
     def test_ci_wercker(self):
-        self.set_env(WERCKER_GIT_BRANCH='add-django-tests',
+        self.set_env(WERCKER_GIT_BRANCH="add-django-tests",
                      WERCKER_MAIN_PIPELINE_STARTED="1399372237",
                      WERCKER_GIT_OWNER="FreeMusicNinja",
                      WERCKER_GIT_REPOSITORY="freemusic.ninja",
