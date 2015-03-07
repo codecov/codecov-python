@@ -185,7 +185,7 @@ def main(*argv):
         # http://docs.drone.io/env.html
         defaults.update(dict(branch=os.getenv('DRONE_BRANCH'),
                              service='drone.io',
-                             build=os.getenv('BUILD_ID'),
+                             build=os.getenv('DRONE_BUILD_NUMBER'),
                              build_url=os.getenv('DRONE_BUILD_URL'),
                              commit=os.getenv('DRONE_COMMIT')))
     # --------
