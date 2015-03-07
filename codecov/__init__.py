@@ -201,7 +201,7 @@ def main(*argv):
     # -------
     # Wercker
     # -------
-    elif os.getenv('CI') == "true" and 'WERCKER_GIT_BRANCH' in os.environ:
+    elif os.getenv('CI') == "true" and os.getenv('WERCKER_GIT_BRANCH'):
         # http://devcenter.wercker.com/articles/steps/variables.html
         defaults.update(dict(branch=os.getenv('WERCKER_GIT_BRANCH'),
                              build=os.getenv('WERCKER_MAIN_PIPELINE_STARTED'),
