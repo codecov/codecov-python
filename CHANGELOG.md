@@ -1,3 +1,8 @@
+### `1.1.7`
+- support for D lang added, special thanks to @ColdenCullen
+- Wercker CI supported by @Robpol86 
+- fixed Drone build number
+
 ### `1.1.6`
 - fix semaphore commit revision number
 - preprocess reports from xml
