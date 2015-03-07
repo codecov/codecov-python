@@ -198,6 +198,16 @@ def main(*argv):
                              owner=os.getenv('APPVEYOR_REPO_NAME').split('/',1)[0],
                              repo=os.getenv('APPVEYOR_REPO_NAME').split('/',1)[1],
                              commit=os.getenv('APPVEYOR_REPO_COMMIT')))
+    # -------
+    # Wercker
+    # -------
+    elif os.getenv('CI') == "true" and 'WERCKER_GIT_BRANCH' in os.getenv:
+        # http://devcenter.wercker.com/articles/steps/variables.html
+        defaults.update(dict(branch=os.getenv('WERCKER_GIT_BRANCH'),
+                             build=os.getenv('WERCKER_MAIN_PIPELINE_STARTED'),
+                             owner=os.getenv('WERCKER_GIT_OWNER'),
+                             repo=os.getenv('WERCKER_GIT_REPOSITORY'),
+                             commit=os.getenv('WERCKER_GIT_COMMIT')))
     # ---
     # git
     # ---
