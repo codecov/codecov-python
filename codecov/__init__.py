@@ -57,7 +57,7 @@ def build_reports(root):
 
         # search for all .lcov|.gcov
         for filepath in files:
-            if filepath.endswith('.lcov') or filepath.endswith('.gcov'):
+            if filepath.endswith('.lcov') or filepath.endswith('.gcov') or filepath.endswith('.lst'):
                 with open(os.path.join(_root, filepath), 'r') as f:
                     reports.append(f.read())
 
