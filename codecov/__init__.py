@@ -23,7 +23,7 @@ try:
 except ImportError:
     import subprocess
 
-version = VERSION = __version__ = '1.1.7'
+version = VERSION = __version__ = '1.1.8'
 
 SKIP_DIRECTORIES = re.compile(r'\/(\..+|((Sites\/www\/bower)|node_modules|vendor|bower_components|(coverage\/instrumented)|virtualenv|venv\/(lib|bin)|build\/lib|\.git|\.egg\-info))\/')
 SKIP_FILES = re.compile(r'(\.tar\.gz|\.pyc|\.egg|(\/\..+)|\.txt)$')
@@ -194,6 +194,7 @@ def main(*argv):
     elif os.getenv('CI') == "True" and os.getenv('APPVEYOR') == 'True':
         # http://www.appveyor.com/docs/environment-variables
         defaults.update(dict(branch=os.getenv('APPVEYOR_REPO_BRANCH'),
+                             service="appveyor",
                              build=os.getenv('APPVEYOR_BUILD_NUMBER'),
                              owner=os.getenv('APPVEYOR_REPO_NAME').split('/',1)[0],
                              repo=os.getenv('APPVEYOR_REPO_NAME').split('/',1)[1],
@@ -204,6 +205,7 @@ def main(*argv):
     elif os.getenv('CI') == "true" and os.getenv('WERCKER_GIT_BRANCH'):
         # http://devcenter.wercker.com/articles/steps/variables.html
         defaults.update(dict(branch=os.getenv('WERCKER_GIT_BRANCH'),
+                             service="wercker",
                              build=os.getenv('WERCKER_MAIN_PIPELINE_STARTED'),
                              owner=os.getenv('WERCKER_GIT_OWNER'),
                              repo=os.getenv('WERCKER_GIT_REPOSITORY'),
