@@ -31,35 +31,30 @@ SKIP_FILES = re.compile(r'(\.tar\.gz|\.pyc|\.egg|(\/\..+)|\.txt)$')
 def build_reports(root):
     reports = []
     table_of_contents = []
-    accepting = set(('coverage.xml', 'jacocoTestReport.xml', 'clover.xml', 'coverage.txt', 'cobertura.xml', 'jacoco.xml', 'lcov.info'))
+    accepting = set(('coverage.xml', 'jacoco.xml', 'jacocoTestReport.xml', 'clover.xml', 'coverage.txt', 'cobertura.xml', 'jacoco.xml', 'lcov.info', 'gcov.info'))
 
     for _root, dirs, files in os.walk(root):
         if SKIP_DIRECTORIES.search(_root): continue
         # add data to tboc
-        for _file in files:
-            fp = os.path.join(_root, _file).replace(root+"/", '')
+        for filepath in files:
+            fp = os.path.join(_root, filepath).replace(root+"/", '')
             if not (SKIP_DIRECTORIES.search(fp) or SKIP_FILES.search(fp)) and '/' in fp:
                 table_of_contents.append(fp)
-        # is there a coverage report?
-        for coverage in (accepting & set(files)):
-            with open(os.path.join(_root, coverage), 'r') as f:
-                if coverage.endswith('xml'):
-                    xml = etree.fromstring(f.read())
-                    if coverage in ('jacoco.xml', 'jacocoTestReport.xml'):
-                        reports.append(dumps(jacoco.from_xml(xml)))
-                    elif xml.attrib.get('generated'):
-                        reports.append(dumps(clover.from_xml(xml)))
-                    else:
-                        reports.append(dumps(cobertura.from_xml(xml)))
-                    del xml
-                else:
-                    reports.append(f.read())
 
-        # search for all .lcov|.gcov
-        for filepath in files:
-            if filepath.endswith('.lcov') or filepath.endswith('.gcov') or filepath.endswith('.lst'):
+            # search for all .lcov|.gcov
+            if filepath in accepting or filepath.endswith('.lcov') or filepath.endswith('.gcov') or filepath.endswith('.lst'):
                 with open(os.path.join(_root, filepath), 'r') as f:
-                    reports.append(f.read())
+                    if filepath.endswith('xml'):
+                        xml = etree.fromstring(f.read())
+                        if filepath in ('jacoco.xml', 'jacocoTestReport.xml'):
+                            reports.append(dumps(jacoco.from_xml(xml)))
+                        elif xml.attrib.get('generated'):
+                            reports.append(dumps(clover.from_xml(xml)))
+                        else:
+                            reports.append(dumps(cobertura.from_xml(xml)))
+                        del xml
+                    else:
+                        reports.append(f.read())
 
     # (python), try to generate a report
     if len(reports) == 0:
@@ -75,10 +70,8 @@ def build_reports(root):
 
     assert len(reports) > 0, "error no coverage report found, could not upload to codecov"
 
-    # add out table of contents
-    reports.insert(0, "\n".join(table_of_contents))
     # join reports together
-    return "\n<<<<<< EOF\n".join(reports)
+    return "\n<<<<<< EOF\n".join(["\n".join(table_of_contents)] + reports)
 
 def try_to_run(cmd):
     try:
@@ -99,8 +92,6 @@ def upload(url, root, env=None, **kwargs):
                    args.get('token'))), "missing token or other required argument(s)"
 
         reports = build_reports(root)
-
-        assert reports, "error no coverage report found, could not upload to codecov"
 
         if env:
             reports = "\n<<<<<< ENV\n".join(("\n".join(["%s=%s"%(k,os.getenv(k,'')) for k in env]), reports))
