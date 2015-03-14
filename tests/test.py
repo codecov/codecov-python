@@ -169,6 +169,7 @@ class TestUploader(unittest.TestCase):
 
     def test_ci_appveyor(self):
         self.set_env(APPVEYOR='True',
+                     CI='True',
                      APPVEYOR_BUILD_NUMBER="57",
                      APPVEYOR_REPO_BRANCH="add-django-tests",
                      APPVEYOR_REPO_NAME="FreeMusicNinja/freemusic.ninja",
