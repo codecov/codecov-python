@@ -23,9 +23,9 @@ class TestUploader(unittest.TestCase):
         os.environ['CI'] = "true"
         os.environ['CODECOV_ENDPOINT'] = self.url
         for key in ("TRAVIS", "TRAVIS_BRANCH", "TRAVIS_COMMIT", "TRAVIS_BUILD_DIR", "TRAVIS_JOB_ID",
-                    "CI_NAME", "CI_BRANCH", "CI_COMMIT_ID", 
-                    "CIRCLECI", "CIRCLE_BRANCH", "CIRCLE_ARTIFACTS", "CIRCLE_SHA1", 
-                    "SEMAPHORE", "BRANCH_NAME", "SEMAPHORE_PROJECT_DIR", "REVISION", 
+                    "CI_NAME", "CI_BRANCH", "CI_COMMIT_ID",
+                    "CIRCLECI", "CIRCLE_BRANCH", "CIRCLE_ARTIFACTS", "CIRCLE_SHA1",
+                    "SEMAPHORE", "BRANCH_NAME", "SEMAPHORE_PROJECT_DIR", "REVISION",
                     "DRONE", "DRONE_BRANCH", "DRONE_BUILD_DIR", "DRONE_COMMIT", "JENKINS_URL",
                     "GIT_BRANCH", "GIT_COMMIT", "WORKSPACE", "BUILD_NUMBER", "CI_BUILD_URL", "SEMAPHORE_REPO_SLUG",
                     "DRONE_BUILD_URL", "TRAVIS_REPO_SLUG", "CODECOV_TOKEN", "APPVEYOR", "APPVEYOR_REPO_BRANCH",
@@ -43,10 +43,10 @@ class TestUploader(unittest.TestCase):
     def basics(self):
         """Default information for testing
         """
-        return dict(token=self.upload_token, 
+        return dict(token=self.upload_token,
                     root=os.path.join(os.path.dirname(__file__), "coverages/"),
-                    url=self.url, 
-                    commit="743b04806ea677403aa2ff26c6bdeb85005de658", 
+                    url=self.url,
+                    commit="743b04806ea677403aa2ff26c6bdeb85005de658",
                     branch="master")
 
     def command(self, **kwargs):
@@ -60,7 +60,7 @@ class TestUploader(unittest.TestCase):
         args = self.basics()
         args.update(kwargs)
         return codecov.upload(**args), args
-    
+
     def passed(self, result):
         fromserver, toserver = result
         self.assertEqual(fromserver['uploaded'], True, fromserver)
@@ -83,57 +83,57 @@ class TestUploader(unittest.TestCase):
         output = subprocess.check_output('python -m codecov.__init__', stderr=subprocess.STDOUT, shell=True)
         self.assertIn("Message: missing token or other required argument(s)", output.decode('utf-8'))
 
-    def test_pass_1(self): 
+    def test_pass_1(self):
         self.passed(self.upload())
 
-    def test_pass_2(self): 
+    def test_pass_2(self):
         self.passed(self.upload(travis_job_id="33116958", commit="c739768fcac68144a3a6d82305b9c4106934d31a"))
 
-    def test_pass_3(self): 
+    def test_pass_3(self):
         self.passed(self.upload(branch="other-branch/strang_name"))
 
-    def test_fail_1(self): 
+    def test_fail_1(self):
         self.failed(self.upload(root="/somwhere/not/found"), "error no coverage report found, could not upload to codecov")
 
-    def test_fail_2(self): 
+    def test_fail_2(self):
         self.failed(self.upload(token=""), "missing token or other required argument(s)")
 
-    def test_fail_3(self): 
+    def test_fail_3(self):
         self.assertRaises(requests.exceptions.HTTPError, self.upload, travis_job_id="12125215", token="")
 
-    def test_fail_4(self): 
+    def test_fail_4(self):
         self.failed(self.upload(commit=""), "commit hash is required")
 
-    def test_fail_5(self): 
+    def test_fail_5(self):
         self.failed(self.upload(branch=""), "branch is required")
 
-    def test_console(self): 
+    def test_console(self):
         kwargs = self.basics()
         kwargs.pop('root')
         self.passed(self.command(**kwargs))
 
     def test_ci_jenkins(self):
-        self.set_env(JENKINS_URL="https://....", 
+        self.set_env(JENKINS_URL="https://....",
                      GIT_BRANCH="master",
                      GIT_COMMIT="c739768fcac68144a3a6d82305b9c4106934d31a",
-                     WORKSPACE=self.a_report, 
-                     BUILD_NUMBER="41", 
+                     WORKSPACE=self.a_report,
+                     BUILD_NUMBER="41",
                      CODECOV_TOKEN=self.upload_token)
         self.passed(self.command())
 
-    def test_ci_travis(self): 
-        self.set_env(TRAVIS="true", 
+    def test_ci_travis(self):
+        self.set_env(TRAVIS="true",
                      TRAVIS_BRANCH="master",
                      TRAVIS_COMMIT="c739768fcac68144a3a6d82305b9c4106934d31a",
                      TRAVIS_BUILD_DIR=self.a_report,
-                     TRAVIS_REPO_SLUG='codecov/ci-repo', 
-                     TRAVIS_JOB_ID="33116958", 
+                     TRAVIS_REPO_SLUG='codecov/ci-repo',
+                     TRAVIS_JOB_ID="33116958",
                      TRAVIS_JOB_NUMBER="4.1")
         self.passed(self.command())
 
     def test_ci_codeship(self):
-        self.set_env(CI_NAME='codeship', 
-                     CI_BRANCH='master', 
+        self.set_env(CI_NAME='codeship',
+                     CI_BRANCH='master',
                      CI_BUILD_NUMBER='20',
                      CI_BUILD_URL='https://codeship.io/build/1',
                      CI_COMMIT_ID='743b04806ea677403aa2ff26c6bdeb85005de658',
