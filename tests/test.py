@@ -67,7 +67,7 @@ class TestUploader(unittest.TestCase):
         if toserver.get('commit'):
             self.assertIn('github/codecov/ci-repo?ref=%s'%toserver['commit'], fromserver['url'])
         else:
-            self.assertRegexpMatches(fromserver['url'], r'/(github|bitbucket)/[\w\-\.]+/[\w\-\.]+\?ref=[a-z\d]{40}')
+            self.assertRegexpMatches(fromserver['url'], r'/(github|gitlab|bitbucket)/[\w\-\.]+/[\w\-\.]+\?ref=[a-z\d]{40}')
         self.assertEqual(fromserver['message'], 'Coverage reports upload successfully')
 
     def failed(self, result, why):
