@@ -167,6 +167,17 @@ class TestUploader(unittest.TestCase):
                      CODECOV_TOKEN=self.upload_token)
         self.passed(self.command())
 
+    def test_ci_shippable(self):
+        self.set_env(SHIPPABLE="true",
+                     BUILD_NUMBER="10",
+                     PULL_REQUEST="1",
+                     REPO_NAME='codecov/ci-repo',
+                     BRANCH="master",
+                     BUILD_URL="https://shippable.com/...",
+                     COMMIT="743b04806ea677403aa2ff26c6bdeb85005de658",
+                     CODECOV_TOKEN=self.upload_token)
+        self.passed(self.command())
+
     def test_ci_appveyor(self):
         self.set_env(APPVEYOR='True',
                      CI='True',

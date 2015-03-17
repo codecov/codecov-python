@@ -13,9 +13,8 @@ codecov --token=<repo token>
 
 ## Require min coverage
 ```sh
-codecov --min-coverage=75
+codecov
 ```
-> if coverage is under `75` codecov will trigger your build to fail
 
 # [![travis-org](https://avatars2.githubusercontent.com/u/639823?v=2&s=50)](https://travis-ci.org) Travis C
 > Append to your `.travis.yml`

@@ -201,6 +201,19 @@ def main(*argv):
                              owner=os.getenv('WERCKER_GIT_OWNER'),
                              repo=os.getenv('WERCKER_GIT_REPOSITORY'),
                              commit=os.getenv('WERCKER_GIT_COMMIT')))
+    # ---------
+    # Shippable
+    # ---------
+    elif os.getenv('SHIPPABLE') == "true":
+        # http://docs.shippable.com/en/latest/config.html#common-environment-variables
+        defaults.update(dict(branch=os.getenv('BRANCH'),
+                             service='shippable',
+                             build=os.getenv('BUILD_NUMBER'),
+                             build_url=os.getenv('BUILD_URL'),
+                             pull_request=os.getenv('PULL_REQUEST') if os.getenv('PULL_REQUEST')!='false' else '',
+                             owner=os.getenv('REPO_NAME').split('/',1)[0],
+                             repo=os.getenv('REPO_NAME').split('/',1)[1],
+                             commit=os.getenv('COMMIT')))
     # ---
     # git
     # ---
