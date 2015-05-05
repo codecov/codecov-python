@@ -4,6 +4,7 @@ import os
 import re
 import sys
 import json
+import rollbar
 import requests
 import argparse
 from json import dumps
@@ -27,6 +28,9 @@ version = VERSION = __version__ = '1.1.9'
 
 SKIP_DIRECTORIES = re.compile(r'\/(\..+|((Sites\/www\/bower)|node_modules|vendor|bower_components|(coverage\/instrumented)|virtualenv|venv\/(lib|bin)|build\/lib|\.git|\.egg\-info))\/')
 SKIP_FILES = re.compile(r'(\.tar\.gz|\.pyc|\.egg|(\/\..+)|\.txt)$')
+
+rollbar.init('856822f107db4a6a8cd84b69e242378f', environment='codeocv-python')
+
 
 def build_reports(root):
     reports = []
@@ -79,7 +83,10 @@ def try_to_run(cmd):
     try:
         subprocess.check_output(cmd, shell=True)
     except:
-        pass
+        rollbar.report_exc_info(extra_data=dict(command=cmd))
+        sys.stdout.write("Error running `%s`. Codecov team will be notified" % cmd)
+        raise
+
 
 def upload(url, root, env=None, **kwargs):
     try:
@@ -109,6 +116,7 @@ def upload(url, root, env=None, **kwargs):
         return result.json()
 
     except AssertionError as e:
+        rollbar.report_exc_info()
         return dict(message=str(e), uploaded=False, coverage=0)
 
 
@@ -254,13 +262,18 @@ def main(*argv):
     return data, codecov
 
 def cli():
-    defaults = dict(uploaded=False, url="n/a", version=version, message="unknown")
-    data, codecov = main()
-    defaults.update(data)
-    if codecov.json:
-        sys.stdout.write(json.dumps(defaults))
-    else:
-        sys.stdout.write("Uploaded: %(uploaded)s\nReport URL: %(url)s\nUpload Version: codecov-v%(version)s\nMessage: %(message)s\n" % defaults)
+    try:
+        defaults = dict(uploaded=False, url="n/a", version=version, message="unknown")
+        data, codecov = main()
+        defaults.update(data)
+        if codecov.json:
+            sys.stdout.write(json.dumps(defaults))
+        else:
+            sys.stdout.write("Uploaded: %(uploaded)s\nReport URL: %(url)s\nUpload Version: codecov-v%(version)s\nMessage: %(message)s\n" % defaults)
+    except:
+        rollbar.report_exc_info()
+        raise
+
 
 if __name__ == '__main__':
     cli()
