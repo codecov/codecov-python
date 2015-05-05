@@ -1,6 +1,6 @@
 ### `1.1.7`
 - support for D lang added, special thanks to @ColdenCullen
-- Wercker CI supported by @Robpol86 
+- Wercker CI supported by @Robpol86
 - fixed Drone build number
 
 ### `1.1.6`
@@ -20,7 +20,7 @@
 - added more ignore paths
 
 ### `1.1.2`
-- search for `lcov.info` files 
+- search for `lcov.info` files
 - pause for `.1` before checking for min-coverage
 - accept `--env` variables which are stored in front-end for build specs
 

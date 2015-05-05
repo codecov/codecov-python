@@ -15,7 +15,7 @@ from codecov import cobertura
 
 try:
     from urllib.parse import urlencode
-except ImportError: # pragma: no cover
+except ImportError:  # pragma: no cover
     from urllib import urlencode
 
 try:
@@ -34,7 +34,8 @@ def build_reports(root):
     accepting = set(('coverage.xml', 'coverage.json', 'jacoco.xml', 'jacocoTestReport.xml', 'clover.xml', 'coverage.txt', 'cobertura.xml', 'jacoco.xml', 'lcov.info', 'gcov.info'))
 
     for _root, dirs, files in os.walk(root):
-        if SKIP_DIRECTORIES.search(_root): continue
+        if SKIP_DIRECTORIES.search(_root):
+            continue
         # add data to tboc
         for filepath in files:
             fp = os.path.join(_root, filepath).replace(root+"/", '')
@@ -64,7 +65,7 @@ def build_reports(root):
                 reports.append(dumps(cobertura.from_xml(etree.fromstring(f.read()))))
 
         # warn when no reports found and is python
-        if len(reports)==0:
+        if len(reports) == 0:
             # TODO send `coverage debug sys` to rollbar
             sys.stdout.write("No reports found. You may need to add a coverage config file. Visit http://bit.ly/1slucpy for configuration help.")
 
@@ -72,6 +73,7 @@ def build_reports(root):
 
     # join reports together
     return "\n<<<<<< EOF\n".join(["\n".join(table_of_contents)] + reports)
+
 
 def try_to_run(cmd):
     try:
@@ -88,13 +90,13 @@ def upload(url, root, env=None, **kwargs):
         assert args.get('branch') not in ('', None), "branch is required"
         assert args.get('commit') not in ('', None), "commit hash is required"
         assert any((args.get('travis_job_id'),
-                   (args.get('build') and args.get('service')=='circleci'),
+                   (args.get('build') and args.get('service') == 'circleci'),
                    args.get('token'))), "missing token or other required argument(s)"
 
         reports = build_reports(root)
 
         if env:
-            reports = "\n<<<<<< ENV\n".join(("\n".join(["%s=%s"%(k,os.getenv(k,'')) for k in env]), reports))
+            reports = "\n<<<<<< ENV\n".join(("\n".join(["%s=%s" % (k, os.getenv(k, '')) for k in env]), reports))
 
         kwargs['package'] = "codecov-v%s" % VERSION
 
@@ -108,6 +110,7 @@ def upload(url, root, env=None, **kwargs):
 
     except AssertionError as e:
         return dict(message=str(e), uploaded=False, coverage=0)
+
 
 def main(*argv):
     defaults = dict(commit='', branch='', travis_job_id='', root=None, pull_request='', build_url='')
@@ -131,10 +134,10 @@ def main(*argv):
         defaults.update(dict(branch=os.getenv('TRAVIS_BRANCH'),
                              service='travis-org',
                              build=os.getenv('TRAVIS_JOB_NUMBER'),
-                             pull_request=os.getenv('TRAVIS_PULL_REQUEST') if os.getenv('TRAVIS_PULL_REQUEST')!='false' else '',
+                             pull_request=os.getenv('TRAVIS_PULL_REQUEST') if os.getenv('TRAVIS_PULL_REQUEST') != 'false' else '',
                              travis_job_id=os.getenv('TRAVIS_JOB_ID'),
-                             owner=os.getenv('TRAVIS_REPO_SLUG').split('/',1)[0],
-                             repo=os.getenv('TRAVIS_REPO_SLUG').split('/',1)[1],
+                             owner=os.getenv('TRAVIS_REPO_SLUG').split('/', 1)[0],
+                             repo=os.getenv('TRAVIS_REPO_SLUG').split('/', 1)[1],
                              root=os.getenv('TRAVIS_BUILD_DIR'),
                              commit=os.getenv('TRAVIS_COMMIT')))
     # --------
@@ -166,8 +169,8 @@ def main(*argv):
         defaults.update(dict(branch=os.getenv('BRANCH_NAME'),
                              service='semaphore',
                              build=os.getenv('SEMAPHORE_BUILD_NUMBER'),
-                             owner=os.getenv('SEMAPHORE_REPO_SLUG').split('/',1)[0],
-                             repo=os.getenv('SEMAPHORE_REPO_SLUG').split('/',1)[1],
+                             owner=os.getenv('SEMAPHORE_REPO_SLUG').split('/', 1)[0],
+                             repo=os.getenv('SEMAPHORE_REPO_SLUG').split('/', 1)[1],
                              commit=os.getenv('REVISION')))
     # --------
     # drone.io
@@ -187,8 +190,8 @@ def main(*argv):
         defaults.update(dict(branch=os.getenv('APPVEYOR_REPO_BRANCH'),
                              service="appveyor",
                              build=os.getenv('APPVEYOR_BUILD_NUMBER'),
-                             owner=os.getenv('APPVEYOR_REPO_NAME').split('/',1)[0],
-                             repo=os.getenv('APPVEYOR_REPO_NAME').split('/',1)[1],
+                             owner=os.getenv('APPVEYOR_REPO_NAME').split('/', 1)[0],
+                             repo=os.getenv('APPVEYOR_REPO_NAME').split('/', 1)[1],
                              commit=os.getenv('APPVEYOR_REPO_COMMIT')))
     # -------
     # Wercker
@@ -210,9 +213,9 @@ def main(*argv):
                              service='shippable',
                              build=os.getenv('BUILD_NUMBER'),
                              build_url=os.getenv('BUILD_URL'),
-                             pull_request=os.getenv('PULL_REQUEST') if os.getenv('PULL_REQUEST')!='false' else '',
-                             owner=os.getenv('REPO_NAME').split('/',1)[0],
-                             repo=os.getenv('REPO_NAME').split('/',1)[1],
+                             pull_request=os.getenv('PULL_REQUEST') if os.getenv('PULL_REQUEST') != 'false' else '',
+                             owner=os.getenv('REPO_NAME').split('/', 1)[0],
+                             repo=os.getenv('REPO_NAME').split('/', 1)[1],
                              commit=os.getenv('COMMIT')))
     # ---
     # git
