@@ -24,6 +24,10 @@ try:
 except ImportError:
     import subprocess
 
+# https://urllib3.readthedocs.org/en/latest/security.html#insecureplatformwarning
+import urllib3
+urllib3.disable_warnings()
+
 version = VERSION = __version__ = '1.1.8'
 
 SKIP_DIRECTORIES = re.compile(r'\/(\..+|((Sites\/www\/bower)|node_modules|vendor|bower_components|(coverage\/instrumented)|virtualenv|venv\/(lib|bin)|build\/lib|\.git|\.egg\-info))\/')

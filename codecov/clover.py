@@ -1,12 +1,13 @@
 import re
 
-IGNORE = re.compile(r'^((vendor/)|(\$\{))')
+IGNORE = re.compile(r'^((vendor/)|(\$\{))').match
+
 
 def from_xml(xml):
     coverage = {}
     for f in xml.getiterator('file'):
         filename = f.attrib['name']
-        if IGNORE.match(filename):
+        if IGNORE(filename):
             continue
         elif f.find('line') is None:
             continue
@@ -19,4 +20,3 @@ def from_xml(xml):
         coverage[filename] = dict(lines)
 
     return dict(coverage=coverage)
-

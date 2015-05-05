@@ -1,6 +1,7 @@
 import re
 
-IGNORE = re.compile(r"^\/home\/travis\/virtualenv\/python")
+IGNORE = re.compile(r"^\/home\/travis\/virtualenv\/python").match
+
 
 def from_xml(xml):
     coverage, branches = {}, {}
@@ -8,7 +9,7 @@ def from_xml(xml):
         # extract file name
         filename = _class.attrib['filename']
 
-        if IGNORE.match(filename):
+        if IGNORE(filename):
             continue
 
         lines = []
@@ -16,7 +17,7 @@ def from_xml(xml):
         for line in _class.getiterator('line'):
             l = line.attrib
             cc = str(l.get('condition-coverage', ''))
-            append((str(l['number']), cc.split(' ',1)[1][1:-1] if cc else int(l.get('hits', 0) or 0)))
+            append((str(l['number']), cc.split(' ', 1)[1][1:-1] if cc else int(l.get('hits', 0) or 0)))
 
         if not lines:
             continue
