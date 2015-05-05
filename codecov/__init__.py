@@ -204,6 +204,15 @@ def main(*argv):
                              owner=os.getenv('WERCKER_GIT_OWNER'),
                              repo=os.getenv('WERCKER_GIT_REPOSITORY'),
                              commit=os.getenv('WERCKER_GIT_COMMIT')))
+    # ------
+    # Magnum
+    # ------
+    elif os.getenv('CI') == "true" and os.getenv('MAGNUM') == 'true':
+        # https://magnum-ci.com/docs/environment
+        defaults.update(dict(service="magnum",
+                             branch=os.getenv('CI_BRANCH'),
+                             build=os.getenv('CI_BUILD_NUMBER'),
+                             commit=os.getenv('CI_COMMIT')))
     # ---------
     # Shippable
     # ---------

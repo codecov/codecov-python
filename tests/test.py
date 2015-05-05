@@ -24,6 +24,7 @@ class TestUploader(unittest.TestCase):
         os.environ['CODECOV_ENDPOINT'] = self.url
         for key in ("TRAVIS", "TRAVIS_BRANCH", "TRAVIS_COMMIT", "TRAVIS_BUILD_DIR", "TRAVIS_JOB_ID",
                     "CI_NAME", "CI_BRANCH", "CI_COMMIT_ID",
+                    "CI_BUILD_NUMBER", "MAGNUM", "CI_COMMIT",
                     "CIRCLECI", "CIRCLE_BRANCH", "CIRCLE_ARTIFACTS", "CIRCLE_SHA1",
                     "SEMAPHORE", "BRANCH_NAME", "SEMAPHORE_PROJECT_DIR", "REVISION",
                     "DRONE", "DRONE_BRANCH", "DRONE_BUILD_DIR", "DRONE_COMMIT", "JENKINS_URL",
@@ -194,6 +195,15 @@ class TestUploader(unittest.TestCase):
                      WERCKER_GIT_OWNER="FreeMusicNinja",
                      WERCKER_GIT_REPOSITORY="freemusic.ninja",
                      WERCKER_GIT_COMMIT="d653b934ed59c1a785cc1cc79d08c9aaa4eba73b",
+                     CODECOV_TOKEN=self.upload_token)
+        self.passed(self.command())
+
+    def test_ci_magnum(self):
+        self.set_env(CI_BRANCH="add-django-tests",
+                     CI_BUILD_NUMBER="1399372237",
+                     MAGNUM="true",
+                     CI="true",
+                     CI_COMMIT="d653b934ed59c1a785cc1cc79d08c9aaa4eba73b",
                      CODECOV_TOKEN=self.upload_token)
         self.passed(self.command())
 
