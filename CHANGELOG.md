@@ -1,3 +1,9 @@
+### `1.1.8`
+- added rollbar to help bugs if presented
+- added more filepath matching
+- pep8 cleanup
+- added Shippable ci
+
 ### `1.1.7`
 - support for D lang added, special thanks to @ColdenCullen
 - Wercker CI supported by @Robpol86

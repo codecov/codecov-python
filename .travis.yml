@@ -1,6 +1,7 @@
 language: python
 notifications:
   email: false
+sudo: false
 python:
   - 2.6
   - 2.7
@@ -14,9 +15,9 @@ install:
 script:
   - nosetests --rednose --with-cov --cov-config=.coveragerc
 after_success:
-  # remove test coverage files
-  # this command is not needed in your setup
-  # only this project
+  # remove coverage files used for tests
+  #   this command is not needed in your setup
+  #   only this project
   - rm -rf tests/coverages
   # now send just codecov-python coverage stats out
   - codecov
