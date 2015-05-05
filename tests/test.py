@@ -53,7 +53,7 @@ class TestUploader(unittest.TestCase):
     def command(self, **kwargs):
         args = dict(url=self.url)
         args.update(kwargs)
-        inline = list(itertools.chain(*[['--%s'% key, value] for key, value in args.items() if value]))
+        inline = list(itertools.chain(*[['--%s' % key, value] for key, value in args.items() if value]))
         data, passes = codecov.main(*inline)
         return data, args
 
@@ -66,7 +66,7 @@ class TestUploader(unittest.TestCase):
         fromserver, toserver = result
         self.assertEqual(fromserver['uploaded'], True, fromserver)
         if toserver.get('commit'):
-            self.assertIn('github/codecov/ci-repo?ref=%s'%toserver['commit'], fromserver['url'])
+            self.assertIn('github/codecov/ci-repo?ref=%s' % toserver['commit'], fromserver['url'])
         else:
             self.assertRegexpMatches(fromserver['url'], r'/(github|gitlab|bitbucket)/[\w\-\.]+/[\w\-\.]+\?ref=[a-z\d]{40}')
         self.assertEqual(fromserver['message'], 'Coverage reports upload successfully')
@@ -88,7 +88,7 @@ class TestUploader(unittest.TestCase):
         self.passed(self.upload())
 
     def test_pass_2(self):
-        self.passed(self.upload(travis_job_id="33116958", commit="c739768fcac68144a3a6d82305b9c4106934d31a"))
+        self.passed(self.upload(job="33116958", commit="c739768fcac68144a3a6d82305b9c4106934d31a"))
 
     def test_pass_3(self):
         self.passed(self.upload(branch="other-branch/strang_name"))
@@ -100,7 +100,7 @@ class TestUploader(unittest.TestCase):
         self.failed(self.upload(token=""), "missing token or other required argument(s)")
 
     def test_fail_3(self):
-        self.assertRaises(requests.exceptions.HTTPError, self.upload, travis_job_id="12125215", token="")
+        self.assertRaises(requests.exceptions.HTTPError, self.upload, job="12125215", token="")
 
     def test_fail_4(self):
         self.failed(self.upload(commit=""), "commit hash is required")
@@ -171,7 +171,6 @@ class TestUploader(unittest.TestCase):
     def test_ci_shippable(self):
         self.set_env(SHIPPABLE="true",
                      BUILD_NUMBER="10",
-                     PULL_REQUEST="1",
                      REPO_NAME='codecov/ci-repo',
                      BRANCH="master",
                      BUILD_URL="https://shippable.com/...",

@@ -147,7 +147,7 @@ def main(*argv):
                              service='travis-org',
                              build=os.getenv('TRAVIS_JOB_NUMBER'),
                              pull_request=os.getenv('TRAVIS_PULL_REQUEST') if os.getenv('TRAVIS_PULL_REQUEST') != 'false' else '',
-                             travis_job_id=os.getenv('TRAVIS_JOB_ID'),
+                             job=os.getenv('TRAVIS_JOB_ID'),
                              owner=os.getenv('TRAVIS_REPO_SLUG').split('/', 1)[0],
                              repo=os.getenv('TRAVIS_REPO_SLUG').split('/', 1)[1],
                              root=os.getenv('TRAVIS_BUILD_DIR'),
