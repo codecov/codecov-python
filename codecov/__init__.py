@@ -201,7 +201,8 @@ def main(*argv):
         # http://www.appveyor.com/docs/environment-variables
         defaults.update(dict(branch=os.getenv('APPVEYOR_REPO_BRANCH'),
                              service="appveyor",
-                             build=os.getenv('APPVEYOR_BUILD_NUMBER'),
+                             job=os.getenv("APPVEYOR_BUILD_VERSION"),
+                             build=os.getenv('APPVEYOR_JOB_ID'),
                              owner=os.getenv('APPVEYOR_REPO_NAME').split('/', 1)[0],
                              repo=os.getenv('APPVEYOR_REPO_NAME').split('/', 1)[1],
                              commit=os.getenv('APPVEYOR_REPO_COMMIT')))

@@ -30,7 +30,7 @@ class TestUploader(unittest.TestCase):
                     "DRONE", "DRONE_BRANCH", "DRONE_BUILD_DIR", "DRONE_COMMIT", "JENKINS_URL",
                     "GIT_BRANCH", "GIT_COMMIT", "WORKSPACE", "BUILD_NUMBER", "CI_BUILD_URL", "SEMAPHORE_REPO_SLUG",
                     "DRONE_BUILD_URL", "TRAVIS_REPO_SLUG", "CODECOV_TOKEN", "APPVEYOR", "APPVEYOR_REPO_BRANCH",
-                    "APPVEYOR_BUILD_NUMBER", "APPVEYOR_REPO_NAME", "APPVEYOR_REPO_COMMIT", "WERCKER_GIT_BRANCH",
+                    "APPVEYOR_BUILD_VERSION", "APPVEYOR_JOB_ID", "APPVEYOR_REPO_NAME", "APPVEYOR_REPO_COMMIT", "WERCKER_GIT_BRANCH",
                     "WERCKER_MAIN_PIPELINE_STARTED", "WERCKER_GIT_OWNER", "WERCKER_GIT_REPOSITORY",
                     "WERCKER_GIT_COMMIT"):
             os.environ[key] = ""
@@ -182,7 +182,8 @@ class TestUploader(unittest.TestCase):
     def test_ci_appveyor(self):
         self.set_env(APPVEYOR='True',
                      CI='True',
-                     APPVEYOR_BUILD_NUMBER="57",
+                     APPVEYOR_JOB_ID="9r2qufuu8",
+                     APPVEYOR_BUILD_VERSION="1.2.3",
                      APPVEYOR_REPO_BRANCH="add-django-tests",
                      APPVEYOR_REPO_NAME="FreeMusicNinja/freemusic.ninja",
                      APPVEYOR_REPO_COMMIT="d653b934ed59c1a785cc1cc79d08c9aaa4eba73b",
