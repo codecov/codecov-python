@@ -24,7 +24,7 @@ try:
 except ImportError:
     import subprocess
 
-version = VERSION = __version__ = '1.1.9'
+version = VERSION = __version__ = '1.1.8'
 
 SKIP_DIRECTORIES = re.compile(r'\/(\..+|((Sites\/www\/bower)|node_modules|vendor|bower_components|(coverage\/instrumented)|virtualenv|venv\/(lib|bin)|build\/lib|\.git|\.egg\-info))\/')
 SKIP_FILES = re.compile(r'(\.tar\.gz|\.pyc|\.egg|(\/\..+)|\.txt)$')
@@ -35,7 +35,7 @@ rollbar.init('856822f107db4a6a8cd84b69e242378f', environment='codeocv-python')
 def build_reports(root):
     reports = []
     table_of_contents = []
-    accepting = set(('coverage.xml', 'coverage.json', 'jacoco.xml', 'jacocoTestReport.xml', 'clover.xml', 'coverage.txt', 'cobertura.xml', 'jacoco.xml', 'lcov.info', 'gcov.info'))
+    accepting = set(('coverage.xml', 'coverage.json', 'jacoco.xml', 'jacocoTestReport.xml', 'clover.xml', 'coverage.txt', 'cobertura.xml', 'lcov.info', 'gcov.info'))
 
     for _root, dirs, files in os.walk(root):
         if SKIP_DIRECTORIES.search(_root):
@@ -246,13 +246,14 @@ def main(*argv):
     parser = argparse.ArgumentParser(prog='codecov', add_help=True,
                                      formatter_class=argparse.RawDescriptionHelpFormatter,
                                      epilog="""Read more at https://codecov.io/""")
-    parser.add_argument('--version', action='version', version='codecov-python v'+version+" - https://codecov.io/")
-    parser.add_argument('--commit', default=defaults.pop('commit'), help="commit ref")
-    parser.add_argument('--branch', default=defaults.pop('branch'), help="commit branch name")
+    parser.add_argument('--version', '-v', action='version', version='codecov-python v'+version+" - https://codecov.io/")
+    parser.add_argument('--commit', '-c', default=defaults.pop('commit'), help="commit ref")
+    parser.add_argument('--slug', '-r', help="specify repository slug for Enterprise ex. codecov -r myowner/myrepo")
+    parser.add_argument('--branch', '-b', default=defaults.pop('branch'), help="commit branch name")
     parser.add_argument('--json', action="store_true", default=False, help="output json data only")
-    parser.add_argument('--env', nargs="*", help="store config variables for coverage builds")
+    parser.add_argument('--env', '-e', nargs="*", help="store config variables for coverage builds")
     parser.add_argument('--token', '-t', default=os.getenv("CODECOV_TOKEN"), help="codecov repository token")
-    parser.add_argument('--url', default=os.getenv("CODECOV_ENDPOINT", "https://codecov.io"), help="url for enteprise customers")
+    parser.add_argument('--url', '-u', default=os.getenv("CODECOV_ENDPOINT", "https://codecov.io"), help="url for enteprise customers")
     if argv:
         codecov = parser.parse_args(argv)
     else:
@@ -260,6 +261,7 @@ def main(*argv):
 
     data = upload(url=codecov.url, branch=codecov.branch, commit=codecov.commit, token=codecov.token, env=codecov.env, slug=codecov.slug, **defaults)
     return data, codecov
+
 
 def cli():
     try:
