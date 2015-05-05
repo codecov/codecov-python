@@ -258,7 +258,7 @@ def main(*argv):
     else:
         codecov = parser.parse_args()
 
-    data = upload(url=codecov.url, branch=codecov.branch, commit=codecov.commit, token=codecov.token, env=codecov.env, **defaults)
+    data = upload(url=codecov.url, branch=codecov.branch, commit=codecov.commit, token=codecov.token, env=codecov.env, slug=codecov.slug, **defaults)
     return data, codecov
 
 def cli():
