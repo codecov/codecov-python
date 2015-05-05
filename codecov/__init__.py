@@ -30,8 +30,8 @@ urllib3.disable_warnings()
 
 version = VERSION = __version__ = '1.1.8'
 
-SKIP_DIRECTORIES = re.compile(r'\/(\..+|((Sites\/www\/bower)|node_modules|vendor|bower_components|(coverage\/instrumented)|virtualenv|venv\/(lib|bin)|build\/lib|\.git|\.egg\-info))\/')
-SKIP_FILES = re.compile(r'(\.tar\.gz|\.pyc|\.egg|(\/\..+)|\.txt)$')
+SKIP_DIRECTORIES = re.compile(r'\/(\..+|((Sites\/www\/bower)|node_modules|vendor|bower_components|(coverage\/instrumented)|virtualenv|venv\/(lib|bin)|build\/lib|\.git|\.egg\-info))\/').search
+SKIP_FILES = re.compile(r'(\.tar\.gz|\.pyc|\.egg|(\/\..+)|\.txt)$').search
 
 rollbar.init('856822f107db4a6a8cd84b69e242378f', environment='codeocv-python')
 
@@ -42,12 +42,12 @@ def build_reports(root):
     accepting = set(('coverage.xml', 'coverage.json', 'jacoco.xml', 'jacocoTestReport.xml', 'clover.xml', 'coverage.txt', 'cobertura.xml', 'lcov.info', 'gcov.info'))
 
     for _root, dirs, files in os.walk(root):
-        if SKIP_DIRECTORIES.search(_root):
+        if SKIP_DIRECTORIES(_root):
             continue
         # add data to tboc
         for filepath in files:
             fp = os.path.join(_root, filepath).replace(root+"/", '')
-            if not (SKIP_DIRECTORIES.search(fp) or SKIP_FILES.search(fp)) and '/' in fp:
+            if not (SKIP_DIRECTORIES(fp) or SKIP_FILES(fp)) and '/' in fp:
                 table_of_contents.append(fp)
 
             # search for all .lcov|.gcov
