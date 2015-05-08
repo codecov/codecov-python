@@ -25,8 +25,11 @@ except ImportError:
     import subprocess
 
 # https://urllib3.readthedocs.org/en/latest/security.html#insecureplatformwarning
-import urllib3
-urllib3.disable_warnings()
+try:
+    import urllib3
+    urllib3.disable_warnings()
+except:
+    pass
 
 version = VERSION = __version__ = '1.1.8'
 
