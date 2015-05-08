@@ -90,9 +90,7 @@ def try_to_run(cmd):
     try:
         subprocess.check_output(cmd, shell=True)
     except:
-        rollbar.report_exc_info(extra_data=dict(command=cmd))
         sys.stdout.write("Error running `%s`. Codecov team will be notified" % cmd)
-        raise
 
 
 def upload(url, root, env=None, **kwargs):
