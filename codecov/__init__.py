@@ -99,11 +99,11 @@ def upload(url, root, env=None, **kwargs):
     try:
         if not root:
             root = os.getcwd()
-        args = dict(commit='', branch='', travis_job_id='')
+        args = dict(commit='', branch='', job='')
         args.update(kwargs)
         assert args.get('branch') not in ('', None), "branch is required"
         assert args.get('commit') not in ('', None), "commit hash is required"
-        assert any((args.get('travis_job_id'),
+        assert any((args.get('job'),
                    (args.get('build') and args.get('service') == 'circleci'),
                    args.get('token'))), "missing token or other required argument(s)"
 
@@ -128,7 +128,7 @@ def upload(url, root, env=None, **kwargs):
 
 
 def main(*argv):
-    defaults = dict(commit='', branch='', travis_job_id='', root=None, pull_request='', build_url='')
+    defaults = dict(commit='', branch='', job='', root=None, pull_request='', build_url='')
 
     # -------
     # Jenkins
