@@ -149,8 +149,7 @@ def main(*argv):
                              build=os.getenv('TRAVIS_JOB_NUMBER'),
                              pull_request=os.getenv('TRAVIS_PULL_REQUEST') if os.getenv('TRAVIS_PULL_REQUEST') != 'false' else '',
                              job=os.getenv('TRAVIS_JOB_ID'),
-                             owner=os.getenv('TRAVIS_REPO_SLUG').split('/', 1)[0],
-                             repo=os.getenv('TRAVIS_REPO_SLUG').split('/', 1)[1],
+                             slug=os.getenv('TRAVIS_REPO_SLUG'),
                              root=os.getenv('TRAVIS_BUILD_DIR'),
                              commit=os.getenv('TRAVIS_COMMIT')))
     # --------
@@ -182,8 +181,7 @@ def main(*argv):
         defaults.update(dict(branch=os.getenv('BRANCH_NAME'),
                              service='semaphore',
                              build=os.getenv('SEMAPHORE_BUILD_NUMBER'),
-                             owner=os.getenv('SEMAPHORE_REPO_SLUG').split('/', 1)[0],
-                             repo=os.getenv('SEMAPHORE_REPO_SLUG').split('/', 1)[1],
+                             slug=os.getenv('SEMAPHORE_REPO_SLUG'),
                              commit=os.getenv('REVISION')))
     # --------
     # drone.io
@@ -204,8 +202,7 @@ def main(*argv):
                              service="appveyor",
                              job=os.getenv("APPVEYOR_BUILD_VERSION"),
                              build=os.getenv('APPVEYOR_JOB_ID'),
-                             owner=os.getenv('APPVEYOR_REPO_NAME').split('/', 1)[0],
-                             repo=os.getenv('APPVEYOR_REPO_NAME').split('/', 1)[1],
+                             slug=os.getenv('APPVEYOR_REPO_NAME'),
                              commit=os.getenv('APPVEYOR_REPO_COMMIT')))
     # -------
     # Wercker
@@ -237,8 +234,7 @@ def main(*argv):
                              build=os.getenv('BUILD_NUMBER'),
                              build_url=os.getenv('BUILD_URL'),
                              pull_request=os.getenv('PULL_REQUEST') if os.getenv('PULL_REQUEST') != 'false' else '',
-                             owner=os.getenv('REPO_NAME').split('/', 1)[0],
-                             repo=os.getenv('REPO_NAME').split('/', 1)[1],
+                             slug=os.getenv('REPO_NAME'),
                              commit=os.getenv('COMMIT')))
     # ---
     # git
