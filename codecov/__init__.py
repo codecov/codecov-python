@@ -250,7 +250,7 @@ def main(*argv):
                                      epilog="""Read more at https://codecov.io/""")
     parser.add_argument('--version', '-v', action='version', version='codecov-python v'+version+" - https://codecov.io/")
     parser.add_argument('--commit', '-c', default=defaults.pop('commit'), help="commit ref")
-    parser.add_argument('--slug', '-r', help="specify repository slug for Enterprise ex. codecov -r myowner/myrepo")
+    parser.add_argument('--slug', '-r', default=defaults.pop('slug'), help="specify repository slug for Enterprise ex. codecov -r myowner/myrepo")
     parser.add_argument('--branch', '-b', default=defaults.pop('branch'), help="commit branch name")
     parser.add_argument('--json', action="store_true", default=False, help="output json data only")
     parser.add_argument('--env', '-e', nargs="*", help="store config variables for coverage builds")
