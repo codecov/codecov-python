@@ -16,6 +16,9 @@ codecov --token=<repo token>
 codecov
 ```
 
+### CI Companies Supported
+Jenkins, Travis CI, Codeship, Circle CI, Semaphore, drone.io, AppVeyor, Wercker, Magnum, Shippable, and Gitlab CI. Otherwise fallbacks on `git`.
+
 # [![travis-org](https://avatars2.githubusercontent.com/u/639823?v=2&s=50)](https://travis-ci.org) Travis C
 > Append to your `.travis.yml`
 

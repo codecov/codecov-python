@@ -32,7 +32,7 @@ class TestUploader(unittest.TestCase):
                     "DRONE_BUILD_URL", "TRAVIS_REPO_SLUG", "CODECOV_TOKEN", "APPVEYOR", "APPVEYOR_REPO_BRANCH",
                     "APPVEYOR_BUILD_VERSION", "APPVEYOR_JOB_ID", "APPVEYOR_REPO_NAME", "APPVEYOR_REPO_COMMIT", "WERCKER_GIT_BRANCH",
                     "WERCKER_MAIN_PIPELINE_STARTED", "WERCKER_GIT_OWNER", "WERCKER_GIT_REPOSITORY",
-                    "CI_BUILD_REF_NAME", "CI_BUILD_ID", "CI_BUILD_REPO", "CI_PROJECT_DIR", "CI_BUILD_REF",
+                    "CI_BUILD_REF_NAME", "CI_BUILD_ID", "CI_BUILD_REPO", "CI_PROJECT_DIR", "CI_BUILD_REF", "CI_SERVER_NAME",
                     "WERCKER_GIT_COMMIT"):
             os.environ[key] = ""
 
@@ -213,7 +213,7 @@ class TestUploader(unittest.TestCase):
                      CI_BUILD_ID="1399372237",
                      CI_BUILD_REPO="https://gitlab.com/owner/repo.git",
                      CI_SERVER_NAME="GitLab CI",
-                     CI_PROJECT_DIR="/home/project/folder",
+                     CI_PROJECT_DIR=self.a_report,
                      CI_BUILD_REF="d653b934ed59c1a785cc1cc79d08c9aaa4eba73b",
                      CODECOV_TOKEN=self.upload_token)
         self.passed(self.command())
