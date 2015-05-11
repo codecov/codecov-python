@@ -236,6 +236,18 @@ def main(*argv):
                              pull_request=os.getenv('PULL_REQUEST') if os.getenv('PULL_REQUEST') != 'false' else '',
                              slug=os.getenv('REPO_NAME'),
                              commit=os.getenv('COMMIT')))
+    # ---------
+    # Gitlab CI
+    # ---------
+    elif os.getenv('CI_SERVER_NAME') == "GitLab CI":
+        # http://doc.gitlab.com/ci/examples/README.html#environmental-variables
+        # https://gitlab.com/gitlab-org/gitlab-ci-runner/blob/master/lib/build.rb#L96
+        defaults.update(dict(service='gitlab',
+                             branch=os.getenv('CI_BUILD_REF_NAME'),
+                             build=os.getenv('CI_BUILD_ID'),
+                             slug=os.getenv('CI_BUILD_REPO').split('/', 3)[-1].replace('.git', ''),
+                             root=os.getenv('CI_PROJECT_DIR'),
+                             commit=os.getenv('CI_BUILD_REF')))
     # ---
     # git
     # ---
