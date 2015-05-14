@@ -133,10 +133,11 @@ def main(*argv):
     # -------
     if os.getenv('JENKINS_URL'):
         # https://wiki.jenkins-ci.org/display/JENKINS/Building+a+software+project
-        defaults.update(dict(branch=os.getenv('GIT_BRANCH'),
+        defaults.update(dict(branch=os.getenv('ghprbSourceBranch') or os.getenv('GIT_BRANCH'),
                              service='jenkins',
-                             commit=os.getenv('GIT_COMMIT'),
+                             commit=os.getenv('ghprbActualCommit') or os.getenv('GIT_COMMIT'),
                              build=os.getenv('BUILD_NUMBER'),
+                             pull_request=os.getenv('ghprbPullId'),
                              root=os.getenv('WORKSPACE'),
                              build_url=os.getenv('BUILD_URL')))
     # ---------
