@@ -1,7 +1,5 @@
-### `1.1.9`
-- support GitLab CI Runner
-
 ### `1.1.8`
+- support GitLab CI Runner
 - added rollbar to help bugs if presented
 - added more filepath matching
 - pep8 cleanup

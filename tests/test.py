@@ -33,7 +33,7 @@ class TestUploader(unittest.TestCase):
                     "APPVEYOR_BUILD_VERSION", "APPVEYOR_JOB_ID", "APPVEYOR_REPO_NAME", "APPVEYOR_REPO_COMMIT", "WERCKER_GIT_BRANCH",
                     "WERCKER_MAIN_PIPELINE_STARTED", "WERCKER_GIT_OWNER", "WERCKER_GIT_REPOSITORY",
                     "CI_BUILD_REF_NAME", "CI_BUILD_ID", "CI_BUILD_REPO", "CI_PROJECT_DIR", "CI_BUILD_REF", "CI_SERVER_NAME",
-                    "WERCKER_GIT_COMMIT"):
+                    "ghprbActualCommit", "ghprbSourceBranch", "ghprbPullId", "WERCKER_GIT_COMMIT"):
             os.environ[key] = ""
 
     def set_env(self, **kwargs):
@@ -118,6 +118,16 @@ class TestUploader(unittest.TestCase):
         self.set_env(JENKINS_URL="https://....",
                      GIT_BRANCH="master",
                      GIT_COMMIT="c739768fcac68144a3a6d82305b9c4106934d31a",
+                     WORKSPACE=self.a_report,
+                     BUILD_NUMBER="41",
+                     CODECOV_TOKEN=self.upload_token)
+        self.passed(self.command())
+
+    def test_ci_jenkins_env(self):
+        self.set_env(JENKINS_URL="https://....",
+                     ghprbSourceBranch="master",
+                     ghprbActualCommit="c739768fcac68144a3a6d82305b9c4106934d31a",
+                     ghprbPullId="1",
                      WORKSPACE=self.a_report,
                      BUILD_NUMBER="41",
                      CODECOV_TOKEN=self.upload_token)

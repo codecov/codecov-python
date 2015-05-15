@@ -1,4 +1,4 @@
-upload:
+deploy:
 	git tag -a v$(shell python -c "import codecov;print codecov.version;") -m ""
 	git push origin v$(shell python -c "import codecov;print codecov.version;")
 	python setup.py sdist upload

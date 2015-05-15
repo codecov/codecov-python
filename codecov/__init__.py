@@ -31,7 +31,7 @@ try:
 except:
     pass
 
-version = VERSION = __version__ = '1.1.9'
+version = VERSION = __version__ = '1.1.8'
 
 SKIP_DIRECTORIES = re.compile(r'\/(\..+|((Sites\/www\/bower)|node_modules|vendor|bower_components|(coverage\/instrumented)|virtualenv|venv\/(lib|bin)|build\/lib|\.git|\.egg\-info))\/').search
 SKIP_FILES = re.compile(r'(\.tar\.gz|\.pyc|\.egg|(\/\..+)|\.txt)$').search
@@ -133,10 +133,12 @@ def main(*argv):
     # -------
     if os.getenv('JENKINS_URL'):
         # https://wiki.jenkins-ci.org/display/JENKINS/Building+a+software+project
+        # https://wiki.jenkins-ci.org/display/JENKINS/GitHub+pull+request+builder+plugin#GitHubpullrequestbuilderplugin-EnvironmentVariables
         defaults.update(dict(branch=os.getenv('GIT_BRANCH'),
                              service='jenkins',
-                             commit=os.getenv('GIT_COMMIT'),
-                             build=os.getenv('BUILD_NUMBER'),
+                             commit=os.getenv('ghprbActualCommit') or os.getenv('GIT_COMMIT'),
+                             pr=os.getenv('ghprbPullId', 'false'),
+                             build=os.getenv('ghprbSourceBranch') or os.getenv('BUILD_NUMBER'),
                              root=os.getenv('WORKSPACE'),
                              build_url=os.getenv('BUILD_URL')))
     # ---------
