@@ -9,3 +9,6 @@ reinstall:
 
 test:
 	tox
+
+compare:
+	hub compare $(shell git tag --sort=refname | tail -1)...master
