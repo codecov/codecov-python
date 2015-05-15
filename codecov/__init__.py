@@ -253,7 +253,7 @@ def main(*argv):
     # ---
     # git
     # ---
-    else:
+    elif '-h' not in argv and '--help' not in argv:
         # find branch, commit, repo from git command
         branch = subprocess.check_output('git rev-parse --abbrev-ref HEAD', shell=True)
         defaults.update(dict(branch=branch if branch != 'HEAD' else 'master',
