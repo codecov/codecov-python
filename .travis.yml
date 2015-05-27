@@ -12,6 +12,7 @@ python:
 install:
   - pip install -r tests/requirements.txt
   - python setup.py install
+env: CODECOV_DISABLE_ROLLBAR=true
 script:
   - nosetests --rednose --with-cov --cov-config=.coveragerc
 after_success:

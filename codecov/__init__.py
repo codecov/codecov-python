@@ -36,7 +36,9 @@ version = VERSION = __version__ = '1.1.9'
 SKIP_DIRECTORIES = re.compile(r'\/(\..+|((Sites\/www\/bower)|node_modules|vendor|bower_components|(coverage\/instrumented)|\.?virtualenv|venv\/(lib|bin)|build\/lib|\.git|\.egg\-info))\/').search
 SKIP_FILES = re.compile(r'(\.tar\.gz|\.pyc|\.egg|(\/\..+)|\.txt)$').search
 
-rollbar.init('8e9285f0f64647f3aaefb3d785f56b13', environment='codeocv-python')
+
+if os.getenv('CODECOV_DISABLE_ROLLBAR') != 'true':
+    rollbar.init('8e9285f0f64647f3aaefb3d785f56b13', environment='codeocv-python')
 
 
 def build_reports(root):
