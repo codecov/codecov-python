@@ -19,9 +19,11 @@ try:
 except ImportError:  # pragma: no cover
     from urllib import urlencode
 
-try:
-    import subprocess32 as subprocess
-except ImportError:
+if sys.version_info < (2, 7):
+    from future import standard_library
+    standard_library.install_aliases()
+    import subprocess
+else:
     import subprocess
 
 # https://urllib3.readthedocs.org/en/latest/security.html#insecureplatformwarning
