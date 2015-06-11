@@ -66,9 +66,7 @@ after_test:
   - rm -rf tests/coverages
   - if not exist dist mkdir dist
   - if exist .coverage (cp .coverage dist\) else (echo no .coverage)
-  # Run codecov when the token is in the Appveyor environment variable
-  # https://github.com/codecov/codecov-python/issues/27
-  - if defined CODECOV_TOKEN codecov
+  - codecov
   - if exist coverage.xml (cp coverage.xml dist\) else (echo no coverage.xml)
 
 artifacts:
