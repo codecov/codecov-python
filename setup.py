@@ -27,6 +27,6 @@ setup(name='codecov',
       packages=['codecov'],
       include_package_data=True,
       zip_safe=True,
-      install_requires=["requests>=2.0.0", "rollbar", "coverage"] + (["subprocess32"] if sys.version_info[:2] == (2, 6) else []),
+      install_requires=["requests>=2.0.0", "rollbar", "coverage"] + (["future"] if sys.version_info[:2] == (2, 6) else []),
       tests_require=["unittest2"],
       entry_points={'console_scripts': ['codecov=codecov:cli']})
