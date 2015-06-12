@@ -257,11 +257,15 @@ def main(*argv):
     # ---
     # git
     # ---
-    elif '-h' not in argv and '--help' not in argv:
-        # find branch, commit, repo from git command
-        branch = subprocess.check_output('git rev-parse --abbrev-ref HEAD', shell=True)
-        defaults.update(dict(branch=branch if branch != 'HEAD' else 'master',
-                             commit=subprocess.check_output('git rev-parse HEAD', shell=True)))
+    else:
+        try:
+            # find branch, commit, repo from git command
+            branch = subprocess.check_output('git rev-parse --abbrev-ref HEAD', shell=True)
+            defaults.update(dict(branch=branch if branch != 'HEAD' else 'master',
+                                 commit=subprocess.check_output('git rev-parse HEAD', shell=True)))
+        except:
+            # may not be in a git backed repo
+            pass
 
     parser = argparse.ArgumentParser(prog='codecov', add_help=True,
                                      formatter_class=argparse.RawDescriptionHelpFormatter,
