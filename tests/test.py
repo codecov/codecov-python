@@ -238,7 +238,7 @@ class TestUploader(unittest.TestCase):
         output = subprocess.check_output("python -m codecov.__init__", shell=True)
         output = output.replace(b'\nCoverage.py warning: No data was collected.', b'')
         output = output.decode('utf-8')
-        output = output.split('\n')
+        output = output.splitlines()
         self.assertEqual(output[0], "Uploaded: True")
         self.assertRegexpMatches(output[1], r"Report URL: https?://[\w\-\.]+(\:?\d*|\.io)?/github/codecov/ci-repo\?ref=c739768fcac68144a3a6d82305b9c4106934d31a$")
         self.assertEqual(output[2], "Upload Version: codecov-v%s" % codecov.version)
