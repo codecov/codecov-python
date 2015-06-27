@@ -1,3 +1,8 @@
+### `1.1.10`
+- fix package for 2.6 on windows
+- fix showing `--help` when called in non-git backed repo
+- fix AppVeyor public repos
+
 ### `1.1.8`
 - support GitLab CI Runner
 - added rollbar to help bugs if presented
