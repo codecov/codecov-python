@@ -2,7 +2,7 @@
 from setuptools import setup
 import sys
 
-version = '1.1.10'
+version = '1.1.11'
 classifiers = ["Development Status :: 5 - Production/Stable",
                "Environment :: Plugins",
                "Intended Audience :: Developers",

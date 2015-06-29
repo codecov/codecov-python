@@ -33,7 +33,7 @@ try:
 except:
     pass
 
-version = VERSION = __version__ = '1.1.10'
+version = VERSION = __version__ = '1.1.11'
 
 SKIP_DIRECTORIES = re.compile(r'\/(\..+|((Sites\/www\/bower)|node_modules|vendor|bower_components|(coverage\/instrumented)|\.?v?(irtual)?env|venv\/(lib|bin)|build\/lib|\.git|\.egg\-info))\/').search
 SKIP_FILES = re.compile(r'(\.tar\.gz|\.pyc|\.egg|(\/\..+)|\.txt)$').search
@@ -153,7 +153,7 @@ def main(*argv):
         defaults.update(dict(branch=os.getenv('TRAVIS_BRANCH'),
                              service='travis-org',
                              build=os.getenv('TRAVIS_JOB_NUMBER'),
-                             pull_request=os.getenv('TRAVIS_PULL_REQUEST') if os.getenv('TRAVIS_PULL_REQUEST') != 'false' else '',
+                             pr=os.getenv('TRAVIS_PULL_REQUEST') if os.getenv('TRAVIS_PULL_REQUEST') != 'false' else '',
                              job=os.getenv('TRAVIS_JOB_ID'),
                              slug=os.getenv('TRAVIS_REPO_SLUG'),
                              root=os.getenv('TRAVIS_BUILD_DIR'),
@@ -208,6 +208,7 @@ def main(*argv):
                              service="appveyor",
                              job='/'.join((os.getenv('APPVEYOR_ACCOUNT_NAME'), os.getenv('APPVEYOR_PROJECT_SLUG'), os.getenv('APPVEYOR_BUILD_VERSION'))),
                              build=os.getenv('APPVEYOR_JOB_ID'),
+                             pr=os.getenv('APPVEYOR_PULL_REQUEST_NUMBER'),
                              slug=os.getenv('APPVEYOR_REPO_NAME'),
                              commit=os.getenv('APPVEYOR_REPO_COMMIT')))
     # -------

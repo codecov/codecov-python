@@ -24,7 +24,7 @@ class TestUploader(unittest.TestCase):
         os.environ['CODECOV_ENDPOINT'] = self.url
         for key in ("TRAVIS", "TRAVIS_BRANCH", "TRAVIS_COMMIT", "TRAVIS_BUILD_DIR", "TRAVIS_JOB_ID",
                     "CI_NAME", "CI_BRANCH", "CI_COMMIT_ID",
-                    "CI_BUILD_NUMBER", "MAGNUM", "CI_COMMIT", "APPVEYOR_ACCOUNT_NAME", "APPVEYOR_PROJECT_SLUG",
+                    "CI_BUILD_NUMBER", "MAGNUM", "CI_COMMIT", "APPVEYOR_ACCOUNT_NAME", "APPVEYOR_PROJECT_SLUG", "APPVEYOR_PULL_REQUEST_NUMBER",
                     "CIRCLECI", "CIRCLE_BRANCH", "CIRCLE_ARTIFACTS", "CIRCLE_SHA1",
                     "SEMAPHORE", "BRANCH_NAME", "SEMAPHORE_PROJECT_DIR", "REVISION",
                     "DRONE", "DRONE_BRANCH", "DRONE_BUILD_DIR", "DRONE_COMMIT", "JENKINS_URL",
@@ -196,6 +196,7 @@ class TestUploader(unittest.TestCase):
                      APPVEYOR_BUILD_VERSION="1.2.3",
                      APPVEYOR_ACCOUNT_NAME="owner",
                      APPVEYOR_PROJECT_SLUG="repo",
+                     APPVEYOR_PULL_REQUEST_NUMBER=1,
                      APPVEYOR_REPO_BRANCH="add-django-tests",
                      APPVEYOR_REPO_NAME="FreeMusicNinja/freemusic.ninja",
                      APPVEYOR_REPO_COMMIT="d653b934ed59c1a785cc1cc79d08c9aaa4eba73b",
