@@ -40,7 +40,7 @@ class TestUploader(unittest.TestCase):
         """Fake config variables
         """
         for key in kwargs:
-            os.environ[key] = kwargs[key]
+            os.environ[key] = str(kwargs[key])
 
     def basics(self):
         """Default information for testing
@@ -196,7 +196,7 @@ class TestUploader(unittest.TestCase):
                      APPVEYOR_BUILD_VERSION="1.2.3",
                      APPVEYOR_ACCOUNT_NAME="owner",
                      APPVEYOR_PROJECT_SLUG="repo",
-                     APPVEYOR_PULL_REQUEST_NUMBER=1,
+                     APPVEYOR_PULL_REQUEST_NUMBER="1",
                      APPVEYOR_REPO_BRANCH="add-django-tests",
                      APPVEYOR_REPO_NAME="FreeMusicNinja/freemusic.ninja",
                      APPVEYOR_REPO_COMMIT="d653b934ed59c1a785cc1cc79d08c9aaa4eba73b",
