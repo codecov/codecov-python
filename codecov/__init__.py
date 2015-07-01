@@ -222,6 +222,17 @@ def main(*argv):
                              owner=os.getenv('WERCKER_GIT_OWNER'),
                              repo=os.getenv('WERCKER_GIT_REPOSITORY'),
                              commit=os.getenv('WERCKER_GIT_COMMIT')))
+
+    # -------
+    # Snap CI
+    # -------
+    elif os.getenv('CI') == "true" and os.getenv('SNAP_CI') == "true":
+        # https://docs.snap-ci.com/environment-variables/
+        defaults.update(dict(branch=os.getenv('SNAP_BRANCH') or os.getenv('SNAP_UPSTREAM_BRANCH'),
+                             service="snap",
+                             build=os.getenv('SNAP_PIPELINE_COUNTER'),
+                             pr=os.getenv('SNAP_PULL_REQUEST_NUMBER'),
+                             commit=os.getenv('SNAP_COMMIT') or os.getenv('SNAP_UPSTREAM_COMMIT')))
     # ------
     # Magnum
     # ------

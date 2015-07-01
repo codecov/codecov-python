@@ -25,6 +25,7 @@ class TestUploader(unittest.TestCase):
         for key in ("TRAVIS", "TRAVIS_BRANCH", "TRAVIS_COMMIT", "TRAVIS_BUILD_DIR", "TRAVIS_JOB_ID",
                     "CI_NAME", "CI_BRANCH", "CI_COMMIT_ID",
                     "CI_BUILD_NUMBER", "MAGNUM", "CI_COMMIT", "APPVEYOR_ACCOUNT_NAME", "APPVEYOR_PROJECT_SLUG", "APPVEYOR_PULL_REQUEST_NUMBER",
+                    "SNAP_UPSTREAM_BRANCH", "SNAP_BRANCH", "SNAP_PIPELINE_COUNTER", "SNAP_PULL_REQUEST_NUMBER", "SNAP_COMMIT", "SNAP_UPSTREAM_COMMIT",
                     "CIRCLECI", "CIRCLE_BRANCH", "CIRCLE_ARTIFACTS", "CIRCLE_SHA1",
                     "SEMAPHORE", "BRANCH_NAME", "SEMAPHORE_PROJECT_DIR", "REVISION",
                     "DRONE", "DRONE_BRANCH", "DRONE_BUILD_DIR", "DRONE_COMMIT", "JENKINS_URL",
@@ -167,6 +168,14 @@ class TestUploader(unittest.TestCase):
                      SEMAPHORE_BUILD_NUMBER="10",
                      SEMAPHORE_REPO_SLUG='codecov/ci-repo',
                      REVISION="743b04806ea677403aa2ff26c6bdeb85005de658",
+                     CODECOV_TOKEN=self.upload_token)
+        self.passed(self.command())
+
+    def test_ci_snap(self):
+        self.set_env(SNAP_BRANCH="master",
+                     SNAP_PIPELINE_COUNTER="10",
+                     SNAP_PULL_REQUEST_NUMBER="10",
+                     SNAP_COMMIT='743b04806ea677403aa2ff26c6bdeb85005de658',
                      CODECOV_TOKEN=self.upload_token)
         self.passed(self.command())
 
