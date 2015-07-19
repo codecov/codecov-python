@@ -33,7 +33,7 @@ try:
 except:
     pass
 
-version = VERSION = __version__ = '1.1.12'
+version = VERSION = __version__ = '1.1.13'
 
 SKIP_DIRECTORIES = re.compile(r'\/(\..+|((Sites\/www\/bower)|node_modules|vendor|bower_components|(coverage\/instrumented)|\.?v?(irtual)?env|venv\/(lib|bin)|build\/lib|\.git|\.egg\-info))\/').search
 SKIP_FILES = re.compile(r'(\.tar\.gz|\.pyc|\.egg|(\/\..+)|\.txt)$').search
@@ -285,6 +285,7 @@ def main(*argv):
     parser.add_argument('--version', '-v', action='version', version='codecov-python v'+version+" - https://codecov.io/")
     parser.add_argument('--commit', '-c', default=defaults.pop('commit', None), help="commit ref")
     parser.add_argument('--slug', '-r', default=defaults.pop('slug', None), help="specify repository slug for Enterprise ex. codecov -r myowner/myrepo")
+    parser.add_argument('--build', default=None, help="(advanced) specify a custom build number to distinguish ci jobs, provided automatically for supported ci companies")
     parser.add_argument('--branch', '-b', default=defaults.pop('branch', None), help="commit branch name")
     parser.add_argument('--json', action="store_true", default=False, help="output json data only")
     parser.add_argument('--env', '-e', nargs="*", help="store config variables for coverage builds")
@@ -294,6 +295,9 @@ def main(*argv):
         codecov = parser.parse_args(argv)
     else:
         codecov = parser.parse_args()
+
+    if codecov.build:
+        defaults['build'] = codecov.build
 
     data = upload(url=codecov.url, branch=codecov.branch, commit=codecov.commit, token=codecov.token, env=codecov.env, slug=codecov.slug, **defaults)
     return data, codecov

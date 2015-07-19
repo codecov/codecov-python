@@ -1,3 +1,6 @@
+### `1.1.13`
+- added --build arg for advanced usage
+
 ### `1.1.10`
 - fix package for 2.6 on windows
 - fix showing `--help` when called in non-git backed repo

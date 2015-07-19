@@ -1,6 +1,6 @@
 import re
 
-IGNORE = re.compile(r'^((vendor/)|(\$\{))').match
+IGNORE = re.compile(r'^/?((vendor/)|(\$\{))').match
 
 
 def from_xml(xml):
