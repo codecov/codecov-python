@@ -29,7 +29,7 @@ class TestUploader(unittest.TestCase):
                     "CIRCLECI", "CIRCLE_BRANCH", "CIRCLE_ARTIFACTS", "CIRCLE_SHA1",
                     "SEMAPHORE", "BRANCH_NAME", "SEMAPHORE_PROJECT_DIR", "REVISION",
                     "DRONE", "DRONE_BRANCH", "DRONE_BUILD_DIR", "DRONE_COMMIT", "JENKINS_URL",
-                    "GIT_BRANCH", "GIT_COMMIT", "WORKSPACE", "BUILD_NUMBER", "CI_BUILD_URL", "SEMAPHORE_REPO_SLUG",
+                    "GIT_BRANCH", "GIT_COMMIT", "WORKSPACE", "BUILD_NUMBER", "CI_BUILD_URL", "SEMAPHORE_REPO_SLUG", "SEMAPHORE_CURRENT_THREAD",
                     "DRONE_BUILD_URL", "TRAVIS_REPO_SLUG", "CODECOV_TOKEN", "APPVEYOR", "APPVEYOR_REPO_BRANCH",
                     "APPVEYOR_BUILD_VERSION", "APPVEYOR_JOB_ID", "APPVEYOR_REPO_NAME", "APPVEYOR_REPO_COMMIT", "WERCKER_GIT_BRANCH",
                     "WERCKER_MAIN_PIPELINE_STARTED", "WERCKER_GIT_OWNER", "WERCKER_GIT_REPOSITORY",
@@ -166,6 +166,7 @@ class TestUploader(unittest.TestCase):
         self.set_env(SEMAPHORE="true",
                      BRANCH_NAME="master",
                      SEMAPHORE_BUILD_NUMBER="10",
+                     SEMAPHORE_CURRENT_THREAD="1",
                      SEMAPHORE_REPO_SLUG='codecov/ci-repo',
                      REVISION="743b04806ea677403aa2ff26c6bdeb85005de658",
                      CODECOV_TOKEN=self.upload_token)

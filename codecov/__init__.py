@@ -26,7 +26,7 @@ try:
 except:
     pass
 
-version = VERSION = __version__ = '1.1.13'
+version = VERSION = __version__ = '1.2.0'
 
 SKIP_DIRECTORIES = re.compile(r'\/(\..+|((Sites\/www\/bower)|node_modules|vendor|bower_components|(coverage\/instrumented)|\.?v?(irtual)?env|venv\/(lib|bin)|build\/lib|\.git|\.egg\-info))\/').search
 SKIP_FILES = re.compile(r'(\.tar\.gz|\.pyc|\.egg|(\/\..+)|\.txt)$').search
@@ -35,7 +35,7 @@ SKIP_FILES = re.compile(r'(\.tar\.gz|\.pyc|\.egg|(\/\..+)|\.txt)$').search
 def build_reports(root):
     reports = []
     table_of_contents = []
-    accepting = set(('coverage.xml', 'coverage.json', 'jacoco.xml', 'jacocoTestReport.xml', 'clover.xml', 'coverage.txt', 'cobertura.xml', 'lcov.info', 'gcov.info'))
+    accepting = set(('coverage.xml', 'nosetests.xml', 'test-results.xml', 'coverage.json', 'jacoco.xml', 'jacocoTestReport.xml', 'clover.xml', 'coverage.txt', 'cobertura.xml', 'lcov.info', 'gcov.info'))
 
     for _root, dirs, files in os.walk(root):
         if SKIP_DIRECTORIES(_root):
@@ -56,10 +56,11 @@ def build_reports(root):
         try_to_run('coverage xml')
         if os.path.exists(os.path.join(root, 'coverage.xml')):
             with open(os.path.join(root, 'coverage.xml'), 'r') as f:
+                reports.append(f.read())
 
         # warn when no reports found and is python
         if len(reports) == 0:
-            # TODO send `coverage debug sys` to rollbar
+            # TODO send `coverage debug sys`
             sys.stdout.write("No reports found. You may need to add a coverage config file. Visit http://bit.ly/1slucpy for configuration help.")
 
     assert len(reports) > 0, "error no coverage report found, could not upload to codecov"
@@ -163,7 +164,7 @@ def main(*argv):
         # https://semaphoreapp.com/docs/available-environment-variables.html
         defaults.update(dict(branch=os.getenv('BRANCH_NAME'),
                              service='semaphore',
-                             build=os.getenv('SEMAPHORE_BUILD_NUMBER'),
+                             build="%s.%s" % (os.getenv('SEMAPHORE_BUILD_NUMBER'), os.getenv('SEMAPHORE_CURRENT_THREAD')),
                              slug=os.getenv('SEMAPHORE_REPO_SLUG'),
                              commit=os.getenv('REVISION')))
     # --------
