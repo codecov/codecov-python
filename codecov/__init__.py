@@ -6,12 +6,6 @@ import sys
 import json
 import requests
 import argparse
-from json import dumps
-import xml.etree.cElementTree as etree
-
-from codecov import jacoco
-from codecov import clover
-from codecov import cobertura
 
 try:
     from urllib.parse import urlencode
@@ -55,24 +49,13 @@ def build_reports(root):
             # search for all .lcov|.gcov
             if filepath in accepting or filepath.endswith('.lcov') or filepath.endswith('.gcov') or filepath.endswith('.lst'):
                 with open(os.path.join(_root, filepath), 'r') as f:
-                    if filepath.endswith('xml'):
-                        xml = etree.fromstring(f.read())
-                        if filepath in ('jacoco.xml', 'jacocoTestReport.xml'):
-                            reports.append(dumps(jacoco.from_xml(xml)))
-                        elif xml.attrib.get('generated'):
-                            reports.append(dumps(clover.from_xml(xml)))
-                        else:
-                            reports.append(dumps(cobertura.from_xml(xml)))
-                        del xml
-                    else:
-                        reports.append(f.read())
+                    reports.append(f.read())
 
     # (python), try to generate a report
     if len(reports) == 0:
         try_to_run('coverage xml')
         if os.path.exists(os.path.join(root, 'coverage.xml')):
             with open(os.path.join(root, 'coverage.xml'), 'r') as f:
-                reports.append(dumps(cobertura.from_xml(etree.fromstring(f.read()))))
 
         # warn when no reports found and is python
         if len(reports) == 0:
