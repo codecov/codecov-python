@@ -4,7 +4,6 @@ import os
 import re
 import sys
 import json
-import rollbar
 import requests
 import argparse
 from json import dumps
@@ -37,10 +36,6 @@ version = VERSION = __version__ = '1.1.13'
 
 SKIP_DIRECTORIES = re.compile(r'\/(\..+|((Sites\/www\/bower)|node_modules|vendor|bower_components|(coverage\/instrumented)|\.?v?(irtual)?env|venv\/(lib|bin)|build\/lib|\.git|\.egg\-info))\/').search
 SKIP_FILES = re.compile(r'(\.tar\.gz|\.pyc|\.egg|(\/\..+)|\.txt)$').search
-
-
-if os.getenv('CODECOV_DISABLE_ROLLBAR') != 'true':
-    rollbar.init('8e9285f0f64647f3aaefb3d785f56b13', environment='codeocv-python')
 
 
 def build_reports(root):
@@ -125,7 +120,6 @@ def upload(url, root, env=None, **kwargs):
         return result.json()
 
     except AssertionError as e:
-        rollbar.report_exc_info()
         return dict(message=str(e), uploaded=False, coverage=0)
 
 
@@ -313,7 +307,6 @@ def cli():
         else:
             sys.stdout.write("Uploaded: %(uploaded)s\nReport URL: %(url)s\nUpload Version: codecov-v%(version)s\nMessage: %(message)s\n" % defaults)
     except:
-        rollbar.report_exc_info()
         raise
 
 
