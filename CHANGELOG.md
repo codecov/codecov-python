@@ -1,3 +1,8 @@
+### `1.2.0`
+- accept `nosetests.xml` and `test-results.xml` files
+- no longer do client side pre-processing, upload raw
+- capture SEMAPHORE_CURRENT_THREAD
+
 ### `1.1.13`
 - added --build arg for advanced usage
 

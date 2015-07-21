@@ -2,7 +2,7 @@
 from setuptools import setup
 import sys
 
-version = '1.1.13'
+version = '1.2.0'
 classifiers = ["Development Status :: 5 - Production/Stable",
                "Environment :: Plugins",
                "Intended Audience :: Developers",
@@ -27,6 +27,6 @@ setup(name='codecov',
       packages=['codecov'],
       include_package_data=True,
       zip_safe=True,
-      install_requires=["requests>=2.0.0", "rollbar", "coverage"] + (["future"] if sys.version_info[:2] == (2, 6) else []),
+      install_requires=["requests>=2.0.0", "coverage"] + (["future"] if sys.version_info[:2] == (2, 6) else []),
       tests_require=["unittest2"],
       entry_points={'console_scripts': ['codecov=codecov:cli']})
