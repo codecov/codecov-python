@@ -26,7 +26,7 @@ try:
 except:
     pass
 
-version = VERSION = __version__ = '1.2.0'
+version = VERSION = __version__ = '1.2.1'
 
 SKIP_DIRECTORIES = re.compile(r'\/(\..+|((Sites\/www\/bower)|node_modules|vendor|bower_components|(coverage\/instrumented)|\.?v?(irtual)?env|venv\/(lib|bin)|build\/lib|\.git|\.egg\-info))\/').search
 SKIP_FILES = re.compile(r'(\.tar\.gz|\.pyc|\.egg|(\/\..+)|\.txt)$').search

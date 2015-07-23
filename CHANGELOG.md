@@ -1,3 +1,6 @@
+### `1.2.1`
+- accept any file ending in `coverge.xml`
+
 ### `1.2.0`
 - accept `nosetests.xml` and `test-results.xml` files
 - no longer do client side pre-processing, upload raw
