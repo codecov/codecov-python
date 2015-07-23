@@ -47,7 +47,7 @@ def build_reports(root):
                 table_of_contents.append(fp)
 
             # search for all .lcov|.gcov
-            if filepath in accepting or filepath.endswith('.lcov') or filepath.endswith('.gcov') or filepath.endswith('.lst'):
+            if filepath in accepting or filepath.endswith('.lcov') or filepath.endswith('.gcov') or filepath.endswith('.lst') or filepath.endswith('coverage.xml'):
                 with open(os.path.join(_root, filepath), 'r') as f:
                     reports.append(f.read())
 
