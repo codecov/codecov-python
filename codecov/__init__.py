@@ -6,6 +6,8 @@ import sys
 import json
 import requests
 import argparse
+from json import dumps
+import xml.etree.cElementTree as etree
 
 try:
     from urllib.parse import urlencode
@@ -26,10 +28,42 @@ try:
 except:
     pass
 
-version = VERSION = __version__ = '1.2.1'
+version = VERSION = __version__ = '1.2.2'
 
 SKIP_DIRECTORIES = re.compile(r'\/(\..+|((Sites\/www\/bower)|node_modules|vendor|bower_components|(coverage\/instrumented)|\.?v?(irtual)?env|venv\/(lib|bin)|build\/lib|\.git|\.egg\-info))\/').search
 SKIP_FILES = re.compile(r'(\.tar\.gz|\.pyc|\.egg|(\/\..+)|\.txt)$').search
+
+
+def jacoco(report):
+    """
+    Some Jacoco can be huge. This is way to trim them down.
+    nr = line number
+    mi = missed instructions
+    ci = covered instructions
+    mb = missed branches
+    cb = covered branches
+    """
+    report = etree.fromstring(report)
+    coverage = {}
+    for package in report.getiterator('package'):
+        base_name = package.attrib['name']
+        for source in package.getiterator('sourcefile'):
+            lines = []
+            append = lines.append
+            for line in source.getiterator('line'):
+                l = line.attrib
+                if l['mb'] != "0":
+                    append((str(l['nr']), "%s/%d" % (l['cb'], int(l['mb'])+int(l['cb']))))
+                elif l['cb'] != "0":
+                    append((str(l['nr']), "%s/%s" % (l['cb'], l['cb'])))
+                else:
+                    append((str(l['nr']), int(l['ci'])))
+            if not lines:
+                continue
+
+            coverage["%s/%s" % (base_name, source.attrib['name'])] = dict(lines)
+
+    return dumps(dict(coverage=coverage))
 
 
 def build_reports(root):
@@ -49,7 +83,10 @@ def build_reports(root):
             # search for all .lcov|.gcov
             if filepath in accepting or filepath.endswith('.lcov') or filepath.endswith('.gcov') or filepath.endswith('.lst') or filepath.endswith('coverage.xml'):
                 with open(os.path.join(_root, filepath), 'r') as f:
-                    reports.append(f.read())
+                    report = f.read()
+                    if 'jacoco' in filepath:
+                        report = jacoco(report)
+                    reports.append(report)
 
     # (python), try to generate a report
     if len(reports) == 0:

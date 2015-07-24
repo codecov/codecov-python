@@ -1,5 +1,6 @@
 ### `1.2.1`
 - accept any file ending in `coverge.xml`
+- bring back client-side pre-processing for jacoco (they can crush)
 
 ### `1.2.0`
 - accept `nosetests.xml` and `test-results.xml` files
