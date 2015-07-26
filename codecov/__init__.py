@@ -69,7 +69,7 @@ def jacoco(report):
 def build_reports(root):
     reports = []
     table_of_contents = []
-    accepting = set(('coverage.xml', 'nosetests.xml', 'test-results.xml', 'coverage.json', 'jacoco.xml', 'jacocoTestReport.xml', 'clover.xml', 'coverage.txt', 'cobertura.xml', 'lcov.info', 'gcov.info'))
+    accepting = set(('coverage.xml', 'nosetests.xml', 'coverage.json', 'jacoco.xml', 'jacocoTestReport.xml', 'clover.xml', 'coverage.txt', 'cobertura.xml', 'lcov.info', 'gcov.info'))
 
     for _root, dirs, files in os.walk(root):
         if SKIP_DIRECTORIES(_root):
