@@ -26,7 +26,7 @@ class TestUploader(unittest.TestCase):
                     "CI_NAME", "CI_BRANCH", "CI_COMMIT_ID",
                     "CI_BUILD_NUMBER", "MAGNUM", "CI_COMMIT", "APPVEYOR_ACCOUNT_NAME", "APPVEYOR_PROJECT_SLUG", "APPVEYOR_PULL_REQUEST_NUMBER",
                     "SNAP_UPSTREAM_BRANCH", "SNAP_BRANCH", "SNAP_PIPELINE_COUNTER", "SNAP_PULL_REQUEST_NUMBER", "SNAP_COMMIT", "SNAP_UPSTREAM_COMMIT",
-                    "CIRCLECI", "CIRCLE_BRANCH", "CIRCLE_ARTIFACTS", "CIRCLE_SHA1",
+                    "CIRCLECI", "CIRCLE_BRANCH", "CIRCLE_ARTIFACTS", "CIRCLE_SHA1", "CIRCLE_NODE_INDEX", "CIRCLE_PR_NUMBER",
                     "SEMAPHORE", "BRANCH_NAME", "SEMAPHORE_PROJECT_DIR", "REVISION",
                     "DRONE", "DRONE_BRANCH", "DRONE_BUILD_DIR", "DRONE_COMMIT", "JENKINS_URL",
                     "GIT_BRANCH", "GIT_COMMIT", "WORKSPACE", "BUILD_NUMBER", "CI_BUILD_URL", "SEMAPHORE_REPO_SLUG", "SEMAPHORE_CURRENT_THREAD",
@@ -156,6 +156,8 @@ class TestUploader(unittest.TestCase):
     def test_ci_circleci(self):
         self.set_env(CIRCLECI='true',
                      CIRCLE_BUILD_NUM="57",
+                     CIRCLE_NODE_INDEX="1",
+                     CIRCLE_PR_NUMBER="1",
                      CIRCLE_BRANCH="add-django-tests",
                      CIRCLE_PROJECT_USERNAME="FreeMusicNinja",
                      CIRCLE_PROJECT_REPONAME="freemusic.ninja",

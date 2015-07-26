@@ -190,7 +190,8 @@ def main(*argv):
         # https://circleci.com/docs/environment-variables
         defaults.update(dict(branch=os.getenv('CIRCLE_BRANCH'),
                              service='circleci',
-                             build=os.getenv('CIRCLE_BUILD_NUM'),
+                             build=os.getenv('CIRCLE_BUILD_NUM') + "." + os.getenv('CIRCLE_NODE_INDEX'),
+                             pr=os.getenv('CIRCLE_PR_NUMBER'),
                              owner=os.getenv('CIRCLE_PROJECT_USERNAME'),
                              repo=os.getenv('CIRCLE_PROJECT_REPONAME'),
                              commit=os.getenv('CIRCLE_SHA1')))
