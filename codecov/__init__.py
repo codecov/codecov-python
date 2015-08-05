@@ -28,7 +28,7 @@ try:
 except:
     pass
 
-version = VERSION = __version__ = '1.2.3'
+version = VERSION = __version__ = '1.2.4'
 
 SKIP_DIRECTORIES = re.compile(r'\/(\..+|((Sites\/www\/bower)|node_modules|vendor|bower_components|(coverage\/instrumented)|\.?v?(irtual)?env|venv\/(lib|bin)|build\/lib|\.git|\.egg\-info))\/').search
 SKIP_FILES = re.compile(r'(\.tar\.gz|\.pyc|\.egg|(\/\..+)|\.txt)$').search
@@ -66,7 +66,7 @@ def jacoco(report):
     return dumps(dict(coverage=coverage))
 
 
-def build_reports(root):
+def build_reports(files, root):
     reports = []
     table_of_contents = []
     accepting = set(('coverage.xml', 'nosetests.xml', 'coverage.json', 'jacoco.xml', 'jacocoTestReport.xml', 'clover.xml', 'coverage.txt', 'cobertura.xml', 'lcov.info', 'gcov.info'))
@@ -80,25 +80,33 @@ def build_reports(root):
             if not (SKIP_DIRECTORIES(fp) or SKIP_FILES(fp)) and '/' in fp:
                 table_of_contents.append(fp)
 
-            # search for all .lcov|.gcov
-            if filepath in accepting or filepath.endswith('.lcov') or filepath.endswith('.gcov') or filepath.endswith('.lst') or filepath.endswith('coverage.xml'):
-                with open(os.path.join(_root, filepath), 'r') as f:
-                    report = f.read()
-                    if 'jacoco' in filepath:
-                        report = jacoco(report)
-                    reports.append(report)
-
-    # (python), try to generate a report
-    if len(reports) == 0:
-        try_to_run('coverage xml')
-        if os.path.exists(os.path.join(root, 'coverage.xml')):
-            with open(os.path.join(root, 'coverage.xml'), 'r') as f:
-                reports.append(f.read())
-
-        # warn when no reports found and is python
+            if not files:
+                # search for all .lcov|.gcov
+                if filepath in accepting or filepath.endswith('.lcov') or filepath.endswith('.gcov') or filepath.endswith('.lst') or filepath.endswith('coverage.xml'):
+                    with open(os.path.join(_root, filepath), 'r') as f:
+                        report = f.read()
+                        if 'jacoco' in filepath:
+                            report = jacoco(report)
+                        reports.append('# path=' + filepath + '\n' + report)
+    if files:
+        for filepath in files:
+            with open(filepath, 'r') as f:
+                report = f.read()
+                if 'jacoco' in filepath:
+                    report = jacoco(report)
+                reports.append('# path=' + filepath + '\n' + report)
+    else:
+        # (python), try to generate a report
         if len(reports) == 0:
-            # TODO send `coverage debug sys`
-            sys.stdout.write("No reports found. You may need to add a coverage config file. Visit http://bit.ly/1slucpy for configuration help.")
+            try_to_run('coverage xml')
+            if os.path.exists(os.path.join(root, 'coverage.xml')):
+                with open(os.path.join(root, 'coverage.xml'), 'r') as f:
+                    reports.append('# path=coverage.xml\n' + f.read())
+
+            # warn when no reports found and is python
+            if len(reports) == 0:
+                # TODO send `coverage debug sys`
+                sys.stdout.write("No reports found. You may need to add a coverage config file. Visit http://bit.ly/1slucpy for configuration help.")
 
     assert len(reports) > 0, "error no coverage report found, could not upload to codecov"
 
@@ -113,7 +121,7 @@ def try_to_run(cmd):
         sys.stdout.write("Error running `%s`. Codecov team will be notified" % cmd)
 
 
-def upload(url, root, env=None, **kwargs):
+def upload(url, root, env=None, files=None, **kwargs):
     try:
         if not root:
             root = os.getcwd()
@@ -125,7 +133,7 @@ def upload(url, root, env=None, **kwargs):
                    (args.get('build') and args.get('service') == 'circleci'),
                    args.get('token'))), "missing token or other required argument(s)"
 
-        reports = build_reports(root)
+        reports = build_reports(files, root)
 
         if env:
             reports = "\n<<<<<< ENV\n".join(("\n".join(["%s=%s" % (k, os.getenv(k, '')) for k in env]), reports))
@@ -298,6 +306,7 @@ def main(*argv):
                                      formatter_class=argparse.RawDescriptionHelpFormatter,
                                      epilog="""Read more at https://codecov.io/""")
     parser.add_argument('--version', '-v', action='version', version='codecov-python v'+version+" - https://codecov.io/")
+    parser.add_argument('--file', '-f', nargs="*", default=None, help="Target a specific file for uploading")
     parser.add_argument('--commit', '-c', default=defaults.pop('commit', None), help="commit ref")
     parser.add_argument('--slug', '-r', default=defaults.pop('slug', None), help="specify repository slug for Enterprise ex. codecov -r myowner/myrepo")
     parser.add_argument('--build', default=None, help="(advanced) specify a custom build number to distinguish ci jobs, provided automatically for supported ci companies")
@@ -314,7 +323,7 @@ def main(*argv):
     if codecov.build:
         defaults['build'] = codecov.build
 
-    data = upload(url=codecov.url, branch=codecov.branch, commit=codecov.commit, token=codecov.token, env=codecov.env, slug=codecov.slug, **defaults)
+    data = upload(url=codecov.url, files=codecov.file, branch=codecov.branch, commit=codecov.commit, token=codecov.token, env=codecov.env, slug=codecov.slug, **defaults)
     return data, codecov
 
 
