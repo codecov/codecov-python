@@ -145,7 +145,7 @@ def upload(url, root, env=None, **kwargs):
 
 
 def main(*argv):
-    defaults = dict(commit='', branch='', job='', root=None, pull_request='', build_url='')
+    defaults = dict(commit='', branch='', job='', root=None, pr='', build_url='')
 
     # -------
     # Jenkins
@@ -156,7 +156,7 @@ def main(*argv):
         defaults.update(dict(branch=os.getenv('ghprbSourceBranch') or os.getenv('GIT_BRANCH'),
                              service='jenkins',
                              commit=os.getenv('ghprbActualCommit') or os.getenv('GIT_COMMIT'),
-                             pull_request=os.getenv('ghprbPullId', 'false'),
+                             pr=os.getenv('ghprbPullId', 'false'),
                              build=os.getenv('BUILD_NUMBER'),
                              root=os.getenv('WORKSPACE'),
                              build_url=os.getenv('BUILD_URL')))
@@ -192,8 +192,7 @@ def main(*argv):
                              service='circleci',
                              build=os.getenv('CIRCLE_BUILD_NUM') + "." + os.getenv('CIRCLE_NODE_INDEX'),
                              pr=os.getenv('CIRCLE_PR_NUMBER'),
-                             owner=os.getenv('CIRCLE_PROJECT_USERNAME'),
-                             repo=os.getenv('CIRCLE_PROJECT_REPONAME'),
+                             slug=os.getenv('CIRCLE_PROJECT_USERNAME') + "/" + os.getenv('CIRCLE_PROJECT_REPONAME'),
                              commit=os.getenv('CIRCLE_SHA1')))
     # ---------
     # Semaphore
@@ -267,7 +266,7 @@ def main(*argv):
                              service='shippable',
                              build=os.getenv('BUILD_NUMBER'),
                              build_url=os.getenv('BUILD_URL'),
-                             pull_request=os.getenv('PULL_REQUEST') if os.getenv('PULL_REQUEST') != 'false' else '',
+                             pr=os.getenv('PULL_REQUEST') if os.getenv('PULL_REQUEST') != 'false' else '',
                              slug=os.getenv('REPO_NAME'),
                              commit=os.getenv('COMMIT')))
     # ---------
