@@ -66,7 +66,7 @@ def jacoco(report):
     return dumps(dict(coverage=coverage))
 
 
-def build_reports(files, root):
+def build_reports(specific_files, root):
     reports = []
     table_of_contents = []
     accepting = set(('coverage.xml', 'nosetests.xml', 'coverage.json', 'jacoco.xml', 'jacocoTestReport.xml', 'clover.xml', 'coverage.txt', 'cobertura.xml', 'lcov.info', 'gcov.info'))
@@ -80,7 +80,7 @@ def build_reports(files, root):
             if not (SKIP_DIRECTORIES(fp) or SKIP_FILES(fp)) and '/' in fp:
                 table_of_contents.append(fp)
 
-            if not files:
+            if not specific_files:
                 # search for all .lcov|.gcov
                 if filepath in accepting or filepath.endswith('.lcov') or filepath.endswith('.gcov') or filepath.endswith('.lst') or filepath.endswith('coverage.xml'):
                     with open(os.path.join(_root, filepath), 'r') as f:
@@ -88,8 +88,8 @@ def build_reports(files, root):
                         if 'jacoco' in filepath:
                             report = jacoco(report)
                         reports.append('# path=' + filepath + '\n' + report)
-    if files:
-        for filepath in files:
+    if specific_files:
+        for filepath in specific_files:
             with open(filepath, 'r') as f:
                 report = f.read()
                 if 'jacoco' in filepath:
@@ -122,6 +122,7 @@ def try_to_run(cmd):
 
 
 def upload(url, root, env=None, files=None, **kwargs):
+    print "\033[92m....\033[0m", files, kwargs
     try:
         if not root:
             root = os.getcwd()
