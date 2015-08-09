@@ -1,4 +1,0 @@
-mode: count
-github.com/codecov/sample_go/sample_go.go:7.14,9.2 1 1
-github.com/codecov/sample_go/sample_go.go:11.26,13.2 1 1
-github.com/codecov/sample_go/sample_go.go:15.19,17.2 1 0

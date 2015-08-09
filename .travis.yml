@@ -12,13 +12,7 @@ python:
 install:
   - pip install -r tests/requirements.txt
   - python setup.py install
-env: CODECOV_DISABLE_ROLLBAR=true
 script:
   - nosetests --rednose --with-cov --cov-config=.coveragerc
 after_success:
-  # remove coverage files used for tests
-  #   this command is not needed in your setup
-  #   only this project
-  - rm -rf tests/coverages
-  # now send just codecov-python coverage stats out
   - codecov

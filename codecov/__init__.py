@@ -5,6 +5,7 @@ import re
 import sys
 import requests
 import argparse
+from json import load
 from json import dumps
 import xml.etree.cElementTree as etree
 
@@ -22,10 +23,12 @@ else:
 
 # https://urllib3.readthedocs.org/en/latest/security.html#insecureplatformwarning
 try:
-    import urllib3
-    urllib3.disable_warnings()
+    import logging
+    logging.captureWarnings(True)
 except:
+    # not py2.6 compatible
     pass
+
 
 version = VERSION = __version__ = '1.3.0'
 
@@ -62,59 +65,79 @@ def jacoco(report):
     return dumps(dict(coverage=coverage))
 
 
-ignore_paths = re.compile(r'(/vendor)|'
+ignored_path = re.compile(r'(/vendor)|'
                           r'(/js/generated/coverage)|'
-                          r'(/bower_components)|'
                           r'(/__pycache__)|'
                           r'(/coverage/instrumented)|'
                           r'(/build/lib)|'
                           r'(/htmlcov)|'
-                          r'(\.egg-info/)|'
+                          r'(\.egg-info)|'
                           r'(/\.git)|'
                           r'(/\.tox)|'
-                          r'(/v?(irtual)?envs?)').search
+                          r'(/\.?v?(irtual)?envs?)', re.I).search
 
-ignore_files = re.compile(r'.*(%s)$' % (r'(\.pyc)|'
-                                        r'(\.tgz)|'
-                                        r'(\.tar\.gz)|'
-                                        r'(\.gcov)|'
-                                        r'(\.lcov)|'
-                                        r'(\.yml)|'
-                                        r'(\.png)|'
-                                        r'(\.coverage)|'
-                                        r'(\.coveragerc)|'
-                                        r'(\.gitignore)|'
-                                        r'(\.jpg)|'
-                                        r'(\.gif)|'
-                                        r'(\.jpeg)|'
-                                        r'(\.sh)|'
-                                        r'(include\.lst)|'
-                                        r'(inputFiles\.lst)|'
-                                        r'(createdFiles\.lst)|'
-                                        r'(scoverage\.measurements\..*)|'
-                                        r'(test_.*_coverage\.txt)|'
-                                        r'(conftest_.*\.c\.gcov)|'
-                                        r'(\.egg)|'
-                                        r'(\.ini)|'
-                                        r'(\.txt)|'
-                                        r'(\.DS_Store)|'
-                                        r'(\.pyc)|'
-                                        r'(\.xml)|'
-                                        r'(\.json)|'
-                                        r'(\.md)')).match
+ignored_file = re.compile('.*('
+                          r'(\.coverage)|'
+                          r'(\.coveragerc)|'
+                          r'(\.DS_Store)|'
+                          r'(\.egg)|'
+                          r'(\.gcov)|'
+                          r'(\.gif)|'
+                          r'(\.gitignore)|'
+                          r'(\.ini)|'
+                          r'(\.jpeg)|'
+                          r'(\.jpg)|'
+                          r'(\.json)|'
+                          r'(\.lcov)|'
+                          r'(\.md)|'
+                          r'(\.png)|'
+                          r'(\.pyc)|'
+                          r'(\.pyc)|'
+                          r'(\.sh)|'
+                          r'(\.tar\.gz)|'
+                          r'(\.tgz)|'
+                          r'(\.txt)|'
+                          r'(\.xml)|'
+                          r'(\.yml)'
+                          ')$', re.I).match
 
-is_report = re.compile(r'(nosetests\.xml)|'
-                       r'([^\/]*coverage[^\/]*)|'
-                       r'(jacoco[^\/]*\.xml)|'
-                       r'(clover\.xml)|'
-                       r'(report\.xml)|'
-                       r'(cobertura\.xml)|'
-                       r'(luacov\.report\.out)|'
-                       r'(lcov\.info)|'
-                       r'(\.lcov)|'
-                       r'(gcov\.info)|'
+ignored_report = re.compile('.*('
+                            r'(/\.coverage.*)|'
+                            r'(\.coveragerc)|'
+                            r'(\.egg)|'
+                            r'(\.gif)|'
+                            r'(\.ini)|'
+                            r'(\.jpeg)|'
+                            r'(\.jpg)|'
+                            r'(\.md)|'
+                            r'(\.png)|'
+                            r'(\.pyc)|'
+                            r'(\.sh)|'
+                            r'(\.tar\.gz)|'
+                            r'(\.yml)|'
+                            r'(coverage\.jade)|'
+                            r'(include\.lst)|'
+                            r'(inputFiles\.lst)|'
+                            r'(createdFiles\.lst)|'
+                            r'(scoverage\.measurements\..*)|'
+                            r'(test_.*_coverage\.txt)|'
+                            r'(conftest_.*\.c\.gcov)'
+                            ')$', re.I).match
+
+is_report = re.compile('.*('
+                       r'([^/]*coverage[^/]*)|'
                        r'(\.gcov)|'
-                       r'(\.lst)$').match
+                       r'(\.lcov)|'
+                       r'(\.lst)|'
+                       r'(clover\.xml)|'
+                       r'(cobertura\.xml)|'
+                       r'(gcov\.info)|'
+                       r'(jacoco[^/]*\.xml)|'
+                       r'(lcov\.info)|'
+                       r'(luacov\.report\.out)|'
+                       r'(nosetests\.xml)|'
+                       r'(report\.xml)'
+                       ')$', re.I).match
 
 opj = os.path.join  # for faster access
 
@@ -132,23 +155,22 @@ def read(filepath):
         return '# path=' + filepath + '\n' + report
 
 
-def build_reports(specific_files, root):
+def build_reports(specific_files, root, bower_components):
     reports = []
     toc = []
     toc_append = toc.append
 
     # build toc and find
     for _root, dirs, files in os.walk(root):
-        if not ignore_paths(_root):
+        if not ignored_path(_root) and bower_components not in _root:
             # add data to tboc
             for filepath in files:
                 fullpath = opj(_root, filepath)
-                if not ignore_files(fullpath):
-                    if specific_files and is_report(fullpath):
-                        # found report
-                        reports.append(read(opj(_root, filepath)))
-                    else:
-                        toc_append(fullpath.replace(root + '/', ''))
+                if not specific_files and is_report(fullpath) and not ignored_report(fullpath):
+                    # found report
+                    reports.append(read(filepath))
+                elif not ignored_file(fullpath):
+                    toc_append(fullpath.replace(root + '/', ''))
 
     if specific_files:
         write('    Targeting specific files')
@@ -177,8 +199,8 @@ def build_reports(specific_files, root):
 def try_to_run(cmd):
     try:
         subprocess.check_output(cmd, shell=True)
-    except:
-        write('    Error running `%s`' % cmd)
+    except subprocess.CalledProcessError as e:
+        write('    Error running `%s`: %s' % (cmd, str(getattr(e, 'output', str(e)))))
 
 
 def upload(url, root, env=None, files=None, dump=False, **query):
@@ -194,33 +216,49 @@ def upload(url, root, env=None, files=None, dump=False, **query):
                    query.get('token'))), "Missing repository upload token"
 
         write('==> Reading file network')
-        reports = build_reports(files, root)
+
+        # Detect .bowerrc
+        # ---------------
+        bower_components = '/bower_components'
+        try:
+            bowerrc = load(open(opj(query.get('root', os.getcwd()), '.bowerrc'), 'r'))
+            bower_components = '/' + (bowerrc.get('directory') or 'bower_components').replace('./', '').strip('/')
+            write('    .bowerrc detected, ignoring ' + bower_components)
+        except:
+            pass
+
+        # Read Network
+        # ------------
+        reports = build_reports(files, root, bower_components)
 
         if env:
             write('==> Appending environment variables')
-            reports = "\n<<<<<< ENV\n".join(("\n".join(["%s=%s" % (k, os.getenv(k, '')) for k in env]), reports))
+            for k in env:
+                write('    + ' + k)
+
+            reports = '\n'.join(["%s=%s" % (k, os.getenv(k, '')) for k in env]) + '\n<<<<<< ENV\n' + reports
 
         query['package'] = "py%s" % VERSION
-
-        url = "%s/upload/v2?%s" % (url, urlencode(dict([(k, v.strip()) for k, v in query.items() if v is not None])))
+        query = (urlencode(dict([(k, v.strip()) for k, v in query.items() if v not in ('', None)])))
 
         write('==> Uploading to Codecov')
-        write('    ' + url)
+        write('    Url: ' + url)
+        write('    Query: ' + query)
         if dump:
             write('-------------------- Debug --------------------')
             write(reports)
-            return url, reports
+            write('--------------------  EOF  --------------------')
+            return query, reports
 
-        result = requests.post(url, data=reports)
-        if result.status_code != 200:
-            write('    ' + result.text)
+        result = requests.post(url + '/upload/v2?' + query, data=reports, headers={"Accept": "text/plain"})
+        write('    ' + result.text)
         result.raise_for_status()
-        return result.json()
+        return query, result.text
 
     except AssertionError as e:
         write('')
         write('Error: ' + str(e))
-        return False
+        return None, None
 
 
 def main(*argv):
@@ -229,6 +267,7 @@ def main(*argv):
 
     # Detect CI
     # ---------
+    print(argv)
     if not ('-h' in argv or '--help' in argv):
         write('==> Detecting CI Provider')
         # -------
@@ -252,9 +291,9 @@ def main(*argv):
         elif os.getenv('CI') == "true" and os.getenv('TRAVIS') == "true":
             # http://docs.travis-ci.com/user/ci-environment/#Environment-variables
             query.update(dict(branch=os.getenv('TRAVIS_BRANCH'),
-                              service='travis-org',
+                              service='travis',
                               build=os.getenv('TRAVIS_JOB_NUMBER'),
-                              pr=os.getenv('TRAVIS_PULL_REQUEST') if os.getenv('TRAVIS_PULL_REQUEST') != 'false' else '',
+                              pr=os.getenv('TRAVIS_PULL_REQUEST'),
                               job=os.getenv('TRAVIS_JOB_ID'),
                               slug=os.getenv('TRAVIS_REPO_SLUG'),
                               root=os.getenv('TRAVIS_BUILD_DIR'),
@@ -306,6 +345,7 @@ def main(*argv):
             query.update(dict(branch=os.getenv('DRONE_BRANCH'),
                               service='drone.io',
                               build=os.getenv('DRONE_BUILD_NUMBER'),
+                              root=os.getenv('DRONE_BUILD_DIR'),
                               build_url=os.getenv('DRONE_BUILD_URL'),
                               commit=os.getenv('DRONE_COMMIT')))
             write('    Drone Detected')
@@ -332,8 +372,7 @@ def main(*argv):
             query.update(dict(branch=os.getenv('WERCKER_GIT_BRANCH'),
                               service="wercker",
                               build=os.getenv('WERCKER_MAIN_PIPELINE_STARTED'),
-                              owner=os.getenv('WERCKER_GIT_OWNER'),
-                              repo=os.getenv('WERCKER_GIT_REPOSITORY'),
+                              slug=os.getenv('WERCKER_GIT_OWNER') + '/' + os.getenv('WERCKER_GIT_REPOSITORY'),
                               commit=os.getenv('WERCKER_GIT_COMMIT')))
             write('    Wercker Detected')
 
@@ -409,10 +448,10 @@ def main(*argv):
                                      epilog="""Upload reports to Codecov""")
     parser.add_argument('--version', '-v', action='version', version='Codecov py-v'+version+" - https://codecov.io/")
     parser.add_argument('--file', '-f', nargs="*", default=None, help="Target a specific file for uploading")
-    parser.add_argument('--commit', '-c', default=query.pop('commit', None), help="commit ref")
-    parser.add_argument('--slug', '-r', default=query.pop('slug', None), help="specify repository slug for Enterprise ex. codecov -r myowner/myrepo")
+    parser.add_argument('--commit', '-c', default=None, help="commit ref")
+    parser.add_argument('--slug', '-r', default=None, help="specify repository slug for Enterprise ex. codecov -r myowner/myrepo")
     parser.add_argument('--build', default=None, help="(advanced) specify a custom build number to distinguish ci jobs, provided automatically for supported ci companies")
-    parser.add_argument('--branch', '-b', default=query.pop('branch', None), help="commit branch name")
+    parser.add_argument('--branch', '-b', default=None, help="commit branch name")
     parser.add_argument('--env', '-e', nargs="*", help="store config variables for coverage builds")
     parser.add_argument('--token', '-t', default=os.getenv("CODECOV_TOKEN"), help="codecov repository token")
     parser.add_argument('--dump', action="store_true", help="Dump collected data for debugging")
@@ -428,17 +467,25 @@ def main(*argv):
     if codecov.build:
         query['build'] = codecov.build
 
+    if codecov.commit:
+        query['commit'] = codecov.commit
+
+    if codecov.slug:
+        query['slug'] = codecov.slug
+
+    if codecov.branch:
+        query['branch'] = codecov.branch
+
     # Upload
     # ------
-    return upload(url=codecov.url,
-                  files=codecov.file,
-                  dump=codecov.dump,
-                  env=codecov.env,
-                  token=codecov.token,
-                  slug=codecov.slug,
-                  branch=codecov.branch,
-                  commit=codecov.commit,
-                  **query)
+    url, reports = upload(url=codecov.url,
+                          files=codecov.file,
+                          dump=codecov.dump,
+                          env=codecov.env,
+                          token=codecov.token,
+                          **query)
+
+    return dict(reports=reports, url=url, codecov=codecov, query=query)
 
 
 if __name__ == '__main__':

@@ -1,4 +1,5 @@
 coverage
+ddt
 nose
 nose-cov
 rednose
