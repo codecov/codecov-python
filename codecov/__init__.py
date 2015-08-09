@@ -215,6 +215,12 @@ def upload(url, root, env=None, files=None, dump=False, **query):
                    (query.get('build') and query.get('service') == 'circleci'),
                    query.get('token'))), "Missing repository upload token"
 
+        # Read token from file
+        if query.get('token') and query.get('token')[0] == '@':
+            write('    Reading token from file')
+            with open(opj(os.getcwd(), query['token'][1:]), 'r') as token:
+                query['token'] = token.read().strip()
+
         write('==> Reading file network')
 
         # Detect .bowerrc

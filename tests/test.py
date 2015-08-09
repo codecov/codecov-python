@@ -83,6 +83,7 @@ class TestUploader(unittest.TestCase):
     maxDiff = None
     here = os.path.dirname(__file__)
     bowerrc = os.path.join(os.path.dirname(__file__), '../.bowerrc')
+    token = os.path.join(os.path.dirname(__file__), '../.token')
     jacoco = os.path.join(os.path.dirname(__file__), '../jacoco.xml')
     filepath = os.path.join(os.path.dirname(__file__), '../coverage.xml')
     coverage = os.path.join(os.path.dirname(__file__), '../.coverage')
@@ -196,6 +197,14 @@ class TestUploader(unittest.TestCase):
 
         output = subprocess.check_output('python -m codecov.__init__ --branch=master --commit=sha', stderr=subprocess.STDOUT, shell=True)
         self.assertIn('Missing repository upload token', output.decode('utf-8'))
+
+    def test_read_token_file(self):
+        with open(self.token, 'w+') as f:
+            f.write('a')
+        with open(self.filepath, 'w+') as f:
+            f.write('coverage data')
+        res = self.run_cli(token='@'+self.token, commit='a', branch='b')
+        self.assertIn('token=a', res['url'])
 
     def test_bowerrc(self):
         with open(self.bowerrc, 'w+') as f:
