@@ -275,7 +275,6 @@ def main(*argv):
 
     # Detect CI
     # ---------
-    print(argv)
     if not ('-h' in argv or '--help' in argv):
         write('==> Detecting CI Provider')
         # -------
