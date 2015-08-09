@@ -5,7 +5,7 @@ import re
 import sys
 import requests
 import argparse
-from json import load
+from json import loads
 from json import dumps
 import xml.etree.cElementTree as etree
 
@@ -150,18 +150,23 @@ def write(text):
 
 def fopen(path):
     if sys.version_info < (3, 0):
-        return open(path, 'r')
+        with open(path, 'r') as f:
+            return f.read()
     else:
-        return open(path, 'r', encoding='utf8')
+        try:
+            with open(path, 'r', encoding='utf8') as f:
+                return f.read()
+        except UnicodeDecodeError:
+            with open(path, 'r', encoding='ISO-8859-1') as f:
+                return f.read()
 
 
 def read(filepath):
-    with fopen(filepath) as f:
-        report = f.read()
-        if 'jacoco' in filepath:
-            report = jacoco(report)
-        write('    + %s bytes=%d' % (filepath, os.path.getsize(filepath)))
-        return '# path=' + filepath + '\n' + report
+    write('    + %s bytes=%d' % (filepath, os.path.getsize(filepath)))
+    report = fopen(filepath)
+    if 'jacoco' in filepath:
+        report = jacoco(report)
+    return '# path=' + filepath + '\n' + report
 
 
 def build_reports(specific_files, root, bower_components):
@@ -227,8 +232,7 @@ def upload(url, root, env=None, files=None, dump=False, **query):
         # Read token from file
         if query.get('token') and query.get('token')[0] == '@':
             write('    Reading token from file')
-            with fopen(opj(os.getcwd(), query['token'][1:])) as token:
-                query['token'] = token.read().strip()
+            query['token'] = fopen(opj(os.getcwd(), query['token'][1:])).strip()
 
         write('==> Reading file network')
 
@@ -236,7 +240,7 @@ def upload(url, root, env=None, files=None, dump=False, **query):
         # ---------------
         bower_components = '/bower_components'
         try:
-            bowerrc = load(fopen(opj(query.get('root', os.getcwd()), '.bowerrc')))
+            bowerrc = loads(fopen(opj(query.get('root', os.getcwd()), '.bowerrc')))
             bower_components = '/' + (bowerrc.get('directory') or 'bower_components').replace('./', '').strip('/')
             write('    .bowerrc detected, ignoring ' + bower_components)
         except:
