@@ -134,7 +134,7 @@ class TestUploader(unittest.TestCase):
         if dump:
             inline.append('--dump')
         inline.extend(args)
-        return codecov.main(*inline)
+        return codecov.main(*inline, debug=True)
 
     def fake_report(self):
         with open(self.filepath, 'w+') as f:

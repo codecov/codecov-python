@@ -280,7 +280,7 @@ def upload(url, root, env=None, files=None, dump=False, **query):
         return None, None
 
 
-def main(*argv):
+def main(*argv, **kwargs):
     write('Codeceov v'+version)
     query = dict(commit='', branch='', job='', root=None, pr='', build_url='')
 
@@ -503,7 +503,11 @@ def main(*argv):
                           token=codecov.token,
                           **query)
 
-    return dict(reports=reports, url=url, codecov=codecov, query=query)
+    if kwargs.get('debug'):
+        return dict(reports=reports, url=url, codecov=codecov, query=query)
+
+    elif reports is None:
+        sys.exit(1)
 
 
 if __name__ == '__main__':
