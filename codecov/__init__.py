@@ -148,8 +148,15 @@ def write(text):
     sys.stdout.write(text + '\n')
 
 
+def fopen(path):
+    if sys.version_info < (3, 0):
+        return open(path, 'r')
+    else:
+        return open(path, 'r', encoding='utf8')
+
+
 def read(filepath):
-    with open(filepath, 'r') as f:
+    with fopen(filepath) as f:
         report = f.read()
         if 'jacoco' in filepath:
             report = jacoco(report)
@@ -220,7 +227,7 @@ def upload(url, root, env=None, files=None, dump=False, **query):
         # Read token from file
         if query.get('token') and query.get('token')[0] == '@':
             write('    Reading token from file')
-            with open(opj(os.getcwd(), query['token'][1:]), 'r') as token:
+            with fopen(opj(os.getcwd(), query['token'][1:])) as token:
                 query['token'] = token.read().strip()
 
         write('==> Reading file network')
@@ -229,7 +236,7 @@ def upload(url, root, env=None, files=None, dump=False, **query):
         # ---------------
         bower_components = '/bower_components'
         try:
-            bowerrc = load(open(opj(query.get('root', os.getcwd()), '.bowerrc'), 'r'))
+            bowerrc = load(fopen(opj(query.get('root', os.getcwd()), '.bowerrc')))
             bower_components = '/' + (bowerrc.get('directory') or 'bower_components').replace('./', '').strip('/')
             write('    .bowerrc detected, ignoring ' + bower_components)
         except:
