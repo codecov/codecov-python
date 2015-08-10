@@ -190,15 +190,15 @@ class TestUploader(unittest.TestCase):
     def test_required(self):
         self.set_env(JENKINS_URL='hello')  # this is so we dont get branch for local git
         res = self.run_cli()
-        self.assertEqual(res['report'], 'Branch argument is missing')
+        self.assertEqual(res['reports'], 'Branch argument is missing. Please specify via --branch=:name')
         self.assertEqual(res['url'], None)
 
         res = self.run_cli(branch='master')
-        self.assertEqual(res['report'], 'Commit sha is missing')
+        self.assertEqual(res['reports'], 'Commit sha is missing. Please specify via --commit=:sha')
         self.assertEqual(res['url'], None)
 
         res = self.run_cli(branch='master', commit="sha")
-        self.assertEqual(res['report'], 'Missing repository upload token')
+        self.assertEqual(res['reports'], 'Missing repository upload token')
         self.assertEqual(res['url'], None)
 
     def test_read_token_file(self):

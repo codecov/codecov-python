@@ -268,13 +268,12 @@ def upload(url, root, env=None, files=None, dump=False, **query):
             return query, reports
 
         result = requests.post(url + '/upload/v2?' + query, data=reports, headers={"Accept": "text/plain"})
-        write('    ' + result.text)
+        write('\n' + result.text)
         result.raise_for_status()
         return query, result.text
 
     except AssertionError as e:
-        write('')
-        write('Error: ' + str(e))
+        write('\nError: ' + str(e))
         return None, str(e)
 
 
