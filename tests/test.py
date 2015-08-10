@@ -189,14 +189,17 @@ class TestUploader(unittest.TestCase):
 
     def test_required(self):
         self.set_env(JENKINS_URL='hello')  # this is so we dont get branch for local git
-        output = subprocess.check_output('python -m codecov.__init__', stderr=subprocess.STDOUT, shell=True)
-        self.assertIn('Branch argument is missing', output.decode('utf-8'))
+        res = self.run_cli()
+        self.assertEqual(res['report'], 'Branch argument is missing')
+        self.assertEqual(res['url'], None)
 
-        output = subprocess.check_output('python -m codecov.__init__ --branch=master', stderr=subprocess.STDOUT, shell=True)
-        self.assertIn('Commit sha is missing', output.decode('utf-8'))
+        res = self.run_cli(branch='master')
+        self.assertEqual(res['report'], 'Commit sha is missing')
+        self.assertEqual(res['url'], None)
 
-        output = subprocess.check_output('python -m codecov.__init__ --branch=master --commit=sha', stderr=subprocess.STDOUT, shell=True)
-        self.assertIn('Missing repository upload token', output.decode('utf-8'))
+        res = self.run_cli(branch='master', commit="sha")
+        self.assertEqual(res['report'], 'Missing repository upload token')
+        self.assertEqual(res['url'], None)
 
     def test_read_token_file(self):
         with open(self.token, 'w+') as f:
@@ -262,7 +265,7 @@ class TestUploader(unittest.TestCase):
         with open(self.coverage, 'w+') as f:
             f.write('bad data')
         res = self.run_cli(**self.defaults)
-        self.assertEqual(res['reports'], None)
+        self.assertEqual(res['reports'], 'No coverage report found')
         self.assertEqual(res['url'], None)
 
     def test_include_env(self):
@@ -273,7 +276,7 @@ class TestUploader(unittest.TestCase):
 
     def test_none_found(self):
         res = self.run_cli(**self.defaults)
-        self.assertEqual(res['reports'], None)
+        self.assertEqual(res['reports'], 'No coverage report found')
         self.assertEqual(res['url'], None)
 
     def test_ci_jenkins(self):

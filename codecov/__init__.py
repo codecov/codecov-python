@@ -204,7 +204,7 @@ def build_reports(specific_files, root, bower_components):
                 # TODO send `coverage debug sys`
                 write("    No reports found. You may need to add a coverage config file. Visit http://bit.ly/1slucpy for configuration help.")
 
-    assert len(reports) > 0, "error no coverage report found, could not upload to codecov"
+    assert len(reports) > 0, "No coverage report found"
 
     # join reports together
     return '\n'.join(toc) + '\n<<<<<< EOF\n' + '\n<<<<<< EOF\n'.join(reports)
@@ -225,9 +225,7 @@ def upload(url, root, env=None, files=None, dump=False, **query):
         write('==> Validating arguments')
         assert query.get('branch') not in ('', None), "Branch argument is missing. Please specify via --branch=:name"
         assert query.get('commit') not in ('', None), "Commit sha is missing. Please specify via --commit=:sha"
-        assert any((query.get('job'),
-                   (query.get('build') and query.get('service') == 'circleci'),
-                   query.get('token'))), "Missing repository upload token"
+        assert query.get('job') or query.get('token'), "Missing repository upload token"
 
         # Read token from file
         if query.get('token') and query.get('token')[0] == '@':
@@ -277,7 +275,7 @@ def upload(url, root, env=None, files=None, dump=False, **query):
     except AssertionError as e:
         write('')
         write('Error: ' + str(e))
-        return None, None
+        return None, str(e)
 
 
 def main(*argv, **kwargs):
@@ -338,6 +336,7 @@ def main(*argv, **kwargs):
             query.update(dict(branch=os.getenv('CIRCLE_BRANCH'),
                               service='circleci',
                               build=os.getenv('CIRCLE_BUILD_NUM') + "." + os.getenv('CIRCLE_NODE_INDEX'),
+                              job=os.getenv('CIRCLE_BUILD_NUM') + "." + os.getenv('CIRCLE_NODE_INDEX'),
                               pr=os.getenv('CIRCLE_PR_NUMBER'),
                               slug=os.getenv('CIRCLE_PROJECT_USERNAME') + "/" + os.getenv('CIRCLE_PROJECT_REPONAME'),
                               commit=os.getenv('CIRCLE_SHA1')))
@@ -506,7 +505,7 @@ def main(*argv, **kwargs):
     if kwargs.get('debug'):
         return dict(reports=reports, url=url, codecov=codecov, query=query)
 
-    elif reports is None:
+    elif url is None:
         sys.exit(1)
 
 
