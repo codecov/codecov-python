@@ -169,6 +169,7 @@ class TestUploader(unittest.TestCase):
 
     def test_exits(self):
         try:
+            sys.argv = ['']
             codecov.main()
         except SystemExit as e:
             self.assertEqual(str(e), '1')
