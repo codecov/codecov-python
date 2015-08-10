@@ -1,4 +1,5 @@
 import os
+import sys
 import pickle
 import requests
 import itertools
@@ -7,11 +8,6 @@ from ddt import ddt, data
 import unittest2 as unittest
 
 import codecov
-
-try:
-    import subprocess32 as subprocess
-except ImportError:
-    import subprocess
 
 
 jacoco_xml = """<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
@@ -169,7 +165,23 @@ class TestUploader(unittest.TestCase):
         except SystemExit as e:
             self.assertEqual(str(e), '0')
         else:
-            raise Exception("here")
+            raise Exception("help not shown")
+
+    def test_exits(self):
+        try:
+            codecov.main()
+        except SystemExit as e:
+            self.assertEqual(str(e), '1')
+        else:
+            raise Exception("did not exit")
+
+    def test_returns_none(self):
+        with open(self.filepath, 'w+') as f:
+            f.write('coverage data')
+        sys.argv = ['', '--commit=8ed84d96bc225deff66605486180cd555366806b',
+                    '--branch=master',
+                    '--token=473c8c5b-10ee-4d83-86c6-bfd72a185a27']
+        self.assertEqual(codecov.main(), None)
 
     def test_send(self):
         with open(self.filepath, 'w+') as f:

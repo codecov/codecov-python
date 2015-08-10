@@ -453,7 +453,7 @@ def main(*argv, **kwargs):
                 query.update(dict(branch=branch if branch != 'HEAD' else 'master',
                                   commit=subprocess.check_output('git rev-parse HEAD', shell=True)))
                 write('    No CI Detected.')
-            except:
+            except:  # pragma: no cover
                 # may not be in a git backed repo
                 pass
 
