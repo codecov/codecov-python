@@ -188,7 +188,7 @@ class TestUploader(unittest.TestCase):
         with open(self.filepath, 'w+') as f:
             f.write('coverage data')
         res = self.run_cli(False, commit='a'*40, branch='master', token='473c8c5b-10ee-4d83-86c6-bfd72a185a27')
-        self.assertIn('Uploaded successfully', res['reports'])
+        self.assertIn('Uploaded successfully', res['result'])
 
     def test_send_error(self):
         with open(self.filepath, 'w+') as f:
@@ -200,19 +200,19 @@ class TestUploader(unittest.TestCase):
         else:
             raise Exception('400 never raised')
 
-    def test_required(self):
-        self.set_env(JENKINS_URL='hello')  # this is so we dont get branch for local git
-        res = self.run_cli()
-        self.assertEqual(res['reports'], 'Branch argument is missing. Please specify via --branch=:name')
-        self.assertEqual(res['url'], None)
-
-        res = self.run_cli(branch='master')
-        self.assertEqual(res['reports'], 'Commit sha is missing. Please specify via --commit=:sha')
-        self.assertEqual(res['url'], None)
-
-        res = self.run_cli(branch='master', commit="sha")
-        self.assertEqual(res['reports'], 'Missing repository upload token')
-        self.assertEqual(res['url'], None)
+    @data(({}, 'Branch argument is missing. Please specify via --branch=:name'),
+          (dict(branch='master'), 'Commit sha is missing. Please specify via --commit=:sha'),
+          (dict(branch='master', commit='sha'), 'Missing repository upload token'))
+    def test_require_branch(self, dd):
+        (kwargs, reason) = dd
+        # this is so we dont get branch for local git
+        self.set_env(JENKINS_URL='hello')
+        try:
+            self.run_cli(**kwargs)
+        except AssertionError as e:
+            self.assertEqual(str(e), reason)
+        else:
+            raise Exception("Did not raise AssertionError")
 
     def test_read_token_file(self):
         with open(self.token, 'w+') as f:
@@ -220,7 +220,7 @@ class TestUploader(unittest.TestCase):
         with open(self.filepath, 'w+') as f:
             f.write('coverage data')
         res = self.run_cli(token='@'+self.token, commit='a', branch='b')
-        self.assertIn('token=a', res['url'])
+        self.assertIn('token=a', res['urlargs'])
 
     def test_bowerrc(self):
         with open(self.bowerrc, 'w+') as f:
@@ -229,6 +229,25 @@ class TestUploader(unittest.TestCase):
             f.write('coverage data')
         res = self.run_cli(**self.defaults)
         self.assertNotIn('tests/test.py', res['reports'])
+
+    def test_disable_search(self):
+        self.fake_report()
+        try:
+            self.run_cli(disable='search', token='a', branch='b', commit='c')
+        except AssertionError as e:
+            self.assertEqual(str(e), "No coverage report found")
+        else:
+            raise Exception("Did not raise AssertionError")
+
+    def test_disable_detect(self):
+        self.set_env(JENKINS_URL='a', GIT_BRANCH='b', GIT_COMMIT='c', CODECOV_TOKEN='d')
+        self.fake_report()
+        try:
+            self.run_cli(disable='detect')
+        except AssertionError as e:
+            self.assertEqual(str(e), "Branch argument is missing. Please specify via --branch=:name")
+        else:
+            raise Exception("Did not raise AssertionError")
 
     def test_bowerrc_none(self):
         with open(self.bowerrc, 'w+') as f:
@@ -277,9 +296,12 @@ class TestUploader(unittest.TestCase):
     def test_run_coverage_fails(self):
         with open(self.coverage, 'w+') as f:
             f.write('bad data')
-        res = self.run_cli(**self.defaults)
-        self.assertEqual(res['reports'], 'No coverage report found')
-        self.assertEqual(res['url'], None)
+        try:
+            self.run_cli(**self.defaults)
+        except AssertionError as e:
+            self.assertEqual(str(e), 'No coverage report found')
+        else:
+            raise Exception("Did not raise AssertionError")
 
     def test_include_env(self):
         self.set_env(HELLO='WORLD')
@@ -288,18 +310,21 @@ class TestUploader(unittest.TestCase):
         self.assertIn('HELLO=WORLD', res['reports'])
 
     def test_none_found(self):
-        res = self.run_cli(**self.defaults)
-        self.assertEqual(res['reports'], 'No coverage report found')
-        self.assertEqual(res['url'], None)
+        try:
+            self.run_cli(**self.defaults)
+        except AssertionError as e:
+            self.assertEqual(str(e), "No coverage report found")
+        else:
+            raise Exception("Did not raise AssertionError")
 
     def test_ci_jenkins(self):
         self.set_env(BUILD_URL='https://....',
                      JENKINS_URL='https://....',
                      GIT_BRANCH='master',
                      GIT_COMMIT='c739768fcac68144a3a6d82305b9c4106934d31a',
-                     WORKSPACE=self.here,
                      BUILD_NUMBER='41',
                      CODECOV_TOKEN='token')
+        self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'jenkins')
         self.assertEqual(res['query']['commit'], 'c739768fcac68144a3a6d82305b9c4106934d31a')
@@ -315,9 +340,9 @@ class TestUploader(unittest.TestCase):
                      ghprbSourceBranch='master',
                      ghprbActualCommit='c739768fcac68144a3a6d82305b9c4106934d31a',
                      ghprbPullId='1',
-                     WORKSPACE=self.here,
                      BUILD_NUMBER='41',
                      CODECOV_TOKEN='token')
+        self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'jenkins')
         self.assertEqual(res['query']['commit'], 'c739768fcac68144a3a6d82305b9c4106934d31a')
@@ -331,10 +356,10 @@ class TestUploader(unittest.TestCase):
         self.set_env(TRAVIS="true",
                      TRAVIS_BRANCH="master",
                      TRAVIS_COMMIT="c739768fcac68144a3a6d82305b9c4106934d31a",
-                     TRAVIS_BUILD_DIR=self.here,
                      TRAVIS_REPO_SLUG='owner/repo',
                      TRAVIS_JOB_ID="33116958",
                      TRAVIS_JOB_NUMBER="4.1")
+        self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'travis')
         self.assertEqual(res['query']['commit'], 'c739768fcac68144a3a6d82305b9c4106934d31a')
@@ -351,6 +376,7 @@ class TestUploader(unittest.TestCase):
                      CI_BUILD_URL='https://codeship.io/build/1',
                      CI_COMMIT_ID='743b04806ea677403aa2ff26c6bdeb85005de658',
                      CODECOV_TOKEN='token')
+        self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'codeship')
         self.assertEqual(res['query']['commit'], '743b04806ea677403aa2ff26c6bdeb85005de658')
@@ -369,6 +395,7 @@ class TestUploader(unittest.TestCase):
                      CIRCLE_PROJECT_USERNAME='owner',
                      CIRCLE_PROJECT_REPONAME='repo',
                      CIRCLE_SHA1='d653b934ed59c1a785cc1cc79d08c9aaa4eba73b')
+        self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'circleci')
         self.assertEqual(res['query']['commit'], 'd653b934ed59c1a785cc1cc79d08c9aaa4eba73b')
@@ -385,6 +412,7 @@ class TestUploader(unittest.TestCase):
                      SEMAPHORE_REPO_SLUG='owner/repo',
                      REVISION='743b04806ea677403aa2ff26c6bdeb85005de658',
                      CODECOV_TOKEN='token')
+        self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'semaphore')
         self.assertEqual(res['query']['commit'], '743b04806ea677403aa2ff26c6bdeb85005de658')
@@ -399,6 +427,7 @@ class TestUploader(unittest.TestCase):
                      SNAP_PULL_REQUEST_NUMBER='10',
                      SNAP_COMMIT='743b04806ea677403aa2ff26c6bdeb85005de658',
                      CODECOV_TOKEN='token')
+        self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'snap')
         self.assertEqual(res['query']['commit'], '743b04806ea677403aa2ff26c6bdeb85005de658')
@@ -411,9 +440,9 @@ class TestUploader(unittest.TestCase):
                      DRONE_BUILD_NUMBER='10',
                      DRONE_BRANCH='master',
                      DRONE_BUILD_URL='https://drone.io/github/builds/1',
-                     DRONE_BUILD_DIR=self.here,
                      DRONE_COMMIT='743b04806ea677403aa2ff26c6bdeb85005de658',
                      CODECOV_TOKEN='token')
+        self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'drone.io')
         self.assertEqual(res['query']['commit'], '743b04806ea677403aa2ff26c6bdeb85005de658')
@@ -429,6 +458,7 @@ class TestUploader(unittest.TestCase):
                      BUILD_URL='https://shippable.com/...',
                      COMMIT='743b04806ea677403aa2ff26c6bdeb85005de658',
                      CODECOV_TOKEN='token')
+        self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'shippable')
         self.assertEqual(res['query']['commit'], '743b04806ea677403aa2ff26c6bdeb85005de658')
@@ -449,6 +479,7 @@ class TestUploader(unittest.TestCase):
                      APPVEYOR_REPO_NAME='owner/repo',
                      APPVEYOR_REPO_COMMIT='d653b934ed59c1a785cc1cc79d08c9aaa4eba73b',
                      CODECOV_TOKEN='token')
+        self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'appveyor')
         self.assertEqual(res['query']['commit'], 'd653b934ed59c1a785cc1cc79d08c9aaa4eba73b')
@@ -465,6 +496,7 @@ class TestUploader(unittest.TestCase):
                      WERCKER_GIT_REPOSITORY='repo',
                      WERCKER_GIT_COMMIT='d653b934ed59c1a785cc1cc79d08c9aaa4eba73b',
                      CODECOV_TOKEN='token')
+        self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'wercker')
         self.assertEqual(res['query']['commit'], 'd653b934ed59c1a785cc1cc79d08c9aaa4eba73b')
@@ -479,6 +511,7 @@ class TestUploader(unittest.TestCase):
                      CI='true',
                      CI_COMMIT='d653b934ed59c1a785cc1cc79d08c9aaa4eba73b',
                      CODECOV_TOKEN='token')
+        self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'magnum')
         self.assertEqual(res['query']['commit'], 'd653b934ed59c1a785cc1cc79d08c9aaa4eba73b')
@@ -490,9 +523,9 @@ class TestUploader(unittest.TestCase):
                      CI_BUILD_ID='1399372237',
                      CI_BUILD_REPO='https://gitlab.com/owner/repo.git',
                      CI_SERVER_NAME='GitLab CI',
-                     CI_PROJECT_DIR=self.here,
                      CI_BUILD_REF='d653b934ed59c1a785cc1cc79d08c9aaa4eba73b',
                      CODECOV_TOKEN='token')
+        self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'gitlab')
         self.assertEqual(res['query']['commit'], 'd653b934ed59c1a785cc1cc79d08c9aaa4eba73b')
@@ -502,6 +535,7 @@ class TestUploader(unittest.TestCase):
 
     def test_ci_none(self):
         self.set_env(CODECOV_TOKEN='token')
+        self.fake_report()
         res = self.run_cli(build=10,
                            commit='d653b934ed59c1a785cc1cc79d08c9aaa4eba73b',
                            slug='owner/repo',
