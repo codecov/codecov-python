@@ -5,8 +5,7 @@ import re
 import sys
 import requests
 import argparse
-from json import loads
-from json import dumps
+from json import loads, dumps
 import xml.etree.cElementTree as etree
 
 try:
@@ -149,21 +148,28 @@ def write(text):
 
 
 def fopen(path):
-    if sys.version_info < (3, 0):
-        with open(path, 'r') as f:
-            return f.read()
-    else:
-        try:
-            with open(path, 'r', encoding='utf8') as f:
+    try:
+        if sys.version_info < (3, 0):
+            with open(path, 'r') as f:
                 return f.read()
-        except UnicodeDecodeError:
-            with open(path, 'r', encoding='ISO-8859-1') as f:
-                return f.read()
+        else:
+            try:
+                with open(path, 'r', encoding='utf8') as f:
+                    return f.read()
+            except UnicodeDecodeError:
+                with open(path, 'r', encoding='ISO-8859-1') as f:
+                    return f.read()
+    except Exception as e:
+        # on none of that works. just print the issue and continue
+        write('      -> Failed to read file: ' + str(e))
 
 
 def read(filepath):
     write('    + %s bytes=%d' % (filepath, os.path.getsize(filepath)))
     report = fopen(filepath)
+    if report is None:
+        return
+
     if 'jacoco' in filepath:
         report = jacoco(report)
     return '# path=' + filepath + '\n' + report
@@ -285,7 +291,7 @@ def main(*argv, **kwargs):
             # https://semaphoreapp.com/docs/available-environment-variables.html
             query.update(dict(branch=os.getenv('BRANCH_NAME'),
                               service='semaphore',
-                              build="%s.%s" % (os.getenv('SEMAPHORE_BUILD_NUMBER'), os.getenv('SEMAPHORE_CURRENT_THREAD')),
+                              build=os.getenv('SEMAPHORE_BUILD_NUMBER') + '.' + os.getenv('SEMAPHORE_CURRENT_THREAD'),
                               slug=os.getenv('SEMAPHORE_REPO_SLUG'),
                               commit=os.getenv('REVISION')))
             write('    Semaphore Detected')
@@ -361,7 +367,7 @@ def main(*argv, **kwargs):
                               service='shippable',
                               build=os.getenv('BUILD_NUMBER'),
                               build_url=os.getenv('BUILD_URL'),
-                              pr=os.getenv('PULL_REQUEST') if os.getenv('PULL_REQUEST') != 'false' else '',
+                              pr=os.getenv('PULL_REQUEST'),
                               slug=os.getenv('REPO_NAME'),
                               commit=os.getenv('COMMIT')))
             write('    Shippable Detected')
@@ -461,7 +467,7 @@ def main(*argv, **kwargs):
 
         if codecov.file:
             write('    Targeting specific files')
-            reports.extend(map(read, codecov.file))
+            reports.extend(filter(bool, map(read, codecov.file)))
 
         else:
             # Call `coverage xml` when .coverage exists
