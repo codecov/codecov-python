@@ -442,6 +442,7 @@ def main(*argv, **kwargs):
             write('XX> Searching for coverage reports disabled.')
         else:
             write('==> Searching for coverage reports')
+
             # Detect .bowerrc
             # ---------------
             bower_components = '/bower_components'
@@ -465,6 +466,16 @@ def main(*argv, **kwargs):
                         elif not ignored_file(fullpath):
                             toc_append(fullpath.replace(root + '/', ''))
 
+        # Read .gitignore
+        # ---------------
+        try:
+            # used to ignore reports/files during server side processing
+            gitignore = fopen(opj(root, '.gitignore'))
+        except Exception as e:
+            gitignore = ''
+
+        # Read Reports
+        # ------------
         if codecov.file:
             write('    Targeting specific files')
             reports.extend(filter(bool, map(read, codecov.file)))
@@ -485,15 +496,21 @@ def main(*argv, **kwargs):
 
         assert len(reports) > 0, "No coverage report found"
 
-        # join reports together
-        reports = '\n'.join(toc) + '\n<<<<<< EOF\n' + '\n<<<<<< EOF\n'.join(reports)
-
+        # Storing Environment
+        # -------------------
+        env = ''
         if codecov.env:
             write('==> Appending environment variables')
             for k in codecov.env:
                 write('    + ' + k)
 
-            reports = '\n'.join(["%s=%s" % (k, os.getenv(k, '')) for k in codecov.env]) + '\n<<<<<< ENV\n' + reports
+            env = '\n'.join(["%s=%s" % (k, os.getenv(k, '')) for k in codecov.env]) + '\n<<<<<< ENV'
+
+        # join reports together
+        reports = '\n'.join((env, toc, '<<<<<< network',
+                             gitignore, '<<<<<< .gitignore',
+                             '\n<<<<<< EOF\n'.join(reports),
+                             '<<<<<< EOF'))
 
         query['package'] = "py" + VERSION
         urlargs = (urlencode(dict([(k, v.strip()) for k, v in query.items() if v not in ('', None)])))
