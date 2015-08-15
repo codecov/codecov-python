@@ -482,16 +482,11 @@ def main(*argv, **kwargs):
         else:
             # Call `coverage xml` when .coverage exists
             # -----------------------------------------
-            if os.path.exists(opj(root, '.coverage')) and not os.path.exists(opj(root, 'coverage.xml')):
-                write('    Calling coverage xml')
+            # Ran from current directory
+            if os.path.exists(opj(os.getcwd(), '.coverage')) and not os.path.exists(opj(os.getcwd(), 'coverage.xml')):
+                write('    Calling $ coverage xml')
                 try_to_run('coverage xml')
-                if os.path.exists(opj(root, 'coverage.xml')):
-                    reports.append(read(opj(root, 'coverage.xml')))
-
-                # warn when no reports found and is python
-                if len(reports) == 0:
-                    # TODO send `coverage debug sys`
-                    write("    No reports found. You may need to add a coverage config file. Visit http://bit.ly/1slucpy for configuration help.")
+                reports.append(read(opj(root, 'coverage.xml')))
 
         reports = list(filter(bool, reports))
         assert len(reports) > 0, "No coverage report found"
