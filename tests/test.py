@@ -263,9 +263,9 @@ class TestUploader(unittest.TestCase):
         with open(self.filepath, 'w+') as f:
             f.write('coverage data')
         res = self.run_cli(**self.defaults)
-        self.assertIn('# path=coverage.xml', res['reports'])
+        self.assertIn('coverage.xml', res['reports'])
         self.assertIn('coverage data', res['reports'])
-        self.assertIn('# path=jacoco.xml', res['reports'])
+        self.assertIn('jacoco.xml', res['reports'])
         self.assertIn('org/jacoco/examples/maven/java/HelloWorld.java', res['reports'])
 
     def test_jacoco(self):

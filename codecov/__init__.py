@@ -68,7 +68,7 @@ ignored_path = re.compile(r'(/vendor)|'
                           r'(/js/generated/coverage)|'
                           r'(/__pycache__)|'
                           r'(/coverage/instrumented)|'
-                          r'(/build/lib/)|'
+                          r'(/build/lib)|'
                           r'(/htmlcov)|'
                           r'(\.egg-info)|'
                           r'(/\.git)|'
@@ -482,7 +482,7 @@ def main(*argv, **kwargs):
         else:
             # Call `coverage xml` when .coverage exists
             # -----------------------------------------
-            if len(reports) == 0 and os.path.exists(opj(root, '.coverage')) and not os.path.exists(opj(root, 'coverage.xml')):
+            if os.path.exists(opj(root, '.coverage')) and not os.path.exists(opj(root, 'coverage.xml')):
                 write('    Calling coverage xml')
                 try_to_run('coverage xml')
                 if os.path.exists(opj(root, 'coverage.xml')):
@@ -493,7 +493,7 @@ def main(*argv, **kwargs):
                     # TODO send `coverage debug sys`
                     write("    No reports found. You may need to add a coverage config file. Visit http://bit.ly/1slucpy for configuration help.")
 
-        reports = filter(bool, reports)
+        reports = list(filter(bool, reports))
         assert len(reports) > 0, "No coverage report found"
 
         # Storing Environment
