@@ -68,7 +68,7 @@ ignored_path = re.compile(r'(/vendor)|'
                           r'(/js/generated/coverage)|'
                           r'(/__pycache__)|'
                           r'(/coverage/instrumented)|'
-                          r'(/build/lib)|'
+                          r'(/build/lib/)|'
                           r'(/htmlcov)|'
                           r'(\.egg-info)|'
                           r'(/\.git)|'
@@ -161,7 +161,7 @@ def fopen(path):
                     return f.read()
     except Exception as e:
         # on none of that works. just print the issue and continue
-        write('      -> Failed to read file: ' + str(e))
+        write('    - Ignored: ' + str(e))
 
 
 def read(filepath):
@@ -170,13 +170,12 @@ def read(filepath):
         report = fopen(filepath)
         if report is None:
             return
-
         if 'jacoco' in filepath:
             report = jacoco(report)
         return '# path=' + filepath + '\n' + report
-    except OSError:
-        # Error: No such file or directory, skip them
-        pass
+    except Exception as e:
+        # Ex: No such file or directory, skip them
+        write('    - Ignored: ' + str(e))
 
 
 def try_to_run(cmd):
@@ -466,17 +465,13 @@ def main(*argv, **kwargs):
                         fullpath = opj(_root, filepath)
                         if not codecov.file and is_report(fullpath) and not ignored_report(fullpath):
                             # found report
-                            reports.append(read(filepath))
+                            reports.append(read(fullpath))
                         elif not ignored_file(fullpath):
                             toc_append(fullpath.replace(root + '/', ''))
 
         # Read .gitignore
         # ---------------
-        try:
-            # used to ignore reports/files during server side processing
-            gitignore = fopen(opj(root, '.gitignore'))
-        except Exception as e:
-            gitignore = ''
+        gitignore = fopen(opj(root, '.gitignore')) or ''
 
         # Read Reports
         # ------------
