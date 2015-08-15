@@ -507,7 +507,7 @@ def main(*argv, **kwargs):
             env = '\n'.join(["%s=%s" % (k, os.getenv(k, '')) for k in codecov.env]) + '\n<<<<<< ENV'
 
         # join reports together
-        reports = '\n'.join((env, toc, '<<<<<< network',
+        reports = '\n'.join((env, '\n'.join(toc), '<<<<<< network',
                              gitignore, '<<<<<< .gitignore',
                              '\n<<<<<< EOF\n'.join(reports),
                              '<<<<<< EOF'))

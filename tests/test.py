@@ -263,18 +263,16 @@ class TestUploader(unittest.TestCase):
         with open(self.filepath, 'w+') as f:
             f.write('coverage data')
         res = self.run_cli(**self.defaults)
-        report = sorted(res['reports'].split('<<<<<< EOF\n'))
-        self.assertEqual(report[0].splitlines()[0], '# path=coverage.xml')
-        self.assertEqual(report[0].splitlines()[1], 'coverage data')
-        self.assertEqual(report[1].splitlines()[0], '# path=jacoco.xml')
-        self.assertEqual(loads(report[1].splitlines()[1]), {"coverage": {"org/jacoco/examples/maven/java/HelloWorld.java": {"3": 3, "9": 2, "7": 0, "6": "1/2", "10": "2/2"}}})
-        self.assertIn('tests/test.py', report[2].splitlines())
+        self.assertIn('# path=coverage.xml', res['reports'])
+        self.assertIn('coverage data', res['reports'])
+        self.assertIn('# path=jacoco.xml', res['reports'])
+        self.assertIn('org/jacoco/examples/maven/java/HelloWorld.java', res['reports'])
 
     def test_jacoco(self):
         with open(self.jacoco, 'w+') as f:
             f.write(jacoco_xml)
         res = self.run_cli(file='jacoco.xml', **self.defaults)
-        report = res['reports'].split('<<< EOF\n')[1].splitlines()
+        report = res['reports'].split('<<<<<< .gitignore\n')[1].splitlines()
         self.assertEqual(report[0], '# path=jacoco.xml')
         self.assertEqual(loads(report[1]), {"coverage": {"org/jacoco/examples/maven/java/HelloWorld.java": {"3": 3, "9": 2, "7": 0, "6": "1/2", "10": "2/2"}}})
 
@@ -282,7 +280,7 @@ class TestUploader(unittest.TestCase):
         with open(self.filepath, 'w+') as f:
             f.write('<data>')
         res = self.run_cli(file='coverage.xml', **self.defaults)
-        res = res['reports'].split('<<< EOF\n')[1].splitlines()
+        res = res['reports'].split('<<<<<< .gitignore\n')[1].splitlines()
         self.assertEqual(res[0], '# path=coverage.xml')
         self.assertEqual(res[1], '<data>')
 
