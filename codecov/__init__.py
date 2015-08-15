@@ -165,14 +165,18 @@ def fopen(path):
 
 
 def read(filepath):
-    write('    + %s bytes=%d' % (filepath, os.path.getsize(filepath)))
-    report = fopen(filepath)
-    if report is None:
-        return
+    try:
+        write('    + %s bytes=%d' % (filepath, os.path.getsize(filepath)))
+        report = fopen(filepath)
+        if report is None:
+            return
 
-    if 'jacoco' in filepath:
-        report = jacoco(report)
-    return '# path=' + filepath + '\n' + report
+        if 'jacoco' in filepath:
+            report = jacoco(report)
+        return '# path=' + filepath + '\n' + report
+    except OSError:
+        # Error: No such file or directory, skip them
+        pass
 
 
 def try_to_run(cmd):
