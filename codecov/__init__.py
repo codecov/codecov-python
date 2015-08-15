@@ -498,6 +498,7 @@ def main(*argv, **kwargs):
                     # TODO send `coverage debug sys`
                     write("    No reports found. You may need to add a coverage config file. Visit http://bit.ly/1slucpy for configuration help.")
 
+        reports = filter(bool, reports)
         assert len(reports) > 0, "No coverage report found"
 
         # Storing Environment
