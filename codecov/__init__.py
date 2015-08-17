@@ -75,32 +75,6 @@ ignored_path = re.compile(r'(/vendor)|'
                           r'(/\.tox)|'
                           r'(/\.?v?(irtual)?envs?)', re.I).search
 
-ignored_file = re.compile('.*('
-                          r'(\.coverage)|'
-                          r'(\.coveragerc)|'
-                          r'(\.DS_Store)|'
-                          r'(\.egg)|'
-                          r'(\.gcov)|'
-                          r'(\.gif)|'
-                          r'(\.gitignore)|'
-                          r'(\.ini)|'
-                          r'(\.jpeg)|'
-                          r'(\.jpg)|'
-                          r'(\.json)|'
-                          r'(\.sav)|'
-                          r'(\.rst)|'
-                          r'(\.lcov)|'
-                          r'(\.md)|'
-                          r'(\.png)|'
-                          r'(\.pyc)|'
-                          r'(\.pyc)|'
-                          r'(\.sh)|'
-                          r'(\.tar\.gz)|'
-                          r'(\.tgz)|'
-                          r'(\.txt)|'
-                          r'(\.xml)|'
-                          r'(\.yml)'
-                          ')$', re.I).match
 
 ignored_report = re.compile('.*('
                             r'(/\.coverage.*)|'
@@ -180,7 +154,7 @@ def read(filepath):
 
 def try_to_run(cmd):
     try:
-        subprocess.check_output(cmd, shell=True)
+        return subprocess.check_output(cmd, shell=True)
     except subprocess.CalledProcessError as e:
         write('    Error running `%s`: %s' % (cmd, str(getattr(e, 'output', str(e)))))
 
@@ -435,11 +409,13 @@ def main(*argv, **kwargs):
         assert query.get('commit') not in ('', None), "Commit sha is missing. Please specify via --commit=:sha"
         assert query.get('job') or query.get('token'), "Missing repository upload token"
 
-        # Build TOC and Collect reports
-        # -----------------------------
+        # Build TOC
+        # ---------
+        toc = str((try_to_run('cd %s && git ls-files' % root) or try_to_run('git ls-files') or '').strip())
+
+        # Collect Reports
+        # ---------------
         reports = []
-        toc = []
-        toc_append = toc.append
 
         if 'search' in codecov.disable:
             write('XX> Searching for coverage reports disabled.')
@@ -466,12 +442,6 @@ def main(*argv, **kwargs):
                         if not codecov.file and is_report(fullpath) and not ignored_report(fullpath):
                             # found report
                             reports.append(read(fullpath))
-                        elif not ignored_file(fullpath):
-                            toc_append(fullpath.replace(root + '/', ''))
-
-        # Read .gitignore
-        # ---------------
-        gitignore = fopen(opj(root, '.gitignore')) or ''
 
         # Read Reports
         # ------------
@@ -502,8 +472,7 @@ def main(*argv, **kwargs):
             env = '\n'.join(["%s=%s" % (k, os.getenv(k, '')) for k in codecov.env]) + '\n<<<<<< ENV'
 
         # join reports together
-        reports = '\n'.join((env, '\n'.join(toc), '<<<<<< network',
-                             gitignore, '<<<<<< .gitignore',
+        reports = '\n'.join((env, (toc or ''), '<<<<<< network',
                              '\n<<<<<< EOF\n'.join(reports),
                              '<<<<<< EOF'))
 

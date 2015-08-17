@@ -81,7 +81,7 @@ class TestUploader(unittest.TestCase):
     bowerrc = os.path.join(os.path.dirname(__file__), '../.bowerrc')
     token = os.path.join(os.path.dirname(__file__), '../.token')
     jacoco = os.path.join(os.path.dirname(__file__), '../jacoco.xml')
-    filepath = os.path.join(os.path.dirname(__file__), '../coverage.xml')
+    filepath = os.path.join(os.path.dirname(__file__), 'coverage.xml')
     coverage = os.path.join(os.path.dirname(__file__), '../.coverage')
     defaults = dict(commit='a', branch='a', token='a')
 
@@ -141,10 +141,6 @@ class TestUploader(unittest.TestCase):
     def test_ignored_path(self, path):
         self.assertTrue(bool(codecov.ignored_path('/home/ubuntu/' + path)), path + ' should be ignored')
         self.assertTrue(bool(codecov.ignored_path('/home/ubuntu/' + path + '/more paths')), path + ' should be ignored')
-
-    @data('.pyc', '.coverage', '.sh', '.egg', 'test_this_coverage.txt')
-    def test_ignored_file(self, path):
-        self.assertTrue(bool(codecov.ignored_file('/home/file/name' + path)), path + ' should be ignored')
 
     @data('coverage.xml', 'jacoco.xml', 'jacocoTestResults.xml', 'coverage.txt',
           'gcov.lst', 'cov.gcov', 'info.lcov', 'clover.xml', 'cobertura.xml',
@@ -227,8 +223,12 @@ class TestUploader(unittest.TestCase):
             f.write('{"directory": "tests"}')
         with open(self.filepath, 'w+') as f:
             f.write('coverage data')
-        res = self.run_cli(**self.defaults)
-        self.assertNotIn('tests/test.py', res['reports'])
+        try:
+            self.run_cli(**self.defaults)
+        except AssertionError as e:
+            self.assertEqual(str(e),  "No coverage report found")
+        else:
+            raise Exception("Did not raise AssertionError")
 
     def test_disable_search(self):
         self.fake_report()
@@ -272,16 +272,16 @@ class TestUploader(unittest.TestCase):
         with open(self.jacoco, 'w+') as f:
             f.write(jacoco_xml)
         res = self.run_cli(file='jacoco.xml', **self.defaults)
-        report = res['reports'].split('<<<<<< .gitignore\n')[1].splitlines()
+        report = res['reports'].split('<<<<<< network\n')[1].splitlines()
         self.assertEqual(report[0], '# path=jacoco.xml')
         self.assertEqual(loads(report[1]), {"coverage": {"org/jacoco/examples/maven/java/HelloWorld.java": {"3": 3, "9": 2, "7": 0, "6": "1/2", "10": "2/2"}}})
 
     def test_not_jacoco(self):
         with open(self.filepath, 'w+') as f:
             f.write('<data>')
-        res = self.run_cli(file='coverage.xml', **self.defaults)
-        res = res['reports'].split('<<<<<< .gitignore\n')[1].splitlines()
-        self.assertEqual(res[0], '# path=coverage.xml')
+        res = self.run_cli(file='tests/coverage.xml', **self.defaults)
+        res = res['reports'].split('<<<<<< network\n')[1].splitlines()
+        self.assertEqual(res[0], '# path=tests/coverage.xml')
         self.assertEqual(res[1], '<data>')
 
     def test_run_coverage(self):
