@@ -72,6 +72,7 @@ ignored_path = re.compile(r'(/vendor)|'
                           r'(/htmlcov)|'
                           r'(\.egg-info)|'
                           r'(/\.git)|'
+                          r'(/\.hg)|'
                           r'(/\.tox)|'
                           r'(/\.?v?(irtual)?envs?)', re.I).search
 
@@ -369,10 +370,10 @@ def main(*argv, **kwargs):
         else:
             try:
                 # find branch, commit, repo from git command
-                branch = subprocess.check_output('git rev-parse --abbrev-ref HEAD', shell=True)
+                branch = subprocess.check_output('git rev-parse --abbrev-ref HEAD || hg branch', shell=True)
                 query.update(dict(branch=branch if branch != 'HEAD' else 'master',
-                                  commit=subprocess.check_output('git rev-parse HEAD', shell=True)))
-                write('    No CI Detected.')
+                                  commit=subprocess.check_output("git rev-parse HEAD || hg id -i --debug | tr -d 'x'", shell=True)))
+                write('    No CI Detected. Using git/mercurial')
             except:  # pragma: no cover
                 # may not be in a git backed repo
                 pass
@@ -411,7 +412,9 @@ def main(*argv, **kwargs):
 
         # Build TOC
         # ---------
-        toc = str((try_to_run('cd %s && git ls-files' % root) or try_to_run('git ls-files') or '').strip())
+        toc = str((try_to_run('cd %s && git ls-files' % root) or try_to_run('git ls-files')
+                   or try_to_run('cd %s && hg locate' % root) or try_to_run('hg locate')
+                   or '').strip())
 
         # Collect Reports
         # ---------------
