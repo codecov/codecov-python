@@ -459,7 +459,7 @@ def main(*argv, **kwargs):
             if os.path.exists(opj(os.getcwd(), '.coverage')) and not os.path.exists(opj(os.getcwd(), 'coverage.xml')):
                 write('    Calling $ coverage xml')
                 try_to_run('coverage xml')
-                reports.append(read(opj(root, 'coverage.xml')))
+                reports.append(read(opj(os.getcwd(), 'coverage.xml')))
 
         reports = list(filter(bool, reports))
         assert len(reports) > 0, "No coverage report found"
