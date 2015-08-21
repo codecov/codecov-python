@@ -438,11 +438,12 @@ def main(*argv, **kwargs):
 
             # build toc and find
             for _root, dirs, files in os.walk(root):
-                if not ignored_path(_root) and bower_components not in _root:
+                # need to replace('\\', '/') for Windows
+                if not ignored_path(_root.replace('\\', '/')) and bower_components not in _root.replace('\\', '/'):
                     # add data to tboc
                     for filepath in files:
                         fullpath = opj(_root, filepath)
-                        if not codecov.file and is_report(fullpath) and not ignored_report(fullpath):
+                        if not codecov.file and is_report(fullpath.replace('\\', '/')) and not ignored_report(fullpath.replace('\\', '/')):
                             # found report
                             reports.append(read(fullpath))
 
