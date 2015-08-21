@@ -173,7 +173,7 @@ def main(*argv, **kwargs):
     basics.add_argument('--version', '-v', action='version', version='Codecov py-v'+version+" - https://codecov.io/")
     basics.add_argument('--token', '-t', default=os.getenv("CODECOV_TOKEN"), help="Private repository token. Not required for public repos on Travis, CircleCI and AppVeyor")
     basics.add_argument('--file', '-f', nargs="*", default=None, help="Target a specific file for uploading")
-    basics.add_argument('--env', '-e', nargs="*", help="Store environment variables to help distinguish CI builds. Example: http://bit.ly/1ElohCu")
+    basics.add_argument('--env', '-e', nargs="*", default=os.getenv("CODECOV_ENV"), help="Store environment variables to help distinguish CI builds. Example: http://bit.ly/1ElohCu")
 
     advanced = parser.add_argument_group('======================== Advanced ========================')
     advanced.add_argument('--disable', nargs="*", default=[], help="Disable features. Accepting `search` to disable crawling through directories, `detect` to disable detecting CI provider")
@@ -183,8 +183,8 @@ def main(*argv, **kwargs):
     advanced.add_argument('--build', default=None, help="Specify a custom build number to distinguish ci jobs, provided automatically for supported ci companies")
 
     enterprise = parser.add_argument_group('======================== Enterprise ========================')
-    enterprise.add_argument('--slug', '-r', default=None, help="Specify repository slug for Enterprise ex. owner/repo")
-    enterprise.add_argument('--url', '-u', default=os.getenv("CODECOV_ENDPOINT", "https://codecov.io"), help="Your Codecov endpoint")
+    enterprise.add_argument('--slug', '-r', default=os.getenv("CODECOV_SLUG"), help="Specify repository slug for Enterprise ex. owner/repo")
+    enterprise.add_argument('--url', '-u', default=os.getenv("CODECOV_URL", "https://codecov.io"), help="Your Codecov endpoint")
 
     debugging = parser.add_argument_group('======================== Debugging ========================')
     debugging.add_argument('--dump', action="store_true", help="Dump collected data and do not send to Codecov")
