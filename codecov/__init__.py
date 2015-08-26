@@ -155,7 +155,7 @@ def read(filepath):
 
 def try_to_run(cmd):
     try:
-        return subprocess.check_output(cmd, shell=True)
+        return subprocess.check_output(cmd, shell=True).decode('utf-8')
     except subprocess.CalledProcessError as e:
         write('    Error running `%s`: %s' % (cmd, str(getattr(e, 'output', str(e)))))
 
