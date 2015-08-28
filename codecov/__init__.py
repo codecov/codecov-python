@@ -29,7 +29,7 @@ except:
     pass
 
 
-version = VERSION = __version__ = '1.3.0'
+version = VERSION = __version__ = '1.3.1'
 
 
 def jacoco(report):
@@ -440,7 +440,8 @@ def main(*argv, **kwargs):
                 except Exception as e:
                     write('    .bowerrc parsing error: ' + str(e))
 
-            # build toc and find
+            # Find reports
+            # ------------
             for _root, dirs, files in os.walk(root):
                 # need to replace('\\', '/') for Windows
                 if not ignored_path(_root.replace('\\', '/')) and bower_components not in _root.replace('\\', '/'):
