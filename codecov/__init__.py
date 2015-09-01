@@ -29,7 +29,7 @@ except:
     pass
 
 
-version = VERSION = __version__ = '1.3.2'
+version = VERSION = __version__ = '1.3.3'
 
 
 def jacoco(report):
@@ -70,7 +70,6 @@ ignored_path = re.compile(r'(/vendor)|'
                           r'(/coverage/instrumented)|'
                           r'(/build/lib)|'
                           r'(/htmlcov)|'
-                          r'(/tmp/circle-artifacts)|'
                           r'(/node_modules)|'
                           r'(\.egg-info)|'
                           r'(/\.git)|'
