@@ -136,7 +136,7 @@ class TestUploader(unittest.TestCase):
         with open(self.filepath, 'w+') as f:
             f.write('__data__')
 
-    @data('vendor', 'js/generated/coverage', '__pycache__', 'coverage/instrumented',
+    @data('vendor', 'node_modules', 'js/generated/coverage', '__pycache__', 'coverage/instrumented',
           'build/lib', 'htmlcov', '.egg-info', '.git', '.tox', 'venv', '.venv-python-2.7')
     def test_ignored_path(self, path):
         self.assertTrue(bool(codecov.ignored_path('/home/ubuntu/' + path)), path + ' should be ignored')
