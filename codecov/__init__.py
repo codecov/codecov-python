@@ -29,7 +29,7 @@ except:
     pass
 
 
-version = VERSION = __version__ = '1.3.1'
+version = VERSION = __version__ = '1.3.2'
 
 
 def jacoco(report):

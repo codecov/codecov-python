@@ -1,3 +1,17 @@
+### `1.3.2`
+- Ignore other known bad files/paths
+
+### `1.3.1`
+- Ignore other known bad files/paths
+- Fix issue with decoding files in py3+
+
+### `1.3.0`
+- Refactor project to be a global uploader for more reports
+
+### `1.2.3`
+- Remove `test-results.xml`, not a coverage file
+- Add CircleCI container numbers
+
 ### `1.2.2`
 - bring back client-side pre-processing for jacoco (they can crush)
 
