@@ -64,12 +64,13 @@ def jacoco(report):
     return dumps(dict(coverage=coverage))
 
 
-ignored_path = re.compile(r'(/vendor)|'
+ignored_path = re.compile(r'(/vendor/)|'
                           r'(/js/generated/coverage)|'
                           r'(/__pycache__)|'
                           r'(/coverage/instrumented)|'
                           r'(/build/lib)|'
                           r'(/htmlcov)|'
+                          r'(/tmp/circle-artifacts)|'
                           r'(/node_modules/)|'
                           r'(\.egg-info)|'
                           r'(/\.git)|'
@@ -88,6 +89,7 @@ ignored_report = re.compile('.*('
                             r'(\.md)|'
                             r'(\.png)|'
                             r'(\.whl)|'
+                            r'(\.cpp)|'
                             r'(\.pyc?)|'
                             r'(\.js)|'
                             r'(\.html)|'
