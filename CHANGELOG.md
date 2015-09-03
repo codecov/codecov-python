@@ -1,5 +1,7 @@
 ### `1.3.2`
 - Ignore other known bad files/paths
+- Added test suite to test against example repositories
+- Using `coverage xml -i` to ignore No source for code errors
 
 ### `1.3.1`
 - Ignore other known bad files/paths
