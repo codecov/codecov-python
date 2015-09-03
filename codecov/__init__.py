@@ -464,7 +464,8 @@ def main(*argv, **kwargs):
             # Ran from current directory
             if os.path.exists(opj(os.getcwd(), '.coverage')) and not os.path.exists(opj(os.getcwd(), 'coverage.xml')):
                 write('    Calling $ coverage xml')
-                try_to_run('coverage xml')
+                # using `-i` to ignore "No source for code" error
+                try_to_run('coverage xml -i')
                 reports.append(read(opj(os.getcwd(), 'coverage.xml')))
 
         reports = list(filter(bool, reports))
