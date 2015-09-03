@@ -253,7 +253,7 @@ class TestUploader(unittest.TestCase):
         codecov.try_to_run('clang -coverage -O0 hello.c -o hello && ./hello')
 
     def test_disable_gcov(self):
-        if os.getenv('TRAVIS') == 'true':
+        if self._env.get('TRAVIS') == 'true':
             self.write_c()
             try:
                 self.run_cli(disable='gcov', token='a', branch='b', commit='c')
@@ -266,7 +266,7 @@ class TestUploader(unittest.TestCase):
             self.skipTest("Skipped, works on Travis only.")
 
     def test_gcov(self):
-        if os.getenv('TRAVIS') == 'true':
+        if self._env.get('TRAVIS') == 'true':
             self.write_c()
             output = self.run_cli(token='a', branch='b', commit='c')
             self.assertEqual(os.path.exists('hello.c.gcov'), True)
