@@ -253,21 +253,27 @@ class TestUploader(unittest.TestCase):
         codecov.try_to_run('clang -coverage -O0 hello.c -o hello && ./hello')
 
     def test_disable_gcov(self):
-        self.write_c()
-        try:
-            self.run_cli(disable='gcov', token='a', branch='b', commit='c')
-        except AssertionError as e:
-            self.assertEqual(os.path.exists('hello.c.gcov'), False)
-            self.assertEqual(str(e), "No coverage report found")
+        if os.getenv('TRAVIS') == 'true':
+            self.write_c()
+            try:
+                self.run_cli(disable='gcov', token='a', branch='b', commit='c')
+            except AssertionError as e:
+                self.assertEqual(os.path.exists('hello.c.gcov'), False)
+                self.assertEqual(str(e), "No coverage report found")
+            else:
+                raise Exception("Did not raise AssertionError")
         else:
-            raise Exception("Did not raise AssertionError")
+            self.skipTest("Skipped, works on Travis only.")
 
     def test_gcov(self):
-        self.write_c()
-        output = self.run_cli(token='a', branch='b', commit='c')
-        self.assertEqual(os.path.exists('hello.c.gcov'), True)
-        report = output['reports'].split('<<<<<< network\n')[1].splitlines()
-        self.assertIn('hello.c.gcov', report[0])
+        if os.getenv('TRAVIS') == 'true':
+            self.write_c()
+            output = self.run_cli(token='a', branch='b', commit='c')
+            self.assertEqual(os.path.exists('hello.c.gcov'), True)
+            report = output['reports'].split('<<<<<< network\n')[1].splitlines()
+            self.assertIn('hello.c.gcov', report[0])
+        else:
+            self.skipTest("Skipped, works on Travis only.")
 
     def test_disable_detect(self):
         self.set_env(JENKINS_URL='a', GIT_BRANCH='b', GIT_COMMIT='c', CODECOV_TOKEN='d')

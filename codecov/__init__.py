@@ -436,11 +436,10 @@ def main(*argv, **kwargs):
                 write('    Found OSX DerivedDta')
                 try_to_run("find ~/Library/Developer/Xcode/DerivedData -name '*.gcda' -exec %s %s {} +" % (codecov.gcov_exec, codecov.gcov_args))
 
-            write('    Executing gcov')
             cmd = "find %s -type f -name '*.gcno' %s -exec %s %s {} +" % (
                   codecov.gcov_root or root, " ".join(map(lambda a: "-not -path '%s'" % a, codecov.gcov_glob)),
                   codecov.gcov_exec, codecov.gcov_args)
-            write('    $ '+cmd)
+            write('    Executing gcov (%s)' % cmd)
             try_to_run(cmd)
 
         # Collect Reports
