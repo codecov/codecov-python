@@ -179,8 +179,14 @@ def main(*argv, **kwargs):
     basics.add_argument('--file', '-f', nargs="*", default=None, help="Target a specific file for uploading")
     basics.add_argument('--env', '-e', nargs="*", default=os.getenv("CODECOV_ENV"), help="Store environment variables to help distinguish CI builds. Example: http://bit.ly/1ElohCu")
 
+    gcov = parser.add_argument_group('======================== gcov ========================')
+    gcov.add_argument('--gcov-root', default=None, help="Project root directory when preparing gcov")
+    gcov.add_argument('--gcov-glob', nargs="*", default=[], help="Paths to ignore during gcov gathering")
+    gcov.add_argument('--gcov-exec', default='gcov', help="gcov executable to run. Defaults to 'gcov'")
+    gcov.add_argument('--gcov-args', default='', help="extra arguments to pass to gcov")
+
     advanced = parser.add_argument_group('======================== Advanced ========================')
-    advanced.add_argument('--disable', nargs="*", default=[], help="Disable features. Accepting `search` to disable crawling through directories, `detect` to disable detecting CI provider")
+    advanced.add_argument('--disable', nargs="*", default=[], help="Disable features. Accepting `search` to disable crawling through directories, `detect` to disable detecting CI provider, `gocv` disable gcov commands")
     advanced.add_argument('--root', default=None, help="Project directory. Default: current direcory or provided in CI environment variables")
     advanced.add_argument('--commit', '-c', default=None, help="Commit sha, set automatically")
     advanced.add_argument('--branch', '-b', default=None, help="Branch name")
@@ -419,6 +425,23 @@ def main(*argv, **kwargs):
         toc = str((try_to_run('cd %s && git ls-files' % root) or try_to_run('git ls-files')
                    or try_to_run('cd %s && hg locate' % root) or try_to_run('hg locate')
                    or '').strip())
+
+        # Processign gcov
+        # ---------------
+        if 'gcov' in codecov.disable:
+            write('XX> Skip processing gcov')
+        else:
+            write('==> Processing gcov')
+            if os.path.isdir(os.path.expanduser('~/Library/Developer/Xcode/DerivedData')):
+                write('    Found OSX DerivedDta')
+                try_to_run("find ~/Library/Developer/Xcode/DerivedData -name '*.gcda' -exec %s %s {} +" % (codecov.gcov_exec, codecov.gcov_args))
+
+            write('    Executing gcov')
+            cmd = "find %s -type f -name '*.gcno' %s -exec %s %s {} +" % (
+                  codecov.gcov_root, " ".join(map(lambda a: "-not -path '%s'" % a, codecov.gcov_glob)),
+                  codecov.gcov_exec, codecov.gcov_args)
+            write('    $ '+cmd)
+            try_to_run(cmd)
 
         # Collect Reports
         # ---------------
