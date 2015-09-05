@@ -112,14 +112,8 @@ class TestUploader(unittest.TestCase):
             os.environ[key] = ""
 
     def tearDown(self):
-        if os.path.exists(self.filepath):
-            os.remove(self.filepath)
-        if os.path.exists(self.coverage):
-            os.remove(self.coverage)
-        if os.path.exists(self.jacoco):
-            os.remove(self.jacoco)
-        if os.path.exists(self.bowerrc):
-            os.remove(self.bowerrc)
+        self.delete(self.filepath, self.coverage, self.jacoco, self.bowerrc)
+        self.delete('hello', 'hello.c', 'hello.gcda', 'hello.c.gcov', 'hello.gcno')
 
     def set_env(self, **kwargs):
         for key in kwargs:
@@ -135,6 +129,14 @@ class TestUploader(unittest.TestCase):
     def fake_report(self):
         with open(self.filepath, 'w+') as f:
             f.write('__data__')
+
+    def delete(self, *paths):
+        for path in paths:
+            if os.path.exists(path):
+                os.remove(path)
+            path = os.path.join(os.path.dirname(__file__), '../', path)
+            if os.path.exists(path):
+                os.remove(path)
 
     @data('vendor', 'node_modules', 'js/generated/coverage', '__pycache__', 'coverage/instrumented',
           'build/lib', 'htmlcov', '.egg-info', '.git', '.tox', 'venv', '.venv-python-2.7')
@@ -238,6 +240,40 @@ class TestUploader(unittest.TestCase):
             self.assertEqual(str(e), "No coverage report found")
         else:
             raise Exception("Did not raise AssertionError")
+
+    def write_c(self):
+        c = '\n'.join(('#include <stdio.h>',
+                       'static int t = 1;'
+                       'int main()', '{',
+                       'if (t)', 'printf("on this line\\n");',
+                       'else', 'printf("but not here\\n");',
+                       'return 0;', '}'))
+        with open(os.path.join(os.path.dirname(__file__), '../hello.c'), 'w+') as f:
+            f.write(c)
+        codecov.try_to_run('clang -coverage -O0 hello.c -o hello && ./hello')
+
+    def test_disable_gcov(self):
+        if self._env.get('TRAVIS') == 'true':
+            self.write_c()
+            try:
+                self.run_cli(disable='gcov', token='a', branch='b', commit='c')
+            except AssertionError as e:
+                self.assertEqual(os.path.exists('hello.c.gcov'), False)
+                self.assertEqual(str(e), "No coverage report found")
+            else:
+                raise Exception("Did not raise AssertionError")
+        else:
+            self.skipTest("Skipped, works on Travis only.")
+
+    def test_gcov(self):
+        if self._env.get('TRAVIS') == 'true':
+            self.write_c()
+            output = self.run_cli(token='a', branch='b', commit='c')
+            self.assertEqual(os.path.exists('hello.c.gcov'), True)
+            report = output['reports'].split('<<<<<< network\n')[1].splitlines()
+            self.assertIn('hello.c.gcov', report[0])
+        else:
+            self.skipTest("Skipped, works on Travis only.")
 
     def test_disable_detect(self):
         self.set_env(JENKINS_URL='a', GIT_BRANCH='b', GIT_COMMIT='c', CODECOV_TOKEN='d')
