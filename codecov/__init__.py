@@ -29,7 +29,7 @@ except:
     pass
 
 
-version = VERSION = __version__ = '1.3.4'
+version = VERSION = __version__ = '1.4.0'
 
 COLOR = True
 
@@ -468,7 +468,7 @@ def main(*argv, **kwargs):
         else:
             write('==> Processing gcov (disable by -X gcov)')
             if os.path.isdir(os.path.expanduser('~/Library/Developer/Xcode/DerivedData')):
-                write('    Found OSX DerivedDta')
+                write('    Found OSX DerivedData')
                 try_to_run("find ~/Library/Developer/Xcode/DerivedData -name '*.gcda' -exec %s %s {} +" % (codecov.gcov_exec, codecov.gcov_args))
 
             cmd = "find %s -type f -name '*.gcno' %s -exec %s %s {} +" % (
