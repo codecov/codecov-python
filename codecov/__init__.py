@@ -461,7 +461,7 @@ def main(*argv, **kwargs):
                    or try_to_run('cd %s && hg locate' % root) or try_to_run('hg locate')
                    or '').strip())
 
-        # Processign gcov
+        # Processing gcov
         # ---------------
         if 'gcov' in codecov.disable:
             write('XX> Skip processing gcov')
