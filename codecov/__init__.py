@@ -31,6 +31,8 @@ except:
 
 version = VERSION = __version__ = '1.3.4'
 
+COLOR = True
+
 
 def jacoco(report):
     """
@@ -123,7 +125,29 @@ is_report = re.compile('.*('
 opj = os.path.join  # for faster access
 
 
-def write(text):
+def write(text, color=None):
+    global COLOR
+    if COLOR:
+        text = text.replace('==>', '\033[90m==>\033[0m')
+        text = text.replace('XX>', '\033[31mXX>\033[0m')
+        if text[:6] == 'Error:':
+            text = '\033[41mError:\033[0m\033[91m%s\033[0m' % text[6:]
+        elif text[:4] == 'Tip:':
+            text = '\033[42mTip:\033[0m\033[32m%s\033[0m' % text[4:]
+        elif text.strip()[:4] == 'http':
+            text = '\033[92m%s\033[0m' % text
+        elif text[:7] == 'Codecov':
+            text = """
+      _____          _
+     / ____|        | |
+    | |     ___   __| | ___  ___ _____   __
+    | |    / _ \ / _` |/ _ \/ __/ _ \ \ / /
+    | |___| (_) | (_| |  __/ (_| (_) \ V /
+     \_____\___/ \__,_|\___|\___\___/ \_/
+                                    %s\n""" % text.split(' ')[1]
+        if color == 'red':
+            text = '\033[91m%s\033[0m' % text
+
     sys.stdout.write(text + '\n')
 
 
@@ -166,7 +190,6 @@ def try_to_run(cmd):
 
 
 def main(*argv, **kwargs):
-    write('Codecov v'+version)
     root = os.getcwd()
 
     # Build Parser
@@ -193,6 +216,7 @@ def main(*argv, **kwargs):
 
     debugging = parser.add_argument_group('======================== Debugging ========================')
     debugging.add_argument('--dump', action="store_true", help="Dump collected data and do not send to Codecov")
+    debugging.add_argument('--no-color', action="store_true", help="Do not output with color")
 
     # Parse Arguments
     # ---------------
@@ -201,8 +225,13 @@ def main(*argv, **kwargs):
     else:
         codecov = parser.parse_args()
 
+    global COLOR
+    COLOR = not codecov.no_color
+
+    write('Codecov v'+version)
     query = dict(commit='', branch='', job='', pr='', build_url='',
                  token=codecov.token)
+    language = None
 
     # Detect CI
     # ---------
@@ -230,7 +259,7 @@ def main(*argv, **kwargs):
         # Travis CI
         # ---------
         elif os.getenv('CI') == "true" and os.getenv('TRAVIS') == "true":
-            # http://docs.travis-ci.com/user/ci-environment/#Environment-variables
+            # http://docs.travis-ci.com/user/environment-variables/#Default-Environment-Variables
             query.update(dict(branch=os.getenv('TRAVIS_BRANCH'),
                               service='travis',
                               build=os.getenv('TRAVIS_JOB_NUMBER'),
@@ -240,6 +269,9 @@ def main(*argv, **kwargs):
                               commit=os.getenv('TRAVIS_COMMIT')))
             root = os.getenv('TRAVIS_BUILD_DIR') or root
             write('    Travis Detected')
+            language = (list(filter(lambda l: os.getenv('TRAVIS_%s_VERSION' % l.upper()),
+                                    ('dart', 'go', 'haxe', 'jdk', 'julia', 'node', 'otp',
+                                     'perl', 'php', 'python', 'r', 'ruby', 'rust', 'scala'))) + [''])[0]
 
         # --------
         # Codeship
@@ -403,7 +435,7 @@ def main(*argv, **kwargs):
     # Upload
     # ------
     try:
-        write('==> Validating arguments')
+        write('==> Prepairing upload')
 
         # Read token from file
         # --------------------
@@ -426,15 +458,15 @@ def main(*argv, **kwargs):
         reports = []
 
         if 'search' in codecov.disable:
-            write('XX> Searching for coverage reports disabled.')
+            write('    Searching for coverage reports disabled.', 'red')
         else:
-            write('==> Searching for coverage reports')
 
             # Detect .bowerrc
             # ---------------
             bower_components = '/bower_components'
             bowerrc = opj(root, '.bowerrc')
             if os.path.exists(bowerrc):
+                write('    Detecting .bowerrc file')
                 try:
                     bower_components = '/' + (loads(fopen(bowerrc)).get('directory') or 'bower_components').replace('./', '').strip('/')
                     write('    .bowerrc detected, ignoring ' + bower_components)
@@ -443,6 +475,7 @@ def main(*argv, **kwargs):
 
             # Find reports
             # ------------
+            write('    Collecting coverage reports')
             for _root, dirs, files in os.walk(root):
                 # need to replace('\\', '/') for Windows
                 if not ignored_path(_root.replace('\\', '/')) and bower_components not in _root.replace('\\', '/'):
@@ -464,7 +497,7 @@ def main(*argv, **kwargs):
             # -----------------------------------------
             # Ran from current directory
             if os.path.exists(opj(os.getcwd(), '.coverage')) and not os.path.exists(opj(os.getcwd(), 'coverage.xml')):
-                write('    Calling $ coverage xml')
+                write('    Generating coverage xml reports for Python')
                 # using `-i` to ignore "No source for code" error
                 try_to_run('coverage xml -i')
                 reports.append(read(opj(os.getcwd(), 'coverage.xml')))
@@ -497,18 +530,25 @@ def main(*argv, **kwargs):
             result = None
         else:
             write('==> Uploading to Codecov')
-            write('    Url: ' + codecov.url)
-            write('    Query: ' + urlargs)
+            write('    .url ' + codecov.url)
+            write('    .query ' + urlargs)
             result = requests.post(codecov.url + '/upload/v2?' + urlargs, data=reports, headers={"Accept": "text/plain"})
             write('\n' + result.text)
             result.raise_for_status()
             result = result.text
 
     except AssertionError as e:
-        write('\nError: ' + str(e))
+        write('Error: ' + str(e))
         if kwargs.get('debug'):
             raise
 
+        # detect language
+        if language:
+            write('Tip: See an example %s repo: https://github.com/codecov/example-%s' % (language, language))
+        else:
+            write('Tip: See all example repositories: https://github.com/codecov?query=example')
+
+        write('     Need some help? hello@codecov.io\n')
         sys.exit(1)
 
     else:
