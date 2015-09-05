@@ -145,8 +145,10 @@ def write(text, color=None):
     | |___| (_) | (_| |  __/ (_| (_) \ V /
      \_____\___/ \__,_|\___|\___\___/ \_/
                                     %s\n""" % text.split(' ')[1]
-        if color == 'red':
+        elif color == 'red':
             text = '\033[91m%s\033[0m' % text
+        elif color == 'green':
+            text = '\033[92m%s\033[0m' % text
 
     sys.stdout.write(text + '\n')
 
@@ -210,7 +212,7 @@ def main(*argv, **kwargs):
     gcov.add_argument('--gcov-args', default='', help="extra arguments to pass to gcov")
 
     advanced = parser.add_argument_group('======================== Advanced ========================')
-    advanced.add_argument('--disable', nargs="*", default=[], help="Disable features. Accepting `search` to disable crawling through directories, `detect` to disable detecting CI provider, `gocv` disable gcov commands")
+    advanced.add_argument('-X', '--disable', nargs="*", default=[], help="Disable features. Accepting `search` to disable crawling through directories, `detect` to disable detecting CI provider, `gocv` disable gcov commands")
     advanced.add_argument('--root', default=None, help="Project directory. Default: current direcory or provided in CI environment variables")
     advanced.add_argument('--commit', '-c', default=None, help="Commit sha, set automatically")
     advanced.add_argument('--branch', '-b', default=None, help="Branch name")
@@ -242,10 +244,10 @@ def main(*argv, **kwargs):
     # Detect CI
     # ---------
     if 'detect' in codecov.disable:
-        write('XX> Detecting CI Provider disabled.')
+        write('XX> Detecting CI provider disabled.')
 
     else:
-        write('==> Detecting CI Provider')
+        write('==> Detecting CI provider')
         # -------
         # Jenkins
         # -------
@@ -464,7 +466,7 @@ def main(*argv, **kwargs):
         if 'gcov' in codecov.disable:
             write('XX> Skip processing gcov')
         else:
-            write('==> Processing gcov')
+            write('==> Processing gcov (disable by -X gcov)')
             if os.path.isdir(os.path.expanduser('~/Library/Developer/Xcode/DerivedData')):
                 write('    Found OSX DerivedDta')
                 try_to_run("find ~/Library/Developer/Xcode/DerivedData -name '*.gcda' -exec %s %s {} +" % (codecov.gcov_exec, codecov.gcov_args))
@@ -477,10 +479,11 @@ def main(*argv, **kwargs):
 
         # Collect Reports
         # ---------------
+        write('==> Collecting reports')
         reports = []
 
         if 'search' in codecov.disable:
-            write('    Searching for coverage reports disabled.', 'red')
+            write('XX> Searching for reports disabled')
         else:
 
             # Detect .bowerrc
@@ -497,7 +500,7 @@ def main(*argv, **kwargs):
 
             # Find reports
             # ------------
-            write('    Collecting coverage reports')
+            write('    Seaching for reports')
             for _root, dirs, files in os.walk(root):
                 # need to replace('\\', '/') for Windows
                 if not ignored_path(_root.replace('\\', '/')) and bower_components not in _root.replace('\\', '/'):
@@ -551,7 +554,7 @@ def main(*argv, **kwargs):
             write('--------------------  EOF  --------------------')
             result = None
         else:
-            write('==> Uploading to Codecov')
+            write('==> Uploading')
             write('    .url ' + codecov.url)
             write('    .query ' + urlargs)
             result = requests.post(codecov.url + '/upload/v2?' + urlargs, data=reports, headers={"Accept": "text/plain"})
@@ -564,13 +567,17 @@ def main(*argv, **kwargs):
         if kwargs.get('debug'):
             raise
 
+        write('')
         # detect language
         if language:
             write('Tip: See an example %s repo: https://github.com/codecov/example-%s' % (language, language))
         else:
             write('Tip: See all example repositories: https://github.com/codecov?query=example')
 
-        write('     Need some help? hello@codecov.io\n')
+        write('Support channels:', 'green')
+        write('  Email:   hello@codecov.io\n'
+              '  Gitter:  https://gitter.im/codecov/support\n'
+              '  Twitter: @codecov\n')
         sys.exit(1)
 
     else:
