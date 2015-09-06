@@ -212,6 +212,7 @@ def main(*argv, **kwargs):
     gcov.add_argument('--gcov-args', default='', help="extra arguments to pass to gcov")
 
     advanced = parser.add_argument_group('======================== Advanced ========================')
+    advanced.add_argument('--labs-skip', default=False, action="store_true", help="Enable ignore line feature: ")
     advanced.add_argument('-X', '--disable', nargs="*", default=[], help="Disable features. Accepting `search` to disable crawling through directories, `detect` to disable detecting CI provider, `gocv` disable gcov commands")
     advanced.add_argument('--root', default=None, help="Project directory. Default: current direcory or provided in CI environment variables")
     advanced.add_argument('--commit', '-c', default=None, help="Commit sha, set automatically")
@@ -540,8 +541,17 @@ def main(*argv, **kwargs):
 
             env = '\n'.join(["%s=%s" % (k, os.getenv(k, '')) for k in codecov.env]) + '\n<<<<<< ENV'
 
+        # Process Skipped Lines
+        # ---------------------
+        skipped = ''
+        if codecov.labs_skip:
+            write('==> Labs: Enable skip lines')
+            skipped = try_to_run("grep -winR '\(\/\*\|#\) codecov\( \(skip\|ignore\|start\|end\)\)\{1,2\} *\(\*\/\)\?' " + (("$(echo '%s')" % toc) if toc else '*')) or ''
+            if skipped:
+                skipped = skipped + '\n<<<<<< skiplines'
+
         # join reports together
-        reports = '\n'.join((env, (toc or ''), '<<<<<< network',
+        reports = '\n'.join((env, skipped, (toc or ''), '<<<<<< network',
                              '\n<<<<<< EOF\n'.join(reports),
                              '<<<<<< EOF'))
 
