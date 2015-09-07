@@ -29,7 +29,7 @@ except:
     pass
 
 
-version = VERSION = __version__ = '1.4.0'
+version = VERSION = __version__ = '1.4.0rc1'
 
 COLOR = True
 
@@ -124,6 +124,27 @@ is_report = re.compile('.*('
 
 opj = os.path.join  # for faster access
 
+def with_source_match(reports, match):
+  def second_line(r):
+    a = r.find('\n') + 1;
+    b = r.find('\n', a)
+    return r[a:b]
+  def source_name(r):
+    l = second_line(r)
+    start = ':Source:'
+    return os.path.normpath(l[l.find(start) + len(start):])
+
+  def matches(report):
+    name = source_name(r)
+    matches = re.match(match, name)
+    if not matches:
+      write('- %s' % name)
+    return bool(matches)
+
+  write('Have %s reports:' % len(reports))
+  reports = [r for r in reports if matches(r)]
+  write('Filtered to %s reports:' % len(reports))
+  return reports
 
 def write(text, color=None):
     global COLOR
@@ -210,6 +231,7 @@ def main(*argv, **kwargs):
     gcov.add_argument('--gcov-glob', nargs="*", default=[], help="Paths to ignore during gcov gathering")
     gcov.add_argument('--gcov-exec', default='gcov', help="gcov executable to run. Defaults to 'gcov'")
     gcov.add_argument('--gcov-args', default='', help="extra arguments to pass to gcov")
+    gcov.add_argument('--gcov-source-match', default='', help="Check re.match($gcov-source-match, :Source:")
 
     advanced = parser.add_argument_group('======================== Advanced ========================')
     advanced.add_argument('-X', '--disable', nargs="*", default=[], help="Disable features. Accepting `search` to disable crawling through directories, `detect` to disable detecting CI provider, `gocv` disable gcov commands")
@@ -539,6 +561,9 @@ def main(*argv, **kwargs):
                 write('    + ' + k)
 
             env = '\n'.join(["%s=%s" % (k, os.getenv(k, '')) for k in codecov.env]) + '\n<<<<<< ENV'
+
+        if codecov.gcov_source_match:
+          reports = with_source_match(reports, codecov.gcov_source_match)
 
         # join reports together
         reports = '\n'.join((env, (toc or ''), '<<<<<< network',
