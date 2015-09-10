@@ -1,3 +1,6 @@
+### `1.4.1`
+- added `--no-fail` to prevent failing builds when missing configuration or Codecov errors
+
 ### `1.4.0`
 - Ignore other known bad files/paths
 - Added test suite to test against example repositories

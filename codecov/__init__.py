@@ -29,7 +29,7 @@ except:
     pass
 
 
-version = VERSION = __version__ = '1.4.0'
+version = VERSION = __version__ = '1.4.1'
 
 COLOR = True
 
