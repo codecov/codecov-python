@@ -174,6 +174,15 @@ class TestUploader(unittest.TestCase):
         else:
             raise Exception("did not exit")
 
+    def test_exits_no_fail(self):
+        try:
+            sys.argv = ['']
+            codecov.main('--no-fail')
+        except SystemExit as e:
+            self.assertEqual(str(e), '0')
+        else:
+            raise Exception("did not exit")
+
     def test_returns_none(self):
         with open(self.filepath, 'w+') as f:
             f.write('coverage data')
@@ -186,7 +195,7 @@ class TestUploader(unittest.TestCase):
         with open(self.filepath, 'w+') as f:
             f.write('coverage data')
         res = self.run_cli(False, commit='a'*40, branch='master', token='473c8c5b-10ee-4d83-86c6-bfd72a185a27')
-        self.assertIn('Uploaded successfully', res['result'])
+        self.assertEqual(res['result'].strip(), 'http://codecov.io/github/codecov/ci-repo?ref=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
 
     def test_send_error(self):
         with open(self.filepath, 'w+') as f:

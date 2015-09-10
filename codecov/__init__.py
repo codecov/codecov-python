@@ -579,7 +579,7 @@ def main(*argv, **kwargs):
         write('  Email:   hello@codecov.io\n'
               '  Gitter:  https://gitter.im/codecov/support\n'
               '  Twitter: @codecov\n')
-        sys.exit(not codecov.no_fail)
+        sys.exit(0 if codecov.no_fail else 1)
 
     else:
         if kwargs.get('debug'):
