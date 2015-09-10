@@ -204,6 +204,7 @@ def main(*argv, **kwargs):
     basics.add_argument('--token', '-t', default=os.getenv("CODECOV_TOKEN"), help="Private repository token. Not required for public repos on Travis, CircleCI and AppVeyor")
     basics.add_argument('--file', '-f', nargs="*", default=None, help="Target a specific file for uploading")
     basics.add_argument('--env', '-e', nargs="*", default=os.getenv("CODECOV_ENV"), help="Store environment variables to help distinguish CI builds. Example: http://bit.ly/1ElohCu")
+    basics.add_argument('--no-fail', action="store_true", default=False, help="If Codecov fails do not fail CI build.")
 
     gcov = parser.add_argument_group('======================== gcov ========================')
     gcov.add_argument('--gcov-root', default=None, help="Project root directory when preparing gcov")
@@ -578,7 +579,7 @@ def main(*argv, **kwargs):
         write('  Email:   hello@codecov.io\n'
               '  Gitter:  https://gitter.im/codecov/support\n'
               '  Twitter: @codecov\n')
-        sys.exit(1)
+        sys.exit(not codecov.no_fail)
 
     else:
         if kwargs.get('debug'):
