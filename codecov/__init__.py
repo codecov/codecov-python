@@ -172,12 +172,12 @@ def fopen(path):
 
 def read(filepath):
     try:
-        write('    + %s bytes=%d' % (filepath, os.path.getsize(filepath)))
         report = fopen(filepath)
         if report is None:
             return
         if 'jacoco' in filepath:
             report = jacoco(report)
+        write('    + %s bytes=%d' % (filepath, os.path.getsize(filepath)))
         return '# path=' + filepath + '\n' + report
     except Exception as e:
         # Ex: No such file or directory, skip them
