@@ -418,7 +418,7 @@ def main(*argv, **kwargs):
                 # find branch, commit, repo from git command
                 branch = subprocess.check_output('git rev-parse --abbrev-ref HEAD || hg branch', shell=True)
                 query.update(dict(branch=branch if branch != 'HEAD' else 'master',
-                                  commit=subprocess.check_output("git rev-parse HEAD || hg id -i --debug | tr -d 'x'", shell=True)))
+                                  commit=subprocess.check_output("git rev-parse HEAD || hg id -i --debug | tr -d '+'", shell=True)))
                 write('    No CI Detected. Using git/mercurial')
             except:  # pragma: no cover
                 # may not be in a git backed repo
