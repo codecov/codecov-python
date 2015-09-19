@@ -1,3 +1,7 @@
+### `1.5.0`
+- fix retreiving mercurial commit
+- add support for xcode7 profdata
+
 ### `1.4.1`
 - added `--no-fail` to prevent failing builds when missing configuration or Codecov errors
 
