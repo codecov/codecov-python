@@ -329,7 +329,7 @@ def main(*argv, **kwargs):
                               service='drone.io',
                               build=os.getenv('DRONE_BUILD_NUMBER'),
                               build_url=os.getenv('DRONE_BUILD_URL'),
-                              commit=os.getenv('DRONE_COMMIT')))
+                              commit=subprocess.check_output("git rev-parse HEAD || hg id -i --debug | tr -d '+'", shell=True)))
             root = os.getenv('DRONE_BUILD_DIR') or root
             write('    Drone Detected')
 
