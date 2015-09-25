@@ -7,6 +7,13 @@ from json import loads
 from ddt import ddt, data
 import unittest2 as unittest
 
+if sys.version_info < (2, 7):
+    from future import standard_library
+    standard_library.install_aliases()
+    import subprocess
+else:
+    import subprocess
+
 import codecov
 
 
@@ -102,7 +109,7 @@ class TestUploader(unittest.TestCase):
                     "SNAP_UPSTREAM_BRANCH", "SNAP_BRANCH", "SNAP_PIPELINE_COUNTER", "SNAP_PULL_REQUEST_NUMBER", "SNAP_COMMIT", "SNAP_UPSTREAM_COMMIT",
                     "CIRCLECI", "CIRCLE_BRANCH", "CIRCLE_ARTIFACTS", "CIRCLE_SHA1", "CIRCLE_NODE_INDEX", "CIRCLE_PR_NUMBER",
                     "SEMAPHORE", "BRANCH_NAME", "SEMAPHORE_PROJECT_DIR", "REVISION",
-                    "DRONE", "DRONE_BRANCH", "DRONE_BUILD_DIR", "DRONE_COMMIT", "JENKINS_URL",
+                    "DRONE", "DRONE_BRANCH", "DRONE_BUILD_DIR", "JENKINS_URL",
                     "GIT_BRANCH", "GIT_COMMIT", "WORKSPACE", "BUILD_NUMBER", "CI_BUILD_URL", "SEMAPHORE_REPO_SLUG", "SEMAPHORE_CURRENT_THREAD",
                     "DRONE_BUILD_URL", "TRAVIS_REPO_SLUG", "CODECOV_TOKEN", "APPVEYOR", "APPVEYOR_REPO_BRANCH",
                     "APPVEYOR_BUILD_VERSION", "APPVEYOR_JOB_ID", "APPVEYOR_REPO_NAME", "APPVEYOR_REPO_COMMIT", "WERCKER_GIT_BRANCH",
@@ -483,12 +490,11 @@ class TestUploader(unittest.TestCase):
                      DRONE_BUILD_NUMBER='10',
                      DRONE_BRANCH='master',
                      DRONE_BUILD_URL='https://drone.io/github/builds/1',
-                     DRONE_COMMIT='743b04806ea677403aa2ff26c6bdeb85005de658',
                      CODECOV_TOKEN='token')
         self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'drone.io')
-        self.assertEqual(res['query']['commit'], '743b04806ea677403aa2ff26c6bdeb85005de658')
+        self.assertEqual(res['query']['commit'], subprocess.check_output("git rev-parse HEAD", shell=True))
         self.assertEqual(res['query']['build'], '10')
         self.assertEqual(res['query']['build_url'], 'https://drone.io/github/builds/1')
         self.assertEqual(res['codecov'].token, 'token')
