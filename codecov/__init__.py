@@ -29,7 +29,7 @@ except:
     pass
 
 
-version = VERSION = __version__ = '1.6.0'
+version = VERSION = __version__ = '1.5.0'
 
 COLOR = True
 
@@ -572,7 +572,7 @@ def main(*argv, **kwargs):
 
             res = requests.post('%s/upload/v3?%s' % (codecov.url, urlargs))
             res.raise_for_status()
-            res = res.text.strip().splitlines()
+            res = res.text.strip().split()
             result, upload_url = res[0], res[1]
 
             s3 = requests.put(upload_url, data=reports,
