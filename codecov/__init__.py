@@ -29,7 +29,7 @@ except:
     pass
 
 
-version = VERSION = __version__ = '1.5.1'
+version = VERSION = __version__ = '1.6.0'
 
 COLOR = True
 
@@ -569,10 +569,29 @@ def main(*argv, **kwargs):
             write('==> Uploading')
             write('    .url ' + codecov.url)
             write('    .query ' + urlargs)
-            result = requests.post(codecov.url + '/upload/v2?' + urlargs, data=reports, headers={"Accept": "text/plain"})
-            write('\n' + result.text)
-            result.raise_for_status()
-            result = result.text
+
+            res = requests.post('%s/upload/v3?%s' % (codecov.url, urlargs))
+            res.raise_for_status()
+            res = res.text.strip().splitlines()
+            result, upload_url = res[0], res[1]
+
+            s3 = requests.put(upload_url, data=reports,
+                              headers={'Content-Type': 'plain/text', 'x-amz-acl': 'public-read'})
+
+            if s3.status_code == 200:
+                write('    ' + result)
+
+            else:
+                write('    Direct to s3 failed. Using backup v2 endpoint.')
+                # just incase, try traditional upload
+                res = requests.post('%s/upload/v2?s3=%d&%s' % (codecov.url, s3.status_code, urlargs),
+                                    data='\n'.join((reports, s3.reason, s3.text)),
+                                    headers={"Accept": "text/plain"})
+                res.raise_for_status()
+
+                write('    ' + res.text)
+                res.raise_for_status()
+                result = res.text
 
     except AssertionError as e:
         write('Error: ' + str(e))
