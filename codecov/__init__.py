@@ -570,18 +570,17 @@ def main(*argv, **kwargs):
             write('    .url ' + codecov.url)
             write('    .query ' + urlargs)
 
-            res = requests.post('%s/upload/v3?%s' % (codecov.url, urlargs))
-            res.raise_for_status()
-            res = res.text.strip().split()
-            result, upload_url = res[0], res[1]
+            try:
+                res = requests.post('%s/upload/v3?%s' % (codecov.url, urlargs))
+                assert res.status_code == 200
+                res = res.text.strip().split()
+                result, upload_url = res[0], res[1]
 
-            s3 = requests.put(upload_url, data=reports,
-                              headers={'Content-Type': 'plain/text', 'x-amz-acl': 'public-read'})
-
-            if s3.status_code == 200:
+                s3 = requests.put(upload_url, data=reports, headers={'Content-Type': 'plain/text', 'x-amz-acl': 'public-read'})
+                assert s3.status_code == 200
                 write('    ' + result)
 
-            else:
+            except AssertionError:
                 write('    Direct to s3 failed. Using backup v2 endpoint.')
                 # just incase, try traditional upload
                 res = requests.post('%s/upload/v2?s3=%d&%s' % (codecov.url, s3.status_code, urlargs),
