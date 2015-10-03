@@ -214,9 +214,8 @@ class TestUploader(unittest.TestCase):
         else:
             raise Exception('400 never raised')
 
-    @data(({}, 'Branch argument is missing. Please specify via --branch=:name'),
-          (dict(branch='master'), 'Commit sha is missing. Please specify via --commit=:sha'),
-          (dict(branch='master', commit='sha'), 'Missing repository upload token'))
+    @data((dict(), 'Commit sha is missing. Please specify via --commit=:sha'),
+          (dict(commit='sha'), 'Missing repository upload token'))
     def test_require_branch(self, dd):
         (kwargs, reason) = dd
         # this is so we dont get branch for local git
@@ -297,7 +296,7 @@ class TestUploader(unittest.TestCase):
         try:
             self.run_cli(disable='detect')
         except AssertionError as e:
-            self.assertEqual(str(e), "Branch argument is missing. Please specify via --branch=:name")
+            self.assertEqual(str(e), "Commit sha is missing. Please specify via --commit=:sha")
         else:
             raise Exception("Did not raise AssertionError")
 
