@@ -418,7 +418,7 @@ def main(*argv, **kwargs):
             try:
                 # find branch, commit, repo from git command
                 branch = subprocess.check_output('git rev-parse --abbrev-ref HEAD || hg branch', shell=True)
-                query.update(dict(branch=branch if branch != 'HEAD' else 'master',
+                query.update(dict(branch=branch if branch != 'HEAD' else '',
                                   commit=subprocess.check_output("git rev-parse HEAD || hg id -i --debug | tr -d '+'", shell=True)))
                 write('    No CI Detected. Using git/mercurial')
             except:  # pragma: no cover
@@ -453,7 +453,6 @@ def main(*argv, **kwargs):
             write('    Reading token from file')
             query['token'] = fopen(opj(os.getcwd(), query['token'][1:])).strip()
 
-        assert query.get('branch') not in ('', None), "Branch argument is missing. Please specify via --branch=:name"
         assert query.get('commit') not in ('', None), "Commit sha is missing. Please specify via --commit=:sha"
         assert query.get('job') or query.get('token'), "Missing repository upload token"
 
