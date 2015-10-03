@@ -1,7 +1,9 @@
 ### `1.5.0`
 - fix retreiving mercurial commit
-- add support for xcode7 profdata
+- add support for swift/xcode7 profdata
 - now uploading direct-to-s3 to improve product performance
+- not require branch, will default to `master` (the default branch)
+- fix drone.io commit number, which is not a full 40 sha.
 
 ### `1.4.1`
 - added `--no-fail` to prevent failing builds when missing configuration or Codecov errors
