@@ -29,7 +29,7 @@ except:
     pass
 
 
-version = VERSION = __version__ = '1.5.0'
+version = VERSION = __version__ = '1.5.1'
 
 COLOR = True
 
@@ -577,11 +577,13 @@ def main(*argv, **kwargs):
                 res = res.text.strip().split()
                 result, upload_url = res[0], res[1]
 
-                s3 = requests.put(upload_url, data=reports, headers={'Content-Type': 'plain/text', 'x-amz-acl': 'public-read'})
+                # requests.exceptions.SSLError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:581)
+                s3 = requests.put(upload_url, data=reports, headers={'Content-Type': 'plain/text', 'x-amz-acl': 'public-read'}, verify=False)
+
                 assert s3.status_code == 200
                 write('    ' + result)
 
-            except AssertionError:
+            except:
                 write('    Direct to s3 failed. Using backup v2 endpoint.')
                 # just incase, try traditional upload
                 res = requests.post('%s/upload/v2?%s' % (codecov.url, urlargs),
