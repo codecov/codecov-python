@@ -5,6 +5,7 @@ import re
 import sys
 import requests
 import argparse
+from time import sleep
 from json import loads, dumps
 import xml.etree.cElementTree as etree
 
@@ -572,29 +573,42 @@ def main(*argv, **kwargs):
             write('    .query ' + urlargs)
 
             s3 = None
-            try:
-                res = requests.post('%s/upload/v3?%s' % (codecov.url, urlargs))
-                assert res.status_code == 200
-                res = res.text.strip().split()
-                result, upload_url = res[0], res[1]
+            trys = 0
+            while trys < 3:
+                trys += 1
+                try:
+                    write('    Pinging Codecov...')
+                    res = requests.post('%s/upload/v3?%s' % (codecov.url, urlargs),
+                                        headers={'Accept': 'text/plain'})
+                    if res.status_code < 500:
+                        assert res.status_code == 200
+                        res = res.text.strip().split()
+                        result, upload_url = res[0], res[1]
 
-                # requests.exceptions.SSLError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:581)
-                s3 = requests.put(upload_url, data=reports, headers={'Content-Type': 'plain/text', 'x-amz-acl': 'public-read'}, verify=False)
+                        # requests.exceptions.SSLError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:581)
+                        write('    Uploading to S3...')
+                        s3 = requests.put(upload_url, data=reports, verify=False,
+                                          headers={'Content-Type': 'plain/text', 'x-amz-acl': 'public-read'})
 
-                assert s3.status_code == 200
-                write('    ' + result)
+                        assert s3.status_code == 200
+                        write('    ' + result)
+                        return
 
-            except:
-                write('    Direct to s3 failed. Using backup v2 endpoint.')
-                # just incase, try traditional upload
-                res = requests.post('%s/upload/v2?%s' % (codecov.url, urlargs),
-                                    data='\n'.join((reports, s3.reason if s3 else '', s3.text if s3 else '')),
-                                    headers={"Accept": "text/plain"})
-                res.raise_for_status()
+                except:
+                    write('    xx> Direct to s3 failed. Using backup v2 endpoint.')
+                    write('    Uploading to Codecov...')
+                    # just incase, try traditional upload
+                    res = requests.post('%s/upload/v2?%s' % (codecov.url, urlargs),
+                                        data='\n'.join((reports, s3.reason if s3 else '', s3.text if s3 else '')),
+                                        headers={"Accept": "text/plain"})
+                    if res.status_code < 500:
+                        write('    ' + res.text)
+                        res.raise_for_status()
+                        result = res.text
+                        return
 
-                write('    ' + res.text)
-                res.raise_for_status()
-                result = res.text
+                write('    Retrying... in %ds' % (trys * 30))
+                sleep(trys * 30)
 
     except AssertionError as e:
         write('Error: ' + str(e))
