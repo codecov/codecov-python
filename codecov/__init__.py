@@ -446,7 +446,7 @@ def main(*argv, **kwargs):
     # Upload
     # ------
     try:
-        write('==> Prepairing upload')
+        write('==> Preparing upload')
 
         # Read token from file
         # --------------------
