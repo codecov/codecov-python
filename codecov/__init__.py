@@ -487,7 +487,7 @@ def main(*argv, **kwargs):
                             _proj = _file.split('/')[-2].split('.')[0]
                             try_to_run('xcrun llvm-cov show -instr-profile "%s" "%s/%s" > "%s.coverage.txt"' % (profdata, _file, _proj, _type))
 
-            cmd = "find %s -type f -name '*.gcno' %s -exec %s %s {} +" % (
+            cmd = "find %s -type f -name '*.gcno' %s -exec %s -pbc -o $(find . -type f -name '*.gcno' -exec dirname {} \;) %s {} +" % (
                   codecov.gcov_root or root, " ".join(map(lambda a: "-not -path '%s'" % a, codecov.gcov_glob)),
                   codecov.gcov_exec, codecov.gcov_args)
             write('    Executing gcov (%s)' % cmd)
