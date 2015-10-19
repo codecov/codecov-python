@@ -594,7 +594,7 @@ def main(*argv, **kwargs):
 
                         assert s3.status_code == 200
                         write('    ' + result)
-                        return
+                        break
 
                 except:
                     write('    xx> Direct to s3 failed. Using backup v2 endpoint.')
