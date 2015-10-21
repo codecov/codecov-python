@@ -23,6 +23,17 @@ pip install --user codecov && codecov --token=<repo token>
 > [C/C++](https://github.com/codecov/example-c), [D](https://github.com/codecov/example-d), [Go](https://github.com/codecov/example-go), [Groovy](https://github.com/codecov/example-groovy), [Kotlin](https://github.com/codecov/example-kotlin),
 > [PHP](https://github.com/codecov/example-php), [R](https://github.com/codecov/example-r), [Scala](https://github.com/codecov/example-scala), [Xtern](https://github.com/codecov/example-xtend), [Xcode](https://github.com/codecov/example-xcode), [Lua](https://github.com/codecov/example-lua) and more...
 
+## Using `tox`?
+Codecov can be ran from inside your `tox.ini` please make sure you pass all the necessary environment variables through:
+
+```
+[testenv]
+passenv = CI TRAVIS_BUILD_ID TRAVIS TRAVIS_BRANCH TRAVIS_JOB_NUMBER TRAVIS_PULL_REQUEST TRAVIS_JOB_ID TRAVIS_REPO_SLUG TRAVIS_COMMIT
+deps = codecov>=1.4.0
+commands = codecov -e TOXENV
+```
+> See all the environment variable for other CI providers [here](https://github.com/codecov/codecov-python/blob/master/codecov/__init__.py#L260-L430)
+
 
 ## Configuration
 > Below are most commonly used settings.
