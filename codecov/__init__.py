@@ -565,11 +565,11 @@ def main(*argv, **kwargs):
         query['package'] = "py" + VERSION
         urlargs = (urlencode(dict([(k, v.strip()) for k, v in query.items() if v not in ('', None)])))
 
+        result = ''
         if codecov.dump:
             write('-------------------- Debug --------------------')
             write(reports)
             write('--------------------  EOF  --------------------')
-            result = None
         else:
             write('==> Uploading')
             write('    .url ' + codecov.url)
@@ -583,7 +583,10 @@ def main(*argv, **kwargs):
                     write('    Pinging Codecov...')
                     res = requests.post('%s/upload/v3?%s' % (codecov.url, urlargs),
                                         headers={'Accept': 'text/plain'})
-                    if res.status_code < 500:
+                    if res.status_code in (400, 406):
+                        raise Exception(res.text)
+
+                    elif res.status_code < 500:
                         assert res.status_code == 200
                         res = res.text.strip().split()
                         result, upload_url = res[0], res[1]
@@ -597,8 +600,8 @@ def main(*argv, **kwargs):
                         write('    ' + result)
                         break
 
-                except:
-                    write('    xx> Direct to s3 failed. Using backup v2 endpoint.')
+                except AssertionError:
+                    write('    Direct to s3 failed. Using backup v2 endpoint.')
                     write('    Uploading to Codecov...')
                     # just incase, try traditional upload
                     res = requests.post('%s/upload/v2?%s' % (codecov.url, urlargs),
@@ -613,7 +616,7 @@ def main(*argv, **kwargs):
                 write('    Retrying... in %ds' % (trys * 30))
                 sleep(trys * 30)
 
-    except AssertionError as e:
+    except Exception as e:
         write('Error: ' + str(e))
         if kwargs.get('debug'):
             raise
