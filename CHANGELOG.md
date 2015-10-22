@@ -1,3 +1,7 @@
+### `1.5.2`
+- depreciate `--no-fail` now a default
+- add `--required` to fail the build if Codecov fails
+
 ### `1.5.0`
 - fix retreiving mercurial commit
 - add support for swift/xcode7 profdata

@@ -30,7 +30,7 @@ except:
     pass
 
 
-version = VERSION = __version__ = '1.5.1'
+version = VERSION = __version__ = '1.5.2'
 
 COLOR = True
 
@@ -209,7 +209,8 @@ def main(*argv, **kwargs):
     basics.add_argument('--token', '-t', default=os.getenv("CODECOV_TOKEN"), help="Private repository token. Not required for public repos on Travis, CircleCI and AppVeyor")
     basics.add_argument('--file', '-f', nargs="*", default=None, help="Target a specific file for uploading")
     basics.add_argument('--env', '-e', nargs="*", default=os.getenv("CODECOV_ENV"), help="Store environment variables to help distinguish CI builds. Example: http://bit.ly/1ElohCu")
-    basics.add_argument('--no-fail', action="store_true", default=False, help="If Codecov fails do not fail CI build.")
+    basics.add_argument('--no-fail', action="store_true", default=False, help="(DEPRECIATED default true) If Codecov fails do not fail CI build.")
+    basics.add_argument('--required', action="store_true", default=False, help="If Codecov fails it will exit 1: failing the CI build.")
 
     gcov = parser.add_argument_group('======================== gcov ========================')
     gcov.add_argument('--gcov-root', default=None, help="Project root directory when preparing gcov")
@@ -246,6 +247,9 @@ def main(*argv, **kwargs):
     query = dict(commit='', branch='', job='', pr='', build_url='',
                  token=codecov.token)
     language = None
+
+    if codecov.no_fail:
+        write('(depreciated) --no-fail is now default. See --help for more information.')
 
     # Detect CI
     # ---------
@@ -632,7 +636,7 @@ def main(*argv, **kwargs):
         write('  Email:   hello@codecov.io\n'
               '  Gitter:  https://gitter.im/codecov/support\n'
               '  Twitter: @codecov\n')
-        sys.exit(0 if codecov.no_fail else 1)
+        sys.exit(1 if codecov.required else 0)
 
     else:
         if kwargs.get('debug'):

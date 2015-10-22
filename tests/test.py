@@ -172,21 +172,21 @@ class TestUploader(unittest.TestCase):
         else:
             raise Exception("help not shown")
 
-    def test_exits(self):
+    def test_exits_0(self):
         try:
             sys.argv = ['']
             codecov.main()
         except SystemExit as e:
-            self.assertEqual(str(e), '1')
+            self.assertEqual(str(e), '0')
         else:
             raise Exception("did not exit")
 
-    def test_exits_no_fail(self):
+    def test_exits_1(self):
         try:
             sys.argv = ['']
-            codecov.main('--no-fail')
+            codecov.main('--required')
         except SystemExit as e:
-            self.assertEqual(str(e), '0')
+            self.assertEqual(str(e), '1')
         else:
             raise Exception("did not exit")
 
@@ -209,7 +209,7 @@ class TestUploader(unittest.TestCase):
             f.write('coverage data')
         try:
             self.run_cli(False, token='not-a-token', commit='a'*40, branch='master')
-        except requests.exceptions.HTTPError:
+        except Exception as e:
             pass
         else:
             raise Exception('400 never raised')
