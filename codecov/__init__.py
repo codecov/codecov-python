@@ -134,6 +134,7 @@ def write(text, color=None):
     global COLOR
     if COLOR:
         text = text.replace('==>', '\033[90m==>\033[0m')
+        text = text.replace('    +', '    \033[32m+\033[0m')
         text = text.replace('XX>', '\033[31mXX>\033[0m')
         if text[:6] == 'Error:':
             text = '\033[41mError:\033[0m\033[91m%s\033[0m' % text[6:]
@@ -205,8 +206,8 @@ def main(*argv, **kwargs):
                                      formatter_class=argparse.RawDescriptionHelpFormatter,
                                      epilog="""Upload reports to Codecov""")
     basics = parser.add_argument_group('======================== Basics ========================')
-    basics.add_argument('--version', '-v', action='version', version='Codecov py-v'+version+" - https://codecov.io/")
-    basics.add_argument('--token', '-t', default=os.getenv("CODECOV_TOKEN"), help="Private repository token. Not required for public repos on Travis, CircleCI and AppVeyor")
+    basics.add_argument('--version', action='version', version='Codecov py-v'+version+" - https://codecov.io/")
+    basics.add_argument('--token', '-t', default=os.getenv("CODECOV_TOKEN"), help="Private repository token. Not required for public repositories on Travis-CI, CircleCI and AppVeyor")
     basics.add_argument('--file', '-f', nargs="*", default=None, help="Target a specific file for uploading")
     basics.add_argument('--env', '-e', nargs="*", default=os.getenv("CODECOV_ENV"), help="Store environment variables to help distinguish CI builds. Example: http://bit.ly/1ElohCu")
     basics.add_argument('--no-fail', action="store_true", default=False, help="(DEPRECIATED default true) If Codecov fails do not fail CI build.")
@@ -522,7 +523,6 @@ def main(*argv, **kwargs):
 
             # Find reports
             # ------------
-            write('    Seaching for reports')
             for _root, dirs, files in os.walk(root):
                 # need to replace('\\', '/') for Windows
                 if not ignored_path(_root.replace('\\', '/')) and bower_components not in _root.replace('\\', '/'):
@@ -539,7 +539,7 @@ def main(*argv, **kwargs):
             write('    Targeting specific files')
             reports.extend(filter(bool, map(read, codecov.file)))
 
-        else:
+        elif 'pycov' not in codecov.disable:
             # Call `coverage xml` when .coverage exists
             # -----------------------------------------
             # Ran from current directory
