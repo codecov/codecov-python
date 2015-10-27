@@ -219,7 +219,7 @@ def main(*argv, **kwargs):
     gcov.add_argument('--gcov-args', default='', help="extra arguments to pass to gcov")
 
     advanced = parser.add_argument_group('======================== Advanced ========================')
-    advanced.add_argument('-X', '--disable', nargs="*", default=[], help="Disable features. Accepting `search` to disable crawling through directories, `detect` to disable detecting CI provider, `gcov` disable gcov commands")
+    advanced.add_argument('-X', '--disable', nargs="*", default=[], help="Disable features. Accepting **search** to disable crawling through directories, **detect** to disable detecting CI provider, **gcov** disable gcov commands, `pycov` disables running python `coverage xml`, **fix** to disable report adjustments http://bit.ly/1O4eBpt")
     advanced.add_argument('--root', default=None, help="Project directory. Default: current direcory or provided in CI environment variables")
     advanced.add_argument('--commit', '-c', default=None, help="Commit sha, set automatically")
     advanced.add_argument('--branch', '-b', default=None, help="Branch name")
@@ -569,6 +569,20 @@ def main(*argv, **kwargs):
 
         query['package'] = "py" + VERSION
         urlargs = (urlencode(dict([(k, v.strip()) for k, v in query.items() if v not in ('', None)])))
+
+        if 'fix' not in codecov.disable:
+            write("==> Appending adjustments (http://bit.ly/1O4eBpt)")
+            adjustments = try_to_run('''echo "'''
+                                     '''$(find . -type f -name '*.kt'  -exec grep -nIH '^/\*' {} \;)\n'''
+                                     '''$(find . -type f -name '*.go'  -exec grep -nIH '^[[:space:]]*$' {} \;)\n'''
+                                     '''$(find . -type f -name '*.go'  -exec grep -nIH '^[[:space:]]*//.*' {} \;)\n'''
+                                     '''$(find . -type f -name '*.go'  -exec grep -nIH '^[[:space:]]*/\*' {} \;)\n'''
+                                     '''$(find . -type f -name '*.go'  -exec grep -nIH '^[[:space:]]*\*/' {} \;)\n'''
+                                     '''$(find . -type f -name '*.php' -exec grep -nIH '^[[:space:]]*{[[:space:]]*$' {} \;)\n'''
+                                     '''$(find . -type f -name '*.php' -exec grep -nIH '^[[:space:]]*}[[:space:]]*$' {} \;)\n'''
+                                     '''"''')
+            write("  --> Found %s adjustments" % (adjustments.count('\n') - adjustments.count('\n\n') - 1))
+            reports = reports + '\n# path=fixes\n' + adjustments + '<<<<<< EOF'
 
         result = ''
         if codecov.dump:
