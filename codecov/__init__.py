@@ -30,7 +30,7 @@ except:
     pass
 
 
-version = VERSION = __version__ = '1.5.2'
+version = VERSION = __version__ = '1.6.0'
 
 COLOR = True
 
@@ -228,6 +228,7 @@ def main(*argv, **kwargs):
     enterprise = parser.add_argument_group('======================== Enterprise ========================')
     enterprise.add_argument('--slug', '-r', default=os.getenv("CODECOV_SLUG"), help="Specify repository slug for Enterprise ex. owner/repo")
     enterprise.add_argument('--url', '-u', default=os.getenv("CODECOV_URL", "https://codecov.io"), help="Your Codecov endpoint")
+    enterprise.add_argument('--cacert', default=os.getenv("CODECOV_CACERT", os.getenv("CURL_CA_BUNDLE")), help="Certificate pem bundle used to verify with your Codecov instance")
 
     debugging = parser.add_argument_group('======================== Debugging ========================')
     debugging.add_argument('--dump', action="store_true", help="Dump collected data and do not send to Codecov")
@@ -586,6 +587,7 @@ def main(*argv, **kwargs):
                 try:
                     write('    Pinging Codecov...')
                     res = requests.post('%s/upload/v3?%s' % (codecov.url, urlargs),
+                                        verify=codecov.cacert,
                                         headers={'Accept': 'text/plain'})
                     if res.status_code in (400, 406):
                         raise Exception(res.text)
@@ -609,6 +611,7 @@ def main(*argv, **kwargs):
                     write('    Uploading to Codecov...')
                     # just incase, try traditional upload
                     res = requests.post('%s/upload/v2?%s' % (codecov.url, urlargs),
+                                        verify=codecov.cacert,
                                         data='\n'.join((reports, s3.reason if s3 else '', s3.text if s3 else '')),
                                         headers={"Accept": "text/plain"})
                     if res.status_code < 500:
