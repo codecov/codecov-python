@@ -1,6 +1,8 @@
-### `1.5.2`
+### `1.6.0`
 - depreciate `--no-fail` now a default
 - add `--required` to fail the build if Codecov fails
+- added `--cacerts` for enterprise customers
+- added fix reports http://bit.ly/1O4eBpt
 
 ### `1.5.0`
 - fix retreiving mercurial commit
