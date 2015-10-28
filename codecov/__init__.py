@@ -30,7 +30,7 @@ except:
     pass
 
 
-version = VERSION = __version__ = '1.6.0'
+version = VERSION = __version__ = '1.6.1'
 
 COLOR = True
 
@@ -582,6 +582,7 @@ def main(*argv, **kwargs):
                                      '''$(find . -type f -name '*.php' -exec grep -nIH '^[[:space:]]*{' {} \;)\n'''
                                      '''"''')
             write("  --> Found %s adjustments" % (adjustments.count('\n') - adjustments.count('\n\n') - 1))
+            adjustments = re.sub(r'[^\x00-\x7F]', '', adjustments)
             reports = reports + '\n# path=fixes\n' + adjustments + '<<<<<< EOF'
 
         result = ''
