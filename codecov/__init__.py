@@ -651,6 +651,7 @@ def main(*argv, **kwargs):
 
         write('Support channels:', 'green')
         write('  Email:   hello@codecov.io\n'
+              '  IRC:     #codecov\n'
               '  Gitter:  https://gitter.im/codecov/support\n'
               '  Twitter: @codecov\n')
         sys.exit(1 if codecov.required else 0)
