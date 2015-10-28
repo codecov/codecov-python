@@ -573,13 +573,13 @@ def main(*argv, **kwargs):
         if 'fix' not in codecov.disable:
             write("==> Appending adjustments (http://bit.ly/1O4eBpt)")
             adjustments = try_to_run('''echo "'''
-                                     '''$(find . -type f -name '*.kt'  -exec grep -nIH '^/\*' {} \;)\n'''
-                                     '''$(find . -type f -name '*.go'  -exec grep -nIH '^[[:space:]]*$' {} \;)\n'''
-                                     '''$(find . -type f -name '*.go'  -exec grep -nIH '^[[:space:]]*//.*' {} \;)\n'''
-                                     '''$(find . -type f -name '*.go'  -exec grep -nIH '^[[:space:]]*/\*' {} \;)\n'''
-                                     '''$(find . -type f -name '*.go'  -exec grep -nIH '^[[:space:]]*\*/' {} \;)\n'''
-                                     '''$(find . -type f -name '*.php' -exec grep -nIH '^[[:space:]]*{[[:space:]]*$' {} \;)\n'''
-                                     '''$(find . -type f -name '*.php' -exec grep -nIH '^[[:space:]]*}[[:space:]]*$' {} \;)\n'''
+                                     '''$(find . -type f -name '*.kt' -exec grep -nIH '^/\*' {} \;)\n'''
+                                     '''$(find . -type f -name '*.go' -exec grep -nIH '^[[:space:]]*$' {} \;)\n'''
+                                     '''$(find . -type f -name '*.go' -exec grep -nIH '^[[:space:]]*//.*' {} \;)\n'''
+                                     '''$(find . -type f -name '*.go' -exec grep -nIH '^[[:space:]]*/\*' {} \;)\n'''
+                                     '''$(find . -type f -name '*.go' -exec grep -nIH '^[[:space:]]*\*/' {} \;)\n'''
+                                     '''$(find . -type f -name '*.go' -or -name '*.php' -or -name '*.m'  -exec grep -nIH '^[[:space:]]*}' {} \;)\n'''
+                                     '''$(find . -type f -name '*.php' -exec grep -nIH '^[[:space:]]*{' {} \;)\n'''
                                      '''"''')
             write("  --> Found %s adjustments" % (adjustments.count('\n') - adjustments.count('\n\n') - 1))
             reports = reports + '\n# path=fixes\n' + adjustments + '<<<<<< EOF'
