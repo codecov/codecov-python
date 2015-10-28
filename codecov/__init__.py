@@ -481,8 +481,7 @@ def main(*argv, **kwargs):
             write('==> Processing gcov (disable by -X gcov)')
             if os.path.isdir(os.path.expanduser('~/Library/Developer/Xcode/DerivedData')):
                 write('    Found OSX DerivedData')
-                _directory = try_to_run("find ~/Library/Developer/Xcode/DerivedData -type f -name '*.gcno' -exec dirname {} \; | head -1")
-                try_to_run("find ~/Library/Developer/Xcode/DerivedData -name '*.gcda' -exec gcov -pcbu -o '%s' {} +" % _directory)
+                try_to_run("find ~/Library/Developer/Xcode/DerivedData -name '*.gcda' -exec gcov -pcbu {} +")
 
                 # xcode7
                 profdata = try_to_run("find ~/Library/Developer/Xcode/DerivedData -name 'Coverage.profdata' | head -1")
@@ -494,11 +493,10 @@ def main(*argv, **kwargs):
                             _proj = _file.split('/')[-2].split('.')[0]
                             try_to_run('xcrun llvm-cov show -instr-profile "%s" "%s/%s" > "%s.coverage.txt"' % (profdata, _file, _proj, _type))
 
-            _directory = try_to_run("find %s -type f -name '*.gcno' -exec dirname {} \;)" % (codecov.gcov_root or root))
-            cmd = "find %s -type f -name '*.gcno' %s -exec gcov -pbcu -o %s {} +" % (
+            cmd = "find %s -type f -name '*.gcno' %s -exec gcov -pbcu %s {} +" % (
                   (codecov.gcov_root or root),
                   " ".join(map(lambda a: "-not -path '%s'" % a, codecov.gcov_glob)),
-                  _directory)
+                  (codecov.gcov_args or ''))
             write('    Executing gcov (%s)' % cmd)
             try_to_run(cmd)
 
