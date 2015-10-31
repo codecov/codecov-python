@@ -418,7 +418,7 @@ def main(*argv, **kwargs):
                               build=os.getenv('CI_BUILD_ID'),
                               slug=os.getenv('CI_BUILD_REPO').split('/', 3)[-1].replace('.git', ''),
                               commit=os.getenv('CI_BUILD_REF')))
-            root = os.getenv('CI_PROJECT_DIR') or root
+            root = os.getenv('HOME') + '/' + os.getenv('CI_PROJECT_DIR')
             write('    Gitlab CI Detected')
 
         # ---
