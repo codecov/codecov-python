@@ -339,8 +339,7 @@ def main(*argv, **kwargs):
             query.update(dict(branch=os.getenv('DRONE_BRANCH'),
                               service='drone.io',
                               build=os.getenv('DRONE_BUILD_NUMBER'),
-                              build_url=os.getenv('DRONE_BUILD_URL'),
-                              commit=subprocess.check_output("git rev-parse HEAD || hg id -i --debug | tr -d '+'", shell=True)))
+                              build_url=os.getenv('DRONE_BUILD_URL')))
             root = os.getenv('DRONE_BUILD_DIR') or root
             write('    Drone Detected')
 
@@ -421,19 +420,26 @@ def main(*argv, **kwargs):
             root = os.getenv('HOME') + '/' + os.getenv('CI_PROJECT_DIR')
             write('    Gitlab CI Detected')
 
-        # ---
-        # git
-        # ---
-        else:
+        # ------
+        # git/hg
+        # ------
+        if not query.get('branch'):
             try:
                 # find branch, commit, repo from git command
-                branch = subprocess.check_output('git rev-parse --abbrev-ref HEAD || hg branch', shell=True)
-                query.update(dict(branch=branch if branch != 'HEAD' else '',
-                                  commit=subprocess.check_output("git rev-parse HEAD || hg id -i --debug | tr -d '+'", shell=True)))
-                write('    No CI Detected. Using git/mercurial')
+                branch = try_to_run('git rev-parse --abbrev-ref HEAD || hg branch')
+                query['branch'] = branch if branch != 'HEAD' else ''
+                write('  -> Got branch from git/hg')
+
+            except:
+                write('  x> Failed to get branch from git/hg')
+
+        if not query.get('commit'):
+            try:
+                query['commit'] = try_to_run("git rev-parse HEAD || hg id -i --debug | tr -d '+'")
+                write('  -> Got sha from git/hg')
+
             except:  # pragma: no cover
-                # may not be in a git backed repo
-                pass
+                write('  x> Failed to get sha from git/hg')
 
     # Update Query
     # ------------
