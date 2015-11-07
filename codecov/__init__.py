@@ -487,7 +487,7 @@ def main(*argv, **kwargs):
             write('==> Processing gcov (disable by -X gcov)')
             if os.path.isdir(os.path.expanduser('~/Library/Developer/Xcode/DerivedData')):
                 write('    Found OSX DerivedData')
-                try_to_run("find ~/Library/Developer/Xcode/DerivedData -name '*.gcda' -exec gcov -pcbu {} +")
+                try_to_run("find ~/Library/Developer/Xcode/DerivedData -name '*.gcda' -exec gcov -pb {} +")
 
                 # xcode7
                 profdata = try_to_run("find ~/Library/Developer/Xcode/DerivedData -name 'Coverage.profdata' | head -1")
