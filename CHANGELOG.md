@@ -1,3 +1,8 @@
+### `1.6.4`
+- fix gitlab project directory
+- fallback on git branch/commit
+- fix using gcov_exec
+
 ### `1.6.0`
 - depreciate `--no-fail` now a default
 - add `--required` to fail the build if Codecov fails
