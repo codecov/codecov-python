@@ -209,13 +209,12 @@ class TestUploader(unittest.TestCase):
             f.write('coverage data')
         try:
             self.run_cli(False, token='not-a-token', commit='a'*40, branch='master')
-        except Exception as e:
+        except Exception:
             pass
         else:
             raise Exception('400 never raised')
 
-    @data((dict(), 'Commit sha is missing. Please specify via --commit=:sha'),
-          (dict(commit='sha'), 'Missing repository upload token'))
+    @data((dict(commit='sha'), 'Missing repository upload token'), )
     def test_require_branch(self, dd):
         (kwargs, reason) = dd
         # this is so we dont get branch for local git
