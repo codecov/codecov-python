@@ -27,6 +27,7 @@ setup(name='codecov',
       packages=['codecov'],
       include_package_data=True,
       zip_safe=True,
-      install_requires=["requests>=2.0.0", "coverage"] + (["future"] if sys.version_info[:2] == (2, 6) else []),
+      install_requires=["requests>=2.0.0", "coverage"],
+      extras_require={':python_version=="2.6"': ['future']},
       tests_require=["unittest2"],
       entry_points={'console_scripts': ['codecov=codecov:main']})
