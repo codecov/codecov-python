@@ -16,6 +16,8 @@ else:
 
 import codecov
 
+PY3 = sys.version_info[0] == 3
+
 
 jacoco_xml = """<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <!DOCTYPE report PUBLIC "-//JACOCO//DTD Report 1.0//EN" "report.dtd">
@@ -492,7 +494,10 @@ class TestUploader(unittest.TestCase):
         self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'drone.io')
-        self.assertEqual(res['query']['commit'], subprocess.check_output("git rev-parse HEAD", shell=True))
+        head_commit = subprocess.check_output("git rev-parse HEAD", shell=True)
+        if PY3:
+            head_commit = head_commit.decode("ascii")
+        self.assertEqual(res['query']['commit'], head_commit)
         self.assertEqual(res['query']['build'], '10')
         self.assertEqual(res['query']['build_url'], 'https://drone.io/github/builds/1')
         self.assertEqual(res['codecov'].token, 'token')
