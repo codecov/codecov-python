@@ -6,6 +6,7 @@ dependencies:
   override:
     - pip install -U pip setuptools
     - pip install -r tests/requirements.txt
+    - pip install .
 
 test:
   override:
