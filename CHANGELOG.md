@@ -1,4 +1,8 @@
 ### `1.6.4`
+- Use coverage<4 on 3.0–3.2, as 4 drops support by @gsnedders
+- add `--pr` argument to manually specify a pull request
+
+### `1.6.3`
 - fix gitlab project directory
 - fallback on git branch/commit
 - fix using gcov_exec
