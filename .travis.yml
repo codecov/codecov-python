@@ -2,16 +2,22 @@ language: python
 notifications:
   email: false
 sudo: false
+cache:
+  directories:
+    - $HOME/.cache/pip
 python:
   - 2.6
   - 2.7
   - pypy
+  - 3.2
   - 3.3
   - 3.4
+  - 3.5
   - pypy3
 install:
+  - pip install -U pip setuptools
   - pip install -r tests/requirements.txt
-  - python setup.py install
+  - pip install .
 script:
   - nosetests --rednose --with-cov --cov-config=.coveragerc
 after_success:

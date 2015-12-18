@@ -1,4 +1,5 @@
-coverage
+coverage<4.0 ; python_version>="3.0" and python_version<"3.3"
+coverage ; python_version<"3.0" or python_version>="3.3"
 ddt
 nose
 nose-cov

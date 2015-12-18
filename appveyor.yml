@@ -54,8 +54,9 @@ install:
 
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
 
+  - "%CMD_IN_ENV% pip install -U pip setuptools"
   - "%CMD_IN_ENV% pip install -r tests\\requirements.txt"
-  - "%CMD_IN_ENV% python setup.py install"
+  - "%CMD_IN_ENV% pip install ."
 
 build: false
 
