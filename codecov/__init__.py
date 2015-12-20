@@ -624,8 +624,14 @@ def main(*argv, **kwargs):
 
                         # requests.exceptions.SSLError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:581)
                         write('    Uploading to S3...')
-                        s3 = requests.put(upload_url, data=reports, verify=False,
-                                          headers={'Content-Type': 'plain/text', 'x-amz-acl': 'public-read'})
+                        try:
+                            s3 = requests.put(upload_url, data=reports,
+                                              headers={'Content-Type': 'plain/text', 'x-amz-acl': 'public-read'})
+                            s3.raise_for_status()
+                        except:
+                            s3 = requests.put(upload_url, data=reports, verify=False,
+                                              headers={'Content-Type': 'plain/text', 'x-amz-acl': 'public-read'})
+                            s3.raise_for_status()
 
                         assert s3.status_code == 200
                         write('    ' + result)
