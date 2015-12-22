@@ -591,6 +591,8 @@ def main(*argv, **kwargs):
             write("  --> Found %s adjustments" % (adjustments.count('\n') - adjustments.count('\n\n') - 1))
             reports = str(reports) + '\n# path=fixes\n' + str(adjustments) + '<<<<<< EOF'
 
+        reports = reports.encode('ascii', 'replace')
+
         result = ''
         if codecov.dump:
             write('-------------------- Debug --------------------')
