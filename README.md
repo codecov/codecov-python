@@ -6,9 +6,9 @@ Codecov Global Python Uploader [![codecov.io](https://codecov.io/github/codecov/
 Find coverage reports for all the [languages below](#languages), gather them and submit them to Codecov.
 
 ## Codecov Features
-- Reports are **automatically** combined with no extra setup. Each build is store, seperately and combined.
+- Reports are **automatically** combined with no extra setup. Each build is stored separately and combined.
 - Multiple languages are supported in a single upload and repository.
-- *Optionally* store environment variables per build
+- *Optionally* stores environment variables per build.
 
 
 ## Usage
@@ -24,7 +24,10 @@ pip install --user codecov && codecov --token=<repo token>
 > [PHP](https://github.com/codecov/example-php), [R](https://github.com/codecov/example-r), [Scala](https://github.com/codecov/example-scala), [Xtern](https://github.com/codecov/example-xtend), [Xcode](https://github.com/codecov/example-xcode), [Lua](https://github.com/codecov/example-lua) and more...
 
 ## Using `tox`?
-Codecov can be ran from inside your `tox.ini` please make sure you pass all the necessary environment variables through:
+
+Codecov can be set up in your `tox.ini`.
+
+Just please make sure to pass all the necessary environment variables through:
 
 ```
 [testenv]
@@ -32,11 +35,12 @@ passenv = CI TRAVIS_BUILD_ID TRAVIS TRAVIS_BRANCH TRAVIS_JOB_NUMBER TRAVIS_PULL_
 deps = codecov>=1.4.0
 commands = codecov -e TOXENV
 ```
-> See all the environment variable for other CI providers [here](https://github.com/codecov/codecov-python/blob/master/codecov/__init__.py#L260-L430)
+> See all the environment variables for other CI providers [here](https://github.com/codecov/codecov-python/blob/master/codecov/__init__.py#L260-L430)
 
 
 ## Configuration
-> Below are most commonly used settings.
+
+> Below are the most commonly used settings.
 
 | Argument |   Environment   |                                                                    Description                                                                     |
 | -------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -80,7 +84,7 @@ after_success:
 | [Bamboo](https://www.atlassian.com/software/bamboo) | `coming soon`                                                                                                                                                                      |                  |
 | [Solano Labs](https://www.solanolabs.com/)          | `coming soon`                                                                                                                                                                      |                  |
 
-> Using **Travis CI**? Uploader is compatable with `sudo: false` which can speed up your builds. :+1:
+> Using **Travis CI**? Uploader is compatible with `sudo: false` which can speed up your builds. :+1:
 
 
 
