@@ -209,6 +209,7 @@ def main(*argv, **kwargs):
     basics.add_argument('--version', action='version', version='Codecov py-v'+version+" - https://codecov.io/")
     basics.add_argument('--token', '-t', default=os.getenv("CODECOV_TOKEN"), help="Private repository token. Not required for public repositories on Travis-CI, CircleCI and AppVeyor")
     basics.add_argument('--file', '-f', nargs="*", default=None, help="Target a specific file for uploading")
+    basics.add_argument('--name', '-n', nargs="*", default=None, help="Give this build a custom name")
     basics.add_argument('--env', '-e', nargs="*", default=os.getenv("CODECOV_ENV"), help="Store environment variables to help distinguish CI builds. Example: http://bit.ly/1ElohCu")
     basics.add_argument('--no-fail', action="store_true", default=False, help="(DEPRECIATED default true) If Codecov fails do not fail CI build.")
     basics.add_argument('--required', action="store_true", default=False, help="If Codecov fails it will exit 1: failing the CI build.")
@@ -443,6 +444,9 @@ def main(*argv, **kwargs):
 
     # Update Query
     # ------------
+    if codecov.name:
+        query['name'] = codecov.name
+
     if codecov.build:
         query['build'] = codecov.build
 
