@@ -315,6 +315,19 @@ def main(*argv, **kwargs):
             write('    Codeship Detected')
 
         # ---------
+        # Buildkite
+        # ---------
+        elif os.getenv('CI') == "true" and os.getenv('BUILDKITE') == 'true':
+          # https://buildkite.com/docs/guides/environment-variables
+            query.update(dict(branch=os.getenv('BUILDKITE_BRANCH'),
+                              service='buildkite',
+                              build=os.getenv('BUILDKITE_BUILD_NUMBER'),
+                              slug=os.getenv('BUILDKITE_PROJECT_SLUG'),
+                              build_url=os.getenv('BUILDKITE_BUILD_URL'),
+                              commit=os.getenv('BUILDKITE_COMMIT')))
+            write('    Buildkite Detected')
+
+        # ---------
         # Circle CI
         # ---------
         elif os.getenv('CI') == "true" and os.getenv('CIRCLECI') == 'true':
