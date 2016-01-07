@@ -283,6 +283,7 @@ def main(*argv, **kwargs):
             # http://docs.travis-ci.com/user/environment-variables/#Default-Environment-Variables
             query.update(dict(branch=os.getenv('TRAVIS_BRANCH'),
                               service='travis',
+                              tag=os.getenv('TRAVIS_TAG'),
                               build=os.getenv('TRAVIS_JOB_NUMBER'),
                               pr=os.getenv('TRAVIS_PULL_REQUEST'),
                               job=os.getenv('TRAVIS_JOB_ID'),
