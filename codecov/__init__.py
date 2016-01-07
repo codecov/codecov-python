@@ -245,6 +245,8 @@ def main(*argv, **kwargs):
     global COLOR
     COLOR = not codecov.no_color
 
+    include_env = set(codecov.env or [])
+
     write('Codecov v'+version)
     query = dict(commit='', branch='', job='', pr='', build_url='',
                  token=codecov.token)
@@ -290,8 +292,15 @@ def main(*argv, **kwargs):
             root = os.getenv('TRAVIS_BUILD_DIR') or root
             write('    Travis Detected')
             language = (list(filter(lambda l: os.getenv('TRAVIS_%s_VERSION' % l.upper()),
-                                    ('dart', 'go', 'haxe', 'jdk', 'julia', 'node', 'otp',
+                                    ('dart', 'go', 'haxe', 'jdk', 'julia', 'node', 'otp', 'xcode',
                                      'perl', 'php', 'python', 'r', 'ruby', 'rust', 'scala'))) + [''])[0]
+
+            include_env.add('TRAVIS_OS_NAME')
+            if language:
+                include_env.add('TRAVIS_%s_NAME' % language.upper())
+
+            if language == 'python' and os.getenv('TOXENV'):
+                include_env.add('TOXENV')
 
         # --------
         # Codeship
@@ -562,12 +571,12 @@ def main(*argv, **kwargs):
         # Storing Environment
         # -------------------
         env = ''
-        if codecov.env:
+        if include_env:
             write('==> Appending environment variables')
-            for k in codecov.env:
+            for k in include_env:
                 write('    + ' + k)
 
-            env = '\n'.join(["%s=%s" % (k, os.getenv(k, '')) for k in codecov.env]) + '\n<<<<<< ENV'
+            env = '\n'.join(["%s=%s" % (k, os.getenv(k, '')) for k in include_env]) + '\n<<<<<< ENV'
 
         # join reports together
         reports = '\n'.join((env, (toc or ''), '<<<<<< network',
