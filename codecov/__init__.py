@@ -30,42 +30,11 @@ except:
     pass
 
 
-version = VERSION = __version__ = '1.6.3'
+version = VERSION = __version__ = '1.6.5'
 
 COLOR = True
 
-
-def jacoco(report):
-    """
-    Some Jacoco can be huge. This is way to trim them down.
-    nr = line number
-    mi = missed instructions
-    ci = covered instructions
-    mb = missed branches
-    cb = covered branches
-    """
-    report = etree.fromstring(report)
-    coverage = {}
-    for package in report.getiterator('package'):
-        base_name = package.attrib['name']
-        for source in package.getiterator('sourcefile'):
-            lines = []
-            append = lines.append
-            for line in source.getiterator('line'):
-                l = line.attrib
-                if l['mb'] != "0":
-                    append((str(l['nr']), "%s/%d" % (l['cb'], int(l['mb'])+int(l['cb']))))
-                elif l['cb'] != "0":
-                    append((str(l['nr']), "%s/%s" % (l['cb'], l['cb'])))
-                else:
-                    append((str(l['nr']), int(l['ci'])))
-            if not lines:
-                continue
-
-            coverage["%s/%s" % (base_name, source.attrib['name'])] = dict(lines)
-
-    return dumps(dict(coverage=coverage))
-
+remove_ascii = re.compile(r'[^\x00-\x7F]').sub
 
 ignored_path = re.compile(r'(/vendor)|'
                           r'(/js/generated/coverage)|'
@@ -103,6 +72,7 @@ ignored_report = re.compile('.*('
                             r'(\.yml)|'
                             r'(\.xcconfig)|'
                             r'(\.data)|'
+                            r'(coverage\.db)|'
                             r'(coverage\.jade)|'
                             r'(include\.lst)|'
                             r'(inputFiles\.lst)|'
@@ -147,9 +117,9 @@ def write(text, color=None):
       _____          _
      / ____|        | |
     | |     ___   __| | ___  ___ _____   __
-    | |    / _ \ / _` |/ _ \/ __/ _ \ \ / /
+    | |    / _ \ / _  |/ _ \/ __/ _ \ \ / /
     | |___| (_) | (_| |  __/ (_| (_) \ V /
-     \_____\___/ \__,_|\___|\___\___/ \_/
+     \_____\___/ \____|\___|\___\___/ \_/
                                     %s\n""" % text.split(' ')[1]
         elif color == 'red':
             text = '\033[91m%s\033[0m' % text
@@ -181,8 +151,6 @@ def read(filepath):
         report = fopen(filepath)
         if report is None:
             return
-        if 'jacoco' in filepath:
-            report = jacoco(report)
         write('    + %s bytes=%d' % (filepath, os.path.getsize(filepath)))
         return '# path=' + filepath + '\n' + report
     except Exception as e:
@@ -321,7 +289,7 @@ def main(*argv, **kwargs):
           # https://buildkite.com/docs/guides/environment-variables
             query.update(dict(branch=os.getenv('BUILDKITE_BRANCH'),
                               service='buildkite',
-                              build=os.getenv('BUILDKITE_BUILD_NUMBER'),
+                              build=os.getenv('BUILDKITE_BUILD_NUMBER') + '.' + os.getenv('BUILDKITE_JOB_ID'),
                               slug=os.getenv('BUILDKITE_PROJECT_SLUG'),
                               build_url=os.getenv('BUILDKITE_BUILD_URL'),
                               commit=os.getenv('BUILDKITE_COMMIT')))
@@ -613,7 +581,10 @@ def main(*argv, **kwargs):
             write("  --> Found %s adjustments" % (adjustments.count('\n') - adjustments.count('\n\n') - 1))
             reports = str(reports) + '\n# path=fixes\n' + str(adjustments) + '<<<<<< EOF'
 
-        reports = reports.encode('ascii', 'replace')
+        try:
+            reports.encode('ascii', 'replace')
+        except:
+            reports = remove_ascii('', reports)
 
         result = ''
         if codecov.dump:
