@@ -36,6 +36,8 @@ COLOR = True
 
 remove_ascii = re.compile(r'[^\x00-\x7F]').sub
 
+remove_token = re.compile(r'token=[^\&]+').sub
+
 ignored_path = re.compile(r'(/vendor)|'
                           r'(/js/generated/coverage)|'
                           r'(/__pycache__)|'
@@ -594,7 +596,7 @@ def main(*argv, **kwargs):
         else:
             write('==> Uploading')
             write('    .url ' + codecov.url)
-            write('    .query ' + urlargs)
+            write('    .query ' + remove_token('token=<secret>', urlargs))
 
             s3 = None
             trys = 0
