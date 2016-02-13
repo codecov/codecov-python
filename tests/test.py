@@ -5,6 +5,7 @@ import requests
 import itertools
 from json import loads
 from ddt import ddt, data
+from mock import patch, Mock
 import unittest2 as unittest
 
 if sys.version_info < (2, 7):
@@ -15,70 +16,6 @@ else:
     import subprocess
 
 import codecov
-
-
-jacoco_xml = """<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<!DOCTYPE report PUBLIC "-//JACOCO//DTD Report 1.0//EN" "report.dtd">
-<report name="JaCoCo Maven plug-in example for Java project">
-    <sessioninfo id="Steves-MBP.local-b048b758" start="1411925087600" dump="1411925088117" />
-    <package name="org/jacoco/examples/maven/java">
-        <class name="org/jacoco/examples/maven/java/HelloWorld">
-            <method name="&lt;init&gt;" desc="()V" line="3">
-                <counter type="INSTRUCTION" missed="0" covered="3" />
-                <counter type="LINE" missed="0" covered="1" />
-                <counter type="COMPLEXITY" missed="0" covered="1" />
-                <counter type="METHOD" missed="0" covered="1" />
-            </method>
-            <method name="getMessage" desc="(Z)Ljava/lang/String;" line="6">
-                <counter type="INSTRUCTION" missed="2" covered="4" />
-                <counter type="BRANCH" missed="1" covered="1" />
-                <counter type="LINE" missed="1" covered="2" />
-                <counter type="COMPLEXITY" missed="1" covered="1" />
-                <counter type="METHOD" missed="0" covered="1" />
-            </method>
-            <counter type="INSTRUCTION" missed="2" covered="7" />
-            <counter type="BRANCH" missed="1" covered="1" />
-            <counter type="LINE" missed="1" covered="3" />
-            <counter type="COMPLEXITY" missed="1" covered="2" />
-            <counter type="METHOD" missed="0" covered="2" />
-            <counter type="CLASS" missed="0" covered="1" />
-        </class>
-        <sourcefile name="HelloWorld.java">
-            <line nr="3" mi="0" ci="3" mb="0" cb="0" />
-            <line nr="6" mi="0" ci="2" mb="1" cb="1" />
-            <line nr="7" mi="2" ci="0" mb="0" cb="0" />
-            <line nr="9" mi="0" ci="2" mb="0" cb="0" />
-            <line nr="10" mi="0" ci="2" mb="0" cb="2" />
-            <counter type="INSTRUCTION" missed="2" covered="7" />
-            <counter type="BRANCH" missed="1" covered="1" />
-            <counter type="LINE" missed="1" covered="3" />
-            <counter type="COMPLEXITY" missed="1" covered="2" />
-            <counter type="METHOD" missed="0" covered="2" />
-            <counter type="CLASS" missed="0" covered="1" />
-        </sourcefile>
-        <sourcefile name="HelloWorld.java">
-            <counter type="INSTRUCTION" missed="2" covered="7" />
-            <counter type="BRANCH" missed="1" covered="1" />
-            <counter type="LINE" missed="1" covered="3" />
-            <counter type="COMPLEXITY" missed="1" covered="2" />
-            <counter type="METHOD" missed="0" covered="2" />
-            <counter type="CLASS" missed="0" covered="1" />
-        </sourcefile>
-        <counter type="INSTRUCTION" missed="2" covered="7" />
-        <counter type="BRANCH" missed="1" covered="1" />
-        <counter type="LINE" missed="1" covered="3" />
-        <counter type="COMPLEXITY" missed="1" covered="2" />
-        <counter type="METHOD" missed="0" covered="2" />
-        <counter type="CLASS" missed="0" covered="1" />
-    </package>
-    <counter type="INSTRUCTION" missed="2" covered="7" />
-    <counter type="BRANCH" missed="1" covered="1" />
-    <counter type="LINE" missed="1" covered="3" />
-    <counter type="COMPLEXITY" missed="1" covered="2" />
-    <counter type="METHOD" missed="0" covered="2" />
-    <counter type="CLASS" missed="0" covered="1" />
-</report>
-"""
 
 
 @ddt
@@ -191,28 +128,43 @@ class TestUploader(unittest.TestCase):
             raise Exception("did not exit")
 
     def test_returns_none(self):
-        with open(self.filepath, 'w+') as f:
-            f.write('coverage data')
-        sys.argv = ['', '--commit=8ed84d96bc225deff66605486180cd555366806b',
-                    '--branch=master',
-                    '--token=473c8c5b-10ee-4d83-86c6-bfd72a185a27']
-        self.assertEqual(codecov.main(), None)
+        with patch('requests.post') as post, patch('requests.put') as put:
+            post.return_value = Mock(status_code=200, text='target\ns3')
+            put.return_value = Mock(status_code=200)
+            with open(self.filepath, 'w+') as f:
+                f.write('coverage data')
+            sys.argv = ['', '--commit=8ed84d96bc225deff66605486180cd555366806b',
+                        '--branch=master',
+                        '--token=473c8c5b-10ee-4d83-86c6-bfd72a185a27']
+            self.assertEqual(codecov.main(), None)
+            assert post.called and put.called
 
     def test_send(self):
-        with open(self.filepath, 'w+') as f:
-            f.write('coverage data')
-        res = self.run_cli(False, commit='a'*40, branch='master', token='473c8c5b-10ee-4d83-86c6-bfd72a185a27')
-        self.assertEqual(res['result'].strip(), 'http://codecov.io/github/codecov/ci-repo?ref=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+        with patch('requests.post') as post, patch('requests.put') as put:
+            post.return_value = Mock(status_code=200, text='target\ns3')
+            put.return_value = Mock(status_code=200)
+            with open(self.filepath, 'w+') as f:
+                f.write('coverage data')
+            res = self.run_cli(False, commit='a'*40, branch='master', token='<token>')
+            self.assertEqual(res['result'].strip(), 'target')
+            print post.call_args
+            post.assert_called_with('https://codecov.io/upload/v3?commit=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&token=%3Ctoken%3E&branch=master&package=py1.6.5', headers={'Accept': 'text/plain'}, verify=None)
+            print put.call_args
+            put.assert_called_with('s3',
+                                   data='\n.coveragerc\n.gitignore\n.token\n.travis.yml\nCHANGELOG.md\nMakefile\nREADME.md\nappveyor.yml\ncircle.yml\ncodecov/__init__.py\nnose.cfg\nsetup.cfg\nsetup.py\ntests/__init__.py\ntests/requirements.txt\ntests/test.py\ntox.ini\n<<<<<< network\n# path=/Users/peak/Documents/codecov/codecov-python/tests/coverage.xml\ncoverage data\n<<<<<< EOF\n# path=fixes\n\n\n\n\n\n\n\n\n<<<<<< EOF',
+                                   headers={'Content-Type': 'plain/text', 'x-amz-acl': 'public-read'})
 
     def test_send_error(self):
-        with open(self.filepath, 'w+') as f:
-            f.write('coverage data')
-        try:
-            self.run_cli(False, token='not-a-token', commit='a'*40, branch='master')
-        except Exception:
-            pass
-        else:
-            raise Exception('400 never raised')
+        with patch('requests.post') as post:
+            post.return_value = Mock(status_code=400, text='error')
+            with open(self.filepath, 'w+') as f:
+                f.write('coverage data')
+            try:
+                self.run_cli(False, token='not-a-token', commit='a'*40, branch='master')
+            except Exception:
+                pass
+            else:
+                raise Exception('400 never raised')
 
     @data((dict(commit='sha'), 'Missing repository upload token'), )
     def test_require_branch(self, dd):
@@ -309,22 +261,22 @@ class TestUploader(unittest.TestCase):
 
     def test_discovers(self):
         with open(self.jacoco, 'w+') as f:
-            f.write(jacoco_xml)
+            f.write('<jacoco></jacoco>')
         with open(self.filepath, 'w+') as f:
             f.write('coverage data')
         res = self.run_cli(**self.defaults)
         self.assertIn('coverage.xml', res['reports'])
         self.assertIn('coverage data', res['reports'])
         self.assertIn('jacoco.xml', res['reports'])
-        self.assertIn('org/jacoco/examples/maven/java/HelloWorld.java', res['reports'])
+        self.assertIn('<jacoco></jacoco>', res['reports'])
 
     def test_jacoco(self):
         with open(self.jacoco, 'w+') as f:
-            f.write(jacoco_xml)
+            f.write('<jacoco></jacoco>')
         res = self.run_cli(file='jacoco.xml', **self.defaults)
         report = res['reports'].split('<<<<<< network\n')[1].splitlines()
         self.assertEqual(report[0], '# path=jacoco.xml')
-        self.assertEqual(loads(report[1]), {"coverage": {"org/jacoco/examples/maven/java/HelloWorld.java": {"3": 3, "9": 2, "7": 0, "6": "1/2", "10": "2/2"}}})
+        self.assertEqual(report[1], '<jacoco></jacoco>')
 
     def test_not_jacoco(self):
         with open(self.filepath, 'w+') as f:
@@ -457,6 +409,22 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res['query']['slug'], 'owner/repo')
         self.assertEqual(res['query']['branch'], 'master')
 
+    def test_ci_buildkite(self):
+        self.set_env(CI='true',
+                     BUILDKITE='true',
+                     BUILDKITE_BUILD_NUMBER='57',
+                     BUILDKITE_JOB_ID='1',
+                     BUILDKITE_BRANCH='master',
+                     BUILDKITE_PROJECT_SLUG='owner/repo',
+                     BUILDKITE_COMMIT='d653b934ed59c1a785cc1cc79d08c9aaa4eba73b')
+        self.fake_report()
+        res = self.run_cli()
+        self.assertEqual(res['query']['service'], 'buildkite')
+        self.assertEqual(res['query']['commit'], 'd653b934ed59c1a785cc1cc79d08c9aaa4eba73b')
+        self.assertEqual(res['query']['build'], '57.1')
+        self.assertEqual(res['query']['slug'], 'owner/repo')
+        self.assertEqual(res['query']['branch'], 'master')
+
     def test_ci_semaphore(self):
         self.set_env(SEMAPHORE='true',
                      BRANCH_NAME='master',
@@ -576,6 +544,8 @@ class TestUploader(unittest.TestCase):
                      CI_BUILD_REPO='https://gitlab.com/owner/repo.git',
                      CI_SERVER_NAME='GitLab CI',
                      CI_BUILD_REF='d653b934ed59c1a785cc1cc79d08c9aaa4eba73b',
+                     HOME='/',
+                     CI_PROJECT_DIR=os.getcwd().strip('/'),
                      CODECOV_TOKEN='token')
         self.fake_report()
         res = self.run_cli()
