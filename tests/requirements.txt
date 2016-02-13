@@ -1,6 +1,8 @@
 coverage
 ddt
-nose
-nose-cov
-rednose
+mock
+pytest
+pytest-cov
+funcsigs
+requests
 unittest2

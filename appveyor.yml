@@ -60,7 +60,7 @@ install:
 build: false
 
 test_script:
-  - nosetests --rednose --with-cov --cov-config=.coveragerc
+  - py.test tests/ --cov=codecov
 
 after_test:
   - rm -rf tests/coverages
