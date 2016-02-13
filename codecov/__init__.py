@@ -583,10 +583,7 @@ def main(*argv, **kwargs):
             write("  --> Found %s adjustments" % (adjustments.count('\n') - adjustments.count('\n\n') - 1))
             reports = str(reports) + '\n# path=fixes\n' + str(adjustments) + '<<<<<< EOF'
 
-        try:
-            reports.encode('ascii', 'replace')
-        except:
-            reports = remove_ascii('', reports)
+        reports = remove_ascii('', reports)
 
         result = ''
         if codecov.dump:
