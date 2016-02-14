@@ -286,11 +286,6 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res[0], '# path=tests/coverage.xml')
         self.assertEqual(res[1], '<data>')
 
-    def test_non_ascii(self):
-        res = self.run_cli(file='tests/non-ascii-report.txt', **self.defaults)
-        res = res['reports'].split('<<<<<< network\n')[1].splitlines()
-        self.assertEqual(res[1], 'alt-japple')
-
     def test_run_coverage(self):
         self.skipTest('Not sure how to pull off atm')
         with open(self.coverage, 'w+') as f:
