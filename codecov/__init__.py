@@ -6,8 +6,7 @@ import sys
 import requests
 import argparse
 from time import sleep
-from json import loads, dumps
-import xml.etree.cElementTree as etree
+from json import loads
 
 try:
     from urllib.parse import urlencode
@@ -33,8 +32,6 @@ except:
 version = VERSION = __version__ = '1.6.5'
 
 COLOR = True
-
-remove_ascii = re.compile(r'[^\x00-\x7F]').sub
 
 remove_token = re.compile(r'token=[^\&]+').sub
 
@@ -167,6 +164,13 @@ def try_to_run(cmd):
         write('    Error running `%s`: %s' % (cmd, str(getattr(e, 'output', str(e)))))
 
 
+def remove_non_ascii(data):
+    try:
+        return data.decode('utf8')
+    except:
+        return ''.join([i if ord(i) < 128 else '' for i in data])
+
+
 def main(*argv, **kwargs):
     root = os.getcwd()
 
@@ -250,7 +254,7 @@ def main(*argv, **kwargs):
         # ---------
         # Travis CI
         # ---------
-        elif os.getenv('CI') == "true" and os.getenv('TRAVIS') == "true":
+        elif os.getenv('CI') == 'true' and os.getenv('TRAVIS') == "true":
             # http://docs.travis-ci.com/user/environment-variables/#Default-Environment-Variables
             query.update(dict(branch=os.getenv('TRAVIS_BRANCH'),
                               service='travis',
@@ -275,7 +279,7 @@ def main(*argv, **kwargs):
         # --------
         # Codeship
         # --------
-        elif os.getenv('CI') == "true" and os.getenv('CI_NAME') == 'codeship':
+        elif os.getenv('CI') == 'true' and os.getenv('CI_NAME') == 'codeship':
             # https://www.codeship.io/documentation/continuous-integration/set-environment-variables/
             query.update(dict(branch=os.getenv('CI_BRANCH'),
                               service='codeship',
@@ -287,8 +291,8 @@ def main(*argv, **kwargs):
         # ---------
         # Buildkite
         # ---------
-        elif os.getenv('CI') == "true" and os.getenv('BUILDKITE') == 'true':
-          # https://buildkite.com/docs/guides/environment-variables
+        elif os.getenv('CI') == 'true' and os.getenv('BUILDKITE') == 'true':
+            # https://buildkite.com/docs/guides/environment-variables
             query.update(dict(branch=os.getenv('BUILDKITE_BRANCH'),
                               service='buildkite',
                               build=os.getenv('BUILDKITE_BUILD_NUMBER') + '.' + os.getenv('BUILDKITE_JOB_ID'),
@@ -300,7 +304,7 @@ def main(*argv, **kwargs):
         # ---------
         # Circle CI
         # ---------
-        elif os.getenv('CI') == "true" and os.getenv('CIRCLECI') == 'true':
+        elif os.getenv('CI') == 'true' and os.getenv('CIRCLECI') == 'true':
             # https://circleci.com/docs/environment-variables
             query.update(dict(branch=os.getenv('CIRCLE_BRANCH'),
                               service='circleci',
@@ -314,7 +318,7 @@ def main(*argv, **kwargs):
         # ---------
         # Semaphore
         # ---------
-        elif os.getenv('CI') == "true" and os.getenv('SEMAPHORE') == "true":
+        elif os.getenv('CI') == 'true' and os.getenv('SEMAPHORE') == 'true':
             # https://semaphoreapp.com/docs/available-environment-variables.html
             query.update(dict(branch=os.getenv('BRANCH_NAME'),
                               service='semaphore',
@@ -581,9 +585,8 @@ def main(*argv, **kwargs):
                                      '''$(find . -type f -name '*.php' -exec grep -nIH '^[[:space:]]*{' {} \;)\n'''
                                      '''"''')
             write("  --> Found %s adjustments" % (adjustments.count('\n') - adjustments.count('\n\n') - 1))
+            reports = remove_non_ascii(reports)
             reports = str(reports) + '\n# path=fixes\n' + str(adjustments) + '<<<<<< EOF'
-
-        reports = remove_ascii('', reports)
 
         result = ''
         if codecov.dump:

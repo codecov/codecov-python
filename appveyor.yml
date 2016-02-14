@@ -60,7 +60,7 @@ install:
 build: false
 
 test_script:
-  - py.test tests/ --cov=codecov
+  - py.test tests/test.py --cov=codecov
 
 after_test:
   - rm -rf tests/coverages

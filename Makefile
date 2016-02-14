@@ -8,7 +8,7 @@ reinstall:
 	python setup.py install
 
 test:
-	tox
+	py.test tests/test.py
 
 compare:
 	hub compare $(shell git tag --sort=refname | tail -1)...master

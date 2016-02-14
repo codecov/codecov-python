@@ -9,7 +9,7 @@ dependencies:
 
 test:
   override:
-    - nosetests --rednose --with-cov --cov-config=.coveragerc
+    - py.test tests/test.py --cov=codecov
     - codecov
 
 deployment:
