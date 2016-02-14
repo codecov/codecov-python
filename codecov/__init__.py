@@ -184,7 +184,7 @@ def main(*argv, **kwargs):
     basics.add_argument('--token', '-t', default=os.getenv("CODECOV_TOKEN"), help="Private repository token. Not required for public repositories on Travis-CI, CircleCI and AppVeyor")
     basics.add_argument('--file', '-f', nargs="*", default=None, help="Target a specific file for uploading")
     basics.add_argument('--env', '-e', nargs="*", default=os.getenv("CODECOV_ENV"), help="Store environment variables to help distinguish CI builds. Example: http://bit.ly/1ElohCu")
-    basics.add_argument('--no-fail', action="store_true", default=False, help="(DEPRECIATED default true) If Codecov fails do not fail CI build.")
+    basics.add_argument('--no-fail', action="store_true", default=False, help="(DEPRECATED default true) If Codecov fails do not fail CI build.")
     basics.add_argument('--required', action="store_true", default=False, help="If Codecov fails it will exit 1: failing the CI build.")
 
     gcov = parser.add_argument_group('======================== gcov ========================')
@@ -199,6 +199,7 @@ def main(*argv, **kwargs):
     advanced.add_argument('--commit', '-c', default=None, help="Commit sha, set automatically")
     advanced.add_argument('--branch', '-b', default=None, help="Branch name")
     advanced.add_argument('--build', default=None, help="Specify a custom build number to distinguish ci jobs, provided automatically for supported ci companies")
+    advanced.add_argument('--pr', default=None, help="Specify a custom pr number, provided automatically for supported ci companies")
 
     enterprise = parser.add_argument_group('======================== Enterprise ========================')
     enterprise.add_argument('--slug', '-r', default=os.getenv("CODECOV_SLUG"), help="Specify repository slug for Enterprise ex. owner/repo")
@@ -227,7 +228,7 @@ def main(*argv, **kwargs):
     language = None
 
     if codecov.no_fail:
-        write('(depreciated) --no-fail is now default. See --help for more information.')
+        write('(DEPRECATED) --no-fail is now default. See --help for more information.')
 
     # Detect CI
     # ---------
@@ -450,6 +451,9 @@ def main(*argv, **kwargs):
 
     if codecov.branch:
         query['branch'] = codecov.branch
+
+    if codecov.pr:
+        query['pr'] = codecov.pr
 
     if codecov.root:
         root = codecov.root
