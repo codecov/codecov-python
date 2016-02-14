@@ -128,31 +128,33 @@ class TestUploader(unittest.TestCase):
             raise Exception("did not exit")
 
     def test_returns_none(self):
-        with patch('requests.post') as post, patch('requests.put') as put:
-            post.return_value = Mock(status_code=200, text='target\ns3')
-            put.return_value = Mock(status_code=200)
-            with open(self.filepath, 'w+') as f:
-                f.write('coverage data')
-            sys.argv = ['', '--commit=8ed84d96bc225deff66605486180cd555366806b',
-                        '--branch=master',
-                        '--token=473c8c5b-10ee-4d83-86c6-bfd72a185a27']
-            self.assertEqual(codecov.main(), None)
-            assert post.called and put.called
+        with patch('requests.post') as post:
+            with patch('requests.put') as put:
+                post.return_value = Mock(status_code=200, text='target\ns3')
+                put.return_value = Mock(status_code=200)
+                with open(self.filepath, 'w+') as f:
+                    f.write('coverage data')
+                sys.argv = ['', '--commit=8ed84d96bc225deff66605486180cd555366806b',
+                            '--branch=master',
+                            '--token=473c8c5b-10ee-4d83-86c6-bfd72a185a27']
+                self.assertEqual(codecov.main(), None)
+                assert post.called and put.called
 
     def test_send(self):
-        with patch('requests.post') as post, patch('requests.put') as put:
-            post.return_value = Mock(status_code=200, text='target\ns3')
-            put.return_value = Mock(status_code=200)
-            with open(self.filepath, 'w+') as f:
-                f.write('coverage data')
-            res = self.run_cli(False, commit='a'*40, branch='master', token='<token>')
-            self.assertEqual(res['result'].strip(), 'target')
-            print post.call_args
-            post.assert_called_with('https://codecov.io/upload/v3?commit=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&token=%3Ctoken%3E&branch=master&package=py1.6.5', headers={'Accept': 'text/plain'}, verify=None)
-            print put.call_args
-            put.assert_called_with('s3',
-                                   data='\n.coveragerc\n.gitignore\n.token\n.travis.yml\nCHANGELOG.md\nMakefile\nREADME.md\nappveyor.yml\ncircle.yml\ncodecov/__init__.py\nnose.cfg\nsetup.cfg\nsetup.py\ntests/__init__.py\ntests/requirements.txt\ntests/test.py\ntox.ini\n<<<<<< network\n# path=/Users/peak/Documents/codecov/codecov-python/tests/coverage.xml\ncoverage data\n<<<<<< EOF\n# path=fixes\n\n\n\n\n\n\n\n\n<<<<<< EOF',
-                                   headers={'Content-Type': 'plain/text', 'x-amz-acl': 'public-read'})
+        with patch('requests.post') as post:
+            with patch('requests.put') as put:
+                post.return_value = Mock(status_code=200, text='target\ns3')
+                put.return_value = Mock(status_code=200)
+                with open(self.filepath, 'w+') as f:
+                    f.write('coverage data')
+                res = self.run_cli(False, commit='a'*40, branch='master', token='<token>')
+                self.assertEqual(res['result'].strip(), 'target')
+                print post.call_args
+                post.assert_called_with('https://codecov.io/upload/v3?commit=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&token=%3Ctoken%3E&branch=master&package=py1.6.5', headers={'Accept': 'text/plain'}, verify=None)
+                print put.call_args
+                put.assert_called_with('s3',
+                                       data='\n.coveragerc\n.gitignore\n.token\n.travis.yml\nCHANGELOG.md\nMakefile\nREADME.md\nappveyor.yml\ncircle.yml\ncodecov/__init__.py\nnose.cfg\nsetup.cfg\nsetup.py\ntests/__init__.py\ntests/requirements.txt\ntests/test.py\ntox.ini\n<<<<<< network\n# path=/Users/peak/Documents/codecov/codecov-python/tests/coverage.xml\ncoverage data\n<<<<<< EOF\n# path=fixes\n\n\n\n\n\n\n\n\n<<<<<< EOF',
+                                       headers={'Content-Type': 'plain/text', 'x-amz-acl': 'public-read'})
 
     def test_send_error(self):
         with patch('requests.post') as post:
