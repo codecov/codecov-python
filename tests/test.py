@@ -416,7 +416,8 @@ class TestUploader(unittest.TestCase):
                      BUILDKITE_JOB_ID='1',
                      BUILDKITE_BRANCH='master',
                      BUILDKITE_PROJECT_SLUG='owner/repo',
-                     BUILDKITE_COMMIT='d653b934ed59c1a785cc1cc79d08c9aaa4eba73b')
+                     BUILDKITE_COMMIT='d653b934ed59c1a785cc1cc79d08c9aaa4eba73b',
+                     CODECOV_TOKEN='token')
         self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'buildkite')
@@ -424,6 +425,7 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res['query']['build'], '57.1')
         self.assertEqual(res['query']['slug'], 'owner/repo')
         self.assertEqual(res['query']['branch'], 'master')
+        self.assertEqual(res['codecov'].token, 'token')
 
     def test_ci_semaphore(self):
         self.set_env(SEMAPHORE='true',
