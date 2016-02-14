@@ -585,7 +585,7 @@ def main(*argv, **kwargs):
                                      '''$(find . -type f -name '*.php' -exec grep -nIH '^[[:space:]]*{' {} \;)\n'''
                                      '''"''')
             write("  --> Found %s adjustments" % (adjustments.count('\n') - adjustments.count('\n\n') - 1))
-            reports = remove_non_ascii(reports)
+            adjustments = remove_non_ascii(adjustments)
             reports = str(reports) + '\n# path=fixes\n' + str(adjustments) + '<<<<<< EOF'
 
         result = ''
