@@ -1,9 +1,7 @@
 import os
 import sys
 import pickle
-import requests
 import itertools
-from json import loads
 from ddt import ddt, data
 from mock import patch, Mock
 import unittest2 as unittest
@@ -46,6 +44,7 @@ class TestUploader(unittest.TestCase):
                     "SNAP_UPSTREAM_BRANCH", "SNAP_BRANCH", "SNAP_PIPELINE_COUNTER", "SNAP_PULL_REQUEST_NUMBER", "SNAP_COMMIT", "SNAP_UPSTREAM_COMMIT",
                     "CIRCLECI", "CIRCLE_BRANCH", "CIRCLE_ARTIFACTS", "CIRCLE_SHA1", "CIRCLE_NODE_INDEX", "CIRCLE_PR_NUMBER",
                     "SEMAPHORE", "BRANCH_NAME", "SEMAPHORE_PROJECT_DIR", "REVISION",
+                    "BUILDKITE", "BUILDKITE_BUILD_NUMBER", "BUILDKITE_JOB_ID", "BUILDKITE_BRANCH", "BUILDKITE_PROJECT_SLUG", "BUILDKITE_COMMIT",
                     "DRONE", "DRONE_BRANCH", "DRONE_BUILD_DIR", "JENKINS_URL",
                     "GIT_BRANCH", "GIT_COMMIT", "WORKSPACE", "BUILD_NUMBER", "CI_BUILD_URL", "SEMAPHORE_REPO_SLUG", "SEMAPHORE_CURRENT_THREAD",
                     "DRONE_BUILD_URL", "TRAVIS_REPO_SLUG", "CODECOV_TOKEN", "APPVEYOR", "APPVEYOR_REPO_BRANCH",
@@ -149,12 +148,11 @@ class TestUploader(unittest.TestCase):
                     f.write('coverage data')
                 res = self.run_cli(False, commit='a'*40, branch='master', token='<token>')
                 self.assertEqual(res['result'].strip(), 'target')
-                print post.call_args
-                post.assert_called_with('https://codecov.io/upload/v3?commit=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&token=%3Ctoken%3E&branch=master&package=py1.6.5', headers={'Accept': 'text/plain'}, verify=None)
-                print put.call_args
-                put.assert_called_with('s3',
-                                       data='\n.coveragerc\n.gitignore\n.token\n.travis.yml\nCHANGELOG.md\nMakefile\nREADME.md\nappveyor.yml\ncircle.yml\ncodecov/__init__.py\nnose.cfg\nsetup.cfg\nsetup.py\ntests/__init__.py\ntests/requirements.txt\ntests/test.py\ntox.ini\n<<<<<< network\n# path=/Users/peak/Documents/codecov/codecov-python/tests/coverage.xml\ncoverage data\n<<<<<< EOF\n# path=fixes\n\n\n\n\n\n\n\n\n<<<<<< EOF',
-                                       headers={'Content-Type': 'plain/text', 'x-amz-acl': 'public-read'})
+                assert 'https://codecov.io/upload/v3?' in post.call_args[0][0]
+                assert 'commit=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' in post.call_args[0][0]
+                assert 'token=%3Ctoken%3E' in post.call_args[0][0]
+                assert 'branch=master' in post.call_args[0][0]
+                assert 'tests/test.py' in put.call_args[1]['data']
 
     def test_send_error(self):
         with patch('requests.post') as post:
