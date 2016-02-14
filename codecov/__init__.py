@@ -166,7 +166,7 @@ def try_to_run(cmd):
 
 def remove_non_ascii(data):
     try:
-        return data.decode('utf8')
+        return data.encode('utf8') + ''
     except:
         return ''.join([i if ord(i) < 128 else '' for i in data])
 
