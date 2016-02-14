@@ -467,7 +467,7 @@ class TestUploader(unittest.TestCase):
         self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'drone.io')
-        self.assertEqual(res['query']['commit'], subprocess.check_output("git rev-parse HEAD", shell=True))
+        self.assertEqual(res['query']['commit'], subprocess.check_output("git rev-parse HEAD", shell=True).decode('utf8'))
         self.assertEqual(res['query']['build'], '10')
         self.assertEqual(res['query']['build_url'], 'https://drone.io/github/builds/1')
         self.assertEqual(res['codecov'].token, 'token')
