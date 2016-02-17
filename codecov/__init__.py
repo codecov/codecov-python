@@ -13,12 +13,7 @@ try:
 except ImportError:  # pragma: no cover
     from urllib import urlencode
 
-if sys.version_info < (2, 7):
-    from future import standard_library
-    standard_library.install_aliases()
-    import subprocess
-else:
-    import subprocess
+import subprocess
 
 # https://urllib3.readthedocs.org/en/latest/security.html#insecureplatformwarning
 try:
@@ -157,9 +152,20 @@ def read(filepath):
         write('    - Ignored: ' + str(e))
 
 
+def check_output(cmd, **popen_args):
+    from subprocess import Popen, PIPE, CalledProcessError
+    process = Popen(cmd, stdout=PIPE, **popen_args)
+    output, _ = process.communicate()
+    if process.returncode:
+        raise CalledProcessError(process.returncode, cmd)
+    else:
+        assert process.returncode == 0
+        return output.decode('utf-8')
+
+
 def try_to_run(cmd):
     try:
-        return subprocess.check_output(cmd, shell=True).decode('utf-8')
+        return check_output(cmd, shell=True)
     except subprocess.CalledProcessError as e:
         write('    Error running `%s`: %s' % (cmd, str(getattr(e, 'output', str(e)))))
 

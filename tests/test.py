@@ -6,12 +6,7 @@ from ddt import ddt, data
 from mock import patch, Mock
 import unittest2 as unittest
 
-if sys.version_info < (2, 7):
-    from future import standard_library
-    standard_library.install_aliases()
-    import subprocess
-else:
-    import subprocess
+import subprocess
 
 import codecov
 
@@ -462,7 +457,7 @@ class TestUploader(unittest.TestCase):
         self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'drone.io')
-        self.assertEqual(res['query']['commit'], subprocess.check_output("git rev-parse HEAD", shell=True).decode('utf8'))
+        self.assertEqual(res['query']['commit'], codecov.check_output(("git", "rev-parse", "HEAD")))
         self.assertEqual(res['query']['build'], '10')
         self.assertEqual(res['query']['build_url'], 'https://drone.io/github/builds/1')
         self.assertEqual(res['codecov'].token, 'token')
