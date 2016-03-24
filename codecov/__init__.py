@@ -185,7 +185,6 @@ def main(*argv, **kwargs):
     basics.add_argument('--file', '-f', nargs="*", default=None, help="Target a specific file for uploading")
     basics.add_argument('--flags', '-F', nargs="*", default=None, help="Flag these uploaded files with custom labels")
     basics.add_argument('--env', '-e', nargs="*", default=os.getenv("CODECOV_ENV"), help="Store environment variables to help distinguish CI builds. Example: http://bit.ly/1ElohCu")
-    basics.add_argument('--no-fail', action="store_true", default=False, help="(DEPRECATED default true) If Codecov fails do not fail CI build.")
     basics.add_argument('--required', action="store_true", default=False, help="If Codecov fails it will exit 1: failing the CI build.")
 
     gcov = parser.add_argument_group('======================== gcov ========================')
