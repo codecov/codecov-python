@@ -200,6 +200,7 @@ def main(*argv, **kwargs):
     advanced.add_argument('--branch', '-b', default=None, help="Branch name")
     advanced.add_argument('--build', default=None, help="Specify a custom build number to distinguish ci jobs, provided automatically for supported ci companies")
     advanced.add_argument('--pr', default=None, help="Specify a custom pr number, provided automatically for supported ci companies")
+    advanced.add_argument('--tag', default=None, help="Git tag")
 
     enterprise = parser.add_argument_group('======================== Enterprise ========================')
     enterprise.add_argument('--slug', '-r', default=os.getenv("CODECOV_SLUG"), help="Specify repository slug for Enterprise ex. owner/repo")
@@ -459,6 +460,9 @@ def main(*argv, **kwargs):
 
     if codecov.pr:
         query['pr'] = codecov.pr
+
+    if codecov.tag:
+        query['tag'] = codecov.tag
 
     if codecov.root:
         root = codecov.root
