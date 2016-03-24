@@ -45,7 +45,7 @@ class TestUploader(unittest.TestCase):
                     "CIRCLECI", "CIRCLE_BRANCH", "CIRCLE_ARTIFACTS", "CIRCLE_SHA1", "CIRCLE_NODE_INDEX", "CIRCLE_PR_NUMBER",
                     "SEMAPHORE", "BRANCH_NAME", "SEMAPHORE_PROJECT_DIR", "REVISION",
                     "BUILDKITE", "BUILDKITE_BUILD_NUMBER", "BUILDKITE_JOB_ID", "BUILDKITE_BRANCH", "BUILDKITE_PROJECT_SLUG", "BUILDKITE_COMMIT",
-                    "DRONE", "DRONE_BRANCH", "DRONE_BUILD_DIR", "JENKINS_URL",
+                    "DRONE", "DRONE_BRANCH", "DRONE_BUILD_DIR", "JENKINS_URL", "TRAVIS_TAG",
                     "GIT_BRANCH", "GIT_COMMIT", "WORKSPACE", "BUILD_NUMBER", "CI_BUILD_URL", "SEMAPHORE_REPO_SLUG", "SEMAPHORE_CURRENT_THREAD",
                     "DRONE_BUILD_URL", "TRAVIS_REPO_SLUG", "CODECOV_TOKEN", "APPVEYOR", "APPVEYOR_REPO_BRANCH",
                     "APPVEYOR_BUILD_VERSION", "APPVEYOR_JOB_ID", "APPVEYOR_REPO_NAME", "APPVEYOR_REPO_COMMIT", "WERCKER_GIT_BRANCH",
@@ -358,6 +358,7 @@ class TestUploader(unittest.TestCase):
                      TRAVIS_COMMIT="c739768fcac68144a3a6d82305b9c4106934d31a",
                      TRAVIS_REPO_SLUG='owner/repo',
                      TRAVIS_JOB_ID="33116958",
+                     TRAVIS_TAG="v1.1.1",
                      TRAVIS_JOB_NUMBER="4.1")
         self.fake_report()
         res = self.run_cli()
@@ -365,6 +366,7 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res['query']['commit'], 'c739768fcac68144a3a6d82305b9c4106934d31a')
         self.assertEqual(res['query']['build'], '4.1')
         self.assertEqual(res['query']['pr'], '')
+        self.assertEqual(res['query']['tag'], 'v1.1.1')
         self.assertEqual(res['query']['slug'], 'owner/repo')
         self.assertEqual(res['query']['branch'], 'master')
         self.assertEqual(res['codecov'].token, '')
