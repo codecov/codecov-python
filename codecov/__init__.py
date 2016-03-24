@@ -227,9 +227,6 @@ def main(*argv, **kwargs):
                  token=codecov.token)
     language = None
 
-    if codecov.no_fail:
-        write('(DEPRECATED) --no-fail is now default. See --help for more information.')
-
     # Detect CI
     # ---------
     if 'detect' in codecov.disable:
