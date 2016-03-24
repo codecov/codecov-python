@@ -372,9 +372,11 @@ def main(*argv, **kwargs):
             # https://docs.snap-ci.com/environment-variables/
             query.update(dict(branch=os.getenv('SNAP_BRANCH') or os.getenv('SNAP_UPSTREAM_BRANCH'),
                               service="snap",
+                              job=os.getenv('SNAP_STAGE_NAME'),
                               build=os.getenv('SNAP_PIPELINE_COUNTER'),
                               pr=os.getenv('SNAP_PULL_REQUEST_NUMBER'),
                               commit=os.getenv('SNAP_COMMIT') or os.getenv('SNAP_UPSTREAM_COMMIT')))
+            include_env.add(os.getenv('DISPLAY'))
             write('    Snap CI Detected')
 
         # ------
