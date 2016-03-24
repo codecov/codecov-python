@@ -483,6 +483,12 @@ def main(*argv, **kwargs):
                    or try_to_run('cd %s && hg locate' % root) or try_to_run('hg locate')
                    or '').strip())
 
+        # Detect codecov.yml location
+        for _filename in toc:
+            if _filename in ('codecov.yml', '.codecov.yml') or _filename.endswith(('/codecov.yml', '/.codecov.yml')):
+                query['yaml'] = _filename
+                break
+
         # Processing gcov
         # ---------------
         if 'gcov' in codecov.disable:
