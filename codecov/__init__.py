@@ -650,7 +650,7 @@ def main(*argv, **kwargs):
                 trys += 1
                 try:
                     write('    Pinging Codecov...')
-                    res = requests.post('%s/upload/v3?%s' % (codecov.url, urlargs),
+                    res = requests.post('%s/upload/v4?%s' % (codecov.url, urlargs),
                                         verify=codecov.cacert,
                                         headers={'Accept': 'text/plain'})
                     if res.status_code in (400, 406):
@@ -661,16 +661,12 @@ def main(*argv, **kwargs):
                         res = res.text.strip().split()
                         result, upload_url = res[0], res[1]
 
-                        try:
-                            write('    Uploading to S3...')
-                            s3 = requests.put(upload_url, data=reports,
-                                              headers={'Content-Type': 'plain/text', 'x-amz-acl': 'public-read'})
-                            s3.raise_for_status()
-                        except:
-                            # requests.exceptions.SSLError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:581)
-                            s3 = requests.put(upload_url, data=reports, verify=False,
-                                              headers={'Content-Type': 'plain/text', 'x-amz-acl': 'public-read'})
-
+                        write('    Uploading to S3...')
+                        s3 = requests.put(upload_url, data=reports,
+                                          headers={'Content-Type': 'text/plain',
+                                                   'x-amz-acl': 'public-read',
+                                                   'x-amz-storage-class': 'REDUCED_REDUNDANCY'})
+                        s3.raise_for_status()
                         assert s3.status_code == 200
                         write('    ' + result)
                         break
