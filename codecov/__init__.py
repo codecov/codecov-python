@@ -24,7 +24,7 @@ except:
     pass
 
 
-version = VERSION = __version__ = '1.6.5'
+version = VERSION = __version__ = '2.0.0'
 
 COLOR = True
 
@@ -347,6 +347,16 @@ def main(*argv, **kwargs):
                               build_url=os.getenv('DRONE_BUILD_URL')))
             root = os.getenv('DRONE_BUILD_DIR') or root
             write('    Drone Detected')
+
+        # --------
+        # TeamCity
+        # --------
+        elif os.getenv('TEAMCITY_VERSION'):
+            # https://confluence.jetbrains.com/plugins/servlet/mobile#content/view/74847298
+            query.update(dict(service='teamcity',
+                              build=os.getenv('BUILD_NUMBER'),
+                              commit=os.getenv('BUILD_VCS_NUMBER')))
+            write('    TeamCity CI etected')
 
         # --------
         # AppVeyor
