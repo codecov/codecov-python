@@ -67,6 +67,7 @@ ignored_report = re.compile('.*('
                             r'(\.xcconfig)|'
                             r'(\.data)|'
                             r'(coverage\.db)|'
+                            r'(\.?codecov\.yml)|'
                             r'(coverage\.jade)|'
                             r'(include\.lst)|'
                             r'(inputFiles\.lst)|'
@@ -85,6 +86,7 @@ is_report = re.compile('.*('
                        r'(cobertura\.xml)|'
                        r'(coverage-final\.json)|'
                        r'(gcov\.info)|'
+                       r'(([^/]*\.)?codecov\.[^/]*)|'
                        r'(jacoco[^/]*\.xml)|'
                        r'(lcov\.info)|'
                        r'(luacov\.report\.out)|'
@@ -190,8 +192,8 @@ def main(*argv, **kwargs):
     basics.add_argument('--version', action='version', version='Codecov py-v'+version+" - https://codecov.io/")
     basics.add_argument('--token', '-t', default=os.getenv("CODECOV_TOKEN"), help="Private repository token. Not required for public repositories on Travis-CI, CircleCI and AppVeyor")
     basics.add_argument('--file', '-f', nargs="*", default=None, help="Target a specific file for uploading")
+    basics.add_argument('--flags', '-F', nargs="*", default=None, help="Flag these uploaded files with custom labels")
     basics.add_argument('--env', '-e', nargs="*", default=os.getenv("CODECOV_ENV"), help="Store environment variables to help distinguish CI builds. Example: http://bit.ly/1ElohCu")
-    basics.add_argument('--no-fail', action="store_true", default=False, help="(DEPRECATED default true) If Codecov fails do not fail CI build.")
     basics.add_argument('--required', action="store_true", default=False, help="If Codecov fails it will exit 1: failing the CI build.")
 
     gcov = parser.add_argument_group('======================== gcov ========================')
@@ -207,6 +209,7 @@ def main(*argv, **kwargs):
     advanced.add_argument('--branch', '-b', default=None, help="Branch name")
     advanced.add_argument('--build', default=None, help="Specify a custom build number to distinguish ci jobs, provided automatically for supported ci companies")
     advanced.add_argument('--pr', default=None, help="Specify a custom pr number, provided automatically for supported ci companies")
+    advanced.add_argument('--tag', default=None, help="Git tag")
 
     enterprise = parser.add_argument_group('======================== Enterprise ========================')
     enterprise.add_argument('--slug', '-r', default=os.getenv("CODECOV_SLUG"), help="Specify repository slug for Enterprise ex. owner/repo")
@@ -233,9 +236,6 @@ def main(*argv, **kwargs):
     query = dict(commit='', branch='', job='', pr='', build_url='',
                  token=codecov.token)
     language = None
-
-    if codecov.no_fail:
-        write('(DEPRECATED) --no-fail is now default. See --help for more information.')
 
     # Detect CI
     # ---------
@@ -269,6 +269,7 @@ def main(*argv, **kwargs):
                               build=os.getenv('TRAVIS_JOB_NUMBER'),
                               pr=os.getenv('TRAVIS_PULL_REQUEST'),
                               job=os.getenv('TRAVIS_JOB_ID'),
+                              tag=os.getenv('TRAVIS_TAG'),
                               slug=os.getenv('TRAVIS_REPO_SLUG'),
                               commit=os.getenv('TRAVIS_COMMIT')))
             root = os.getenv('TRAVIS_BUILD_DIR') or root
@@ -380,9 +381,11 @@ def main(*argv, **kwargs):
             # https://docs.snap-ci.com/environment-variables/
             query.update(dict(branch=os.getenv('SNAP_BRANCH') or os.getenv('SNAP_UPSTREAM_BRANCH'),
                               service="snap",
+                              job=os.getenv('SNAP_STAGE_NAME'),
                               build=os.getenv('SNAP_PIPELINE_COUNTER'),
                               pr=os.getenv('SNAP_PULL_REQUEST_NUMBER'),
                               commit=os.getenv('SNAP_COMMIT') or os.getenv('SNAP_UPSTREAM_COMMIT')))
+            include_env.add(os.getenv('DISPLAY'))
             write('    Snap CI Detected')
 
         # ------
@@ -451,6 +454,9 @@ def main(*argv, **kwargs):
 
     # Update Query
     # ------------
+    if codecov.flags:
+        query['flags'] = ','.join(codecov.flags)
+
     if codecov.build:
         query['build'] = codecov.build
 
@@ -465,6 +471,9 @@ def main(*argv, **kwargs):
 
     if codecov.pr:
         query['pr'] = codecov.pr
+
+    if codecov.tag:
+        query['tag'] = codecov.tag
 
     if codecov.root:
         root = codecov.root
@@ -488,6 +497,12 @@ def main(*argv, **kwargs):
         toc = str((try_to_run('cd %s && git ls-files' % root) or try_to_run('git ls-files')
                    or try_to_run('cd %s && hg locate' % root) or try_to_run('hg locate')
                    or '').strip())
+
+        # Detect codecov.yml location
+        for _filename in toc:
+            if _filename in ('codecov.yml', '.codecov.yml') or _filename.endswith(('/codecov.yml', '/.codecov.yml')):
+                query['yaml'] = _filename
+                break
 
         # Processing gcov
         # ---------------
@@ -591,14 +606,20 @@ def main(*argv, **kwargs):
         if 'fix' not in codecov.disable:
             write("==> Appending adjustments (http://bit.ly/1O4eBpt)")
             adjustments = try_to_run('''echo "'''
-                                     '''$(find . -type f -name '*.kt' -exec grep -nIH '^/\*' {} \;)\n'''
-                                     '''$(find . -type f -name '*.go' -exec grep -nIH '^[[:space:]]*$' {} \;)\n'''
-                                     '''$(find . -type f -name '*.go' -exec grep -nIH '^[[:space:]]*//.*' {} \;)\n'''
-                                     '''$(find . -type f -name '*.go' -exec grep -nIH '^[[:space:]]*/\*' {} \;)\n'''
-                                     '''$(find . -type f -name '*.go' -exec grep -nIH '^[[:space:]]*\*/' {} \;)\n'''
-                                     '''$(find . -type f -name '*.go' -or -name '*.php' -or -name '*.m'  -exec grep -nIH '^[[:space:]]*}' {} \;)\n'''
-                                     '''$(find . -type f -name '*.php' -exec grep -nIH '^[[:space:]]*{' {} \;)\n'''
-                                     '''"''')
+                                     '''$(find "%(root)s" -type f -name '*.cpp'   -exec grep -nIH '^}' {} \;)\n'''
+                                     '''$(find "%(root)s" -type f -name '*.kt'    -exec wc -l {} \; | while read l; do echo "EOF: $l"; done)\n'''
+                                     '''$(find "%(root)s" -type f -name '*.kt'    -exec grep -nIH '^/\*' {} \;)\n'''
+                                     '''$(find "%(root)s" -type f -name '*.jsx'   -exec grep -nIH '^[[:space:]]*$' {} \;)\n'''
+                                     '''$(find "%(root)s" -type f -name '*.go'    -exec grep -nIH '^[[:space:]]*$' {} \;)\n'''
+                                     '''$(find "%(root)s" -type f -name '*.go'    -exec grep -nIH '^[[:space:]]*//.*' {} \;)\n'''
+                                     '''$(find "%(root)s" -type f -name '*.go'    -exec grep -nIH '^[[:space:]]*/\*' {} \;)\n'''
+                                     '''$(find "%(root)s" -type f -name '*.go'    -exec grep -nIH '^[[:space:]]*\*/' {} \;)\n'''
+                                     '''$(find "%(root)s" -type f -name '*.go'    -exec grep -nIH '^[[:space:]]*}$' {} \;)\n'''
+                                     '''$(find "%(root)s" -type f -name '*.m'     -exec grep -nIH '^[[:space:]]*}$' {} \;)\n'''
+                                     '''$(find "%(root)s" -type f -name '*.swift' -exec grep -nIH '^[[:space:]]*}$' {} \;)\n'''
+                                     '''$(find "%(root)s" -type f -name '*.php'   -exec grep -nIH '^[[:space:]]*}$' {} \;)\n'''
+                                     '''$(find "%(root)s" -type f -name '*.php'   -exec grep -nIH '^[[:space:]]*{' {} \;)"\n'''
+                                     '''"''' % dict(root=root))
             write("  --> Found %s adjustments" % (adjustments.count('\n') - adjustments.count('\n\n') - 1))
             adjustments = remove_non_ascii(adjustments)
             reports = str(reports) + '\n# path=fixes\n' + str(adjustments) + '<<<<<< EOF'
