@@ -637,32 +637,6 @@ def main(*argv, **kwargs):
         query['package'] = "py" + VERSION
         urlargs = (urlencode(dict([(k, v.strip()) for k, v in query.items() if v not in ('', None)])))
 
-        if 'fix' not in codecov.disable:
-            write("==> Appending adjustments (http://bit.ly/1O4eBpt)")
-            adjustments = try_to_run('''echo "'''
-                                     '''$(find "%(root)s" -type f -name '*.cpp'   -exec grep -nIH '^}' {} \;)\n'''
-                                     '''$(find "%(root)s" -type f -name '*.kt'    -exec wc -l {} \; | while read l; do echo "EOF: $l"; done)\n'''
-                                     '''$(find "%(root)s" -type f -name '*.kt'    -exec grep -nIH '^/\*' {} \;)\n'''
-                                     '''$(find "%(root)s" -type f -name '*.jsx'   -exec grep -nIH '^[[:space:]]*$' {} \;)\n'''
-                                     '''$(find "%(root)s" -type f -name '*.go'    -exec grep -nIH '^[[:space:]]*$' {} \;)\n'''
-                                     '''$(find "%(root)s" -type f -name '*.go'    -exec grep -nIH '^[[:space:]]*//.*' {} \;)\n'''
-                                     '''$(find "%(root)s" -type f -name '*.go'    -exec grep -nIH '^[[:space:]]*/\*' {} \;)\n'''
-                                     '''$(find "%(root)s" -type f -name '*.go'    -exec grep -nIH '^[[:space:]]*\*/' {} \;)\n'''
-                                     '''$(find "%(root)s" -type f -name '*.go'    -exec grep -nIH '^[[:space:]]*}$' {} \;)\n'''
-                                     '''$(find "%(root)s" -type f -name '*.m'     -exec grep -nIH '^[[:space:]]*}$' {} \;)\n'''
-                                     '''$(find "%(root)s" -type f -name '*.swift' -exec grep -nIH '^[[:space:]]*}$' {} \;)\n'''
-                                     '''$(find "%(root)s" -type f -name '*.php'   -exec grep -nIH '^[[:space:]]*}$' {} \;)\n'''
-                                     '''$(find "%(root)s" -type f -name '*.php'   -exec grep -nIH '^[[:space:]]*{' {} \;)"\n'''
-                                     '''"''' % dict(root=root))
-            if adjustments:
-                write("  --> Found %s adjustments" % (adjustments.count('\n') - adjustments.count('\n\n') - 1))
-                try:
-                    reports = str(reports) + '\n# path=fixes\n' + str(adjustments.encode('utf-8')) + '<<<<<< EOF'
-                except:
-                    reports = str(reports) + '\n# path=fixes\n' + str(remove_non_ascii(adjustments)) + '<<<<<< EOF'
-            else:
-                write("  --> Found no adjustments")
-
         result = ''
         if codecov.dump:
             write('-------------------- Debug --------------------')
