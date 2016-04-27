@@ -143,7 +143,7 @@ class TestUploader(unittest.TestCase):
                     f.write('coverage data')
                 res = self.run_cli(False, commit='a'*40, branch='master', token='<token>')
                 self.assertEqual(res['result'].strip(), 'target')
-                assert 'https://codecov.io/upload/v3?' in post.call_args[0][0]
+                assert 'https://codecov.io/upload/v4?' in post.call_args[0][0]
                 assert 'commit=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' in post.call_args[0][0]
                 assert 'token=%3Ctoken%3E' in post.call_args[0][0]
                 assert 'branch=master' in post.call_args[0][0]
@@ -264,14 +264,6 @@ class TestUploader(unittest.TestCase):
         self.assertIn('coverage data', res['reports'])
         self.assertIn('jacoco.xml', res['reports'])
         self.assertIn('<jacoco></jacoco>', res['reports'])
-
-    def test_jacoco(self):
-        with open(self.jacoco, 'w+') as f:
-            f.write('<jacoco></jacoco>')
-        res = self.run_cli(file='jacoco.xml', **self.defaults)
-        report = res['reports'].split('<<<<<< network\n')[1].splitlines()
-        self.assertEqual(report[0], '# path=jacoco.xml')
-        self.assertEqual(report[1], '<jacoco></jacoco>')
 
     def test_not_jacoco(self):
         with open(self.filepath, 'w+') as f:

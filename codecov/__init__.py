@@ -289,8 +289,8 @@ def main(*argv, **kwargs):
 
             # Merge Commits
             # -------------
-            res = try_to_run('git log -1 --pretty=%B').strip()
-            if is_merge_commit(res):
+            res = try_to_run('git log -1 --pretty=%B')
+            if res and is_merge_commit.match(res.strip()):
                 query['commit'] = res.split(' ')[1]
 
         # --------
@@ -638,11 +638,14 @@ def main(*argv, **kwargs):
                                      '''$(find "%(root)s" -type f -name '*.php'   -exec grep -nIH '^[[:space:]]*}$' {} \;)\n'''
                                      '''$(find "%(root)s" -type f -name '*.php'   -exec grep -nIH '^[[:space:]]*{' {} \;)"\n'''
                                      '''"''' % dict(root=root))
-            write("  --> Found %s adjustments" % (adjustments.count('\n') - adjustments.count('\n\n') - 1))
-            try:
-                reports = str(reports) + '\n# path=fixes\n' + str(adjustments.encode('utf-8')) + '<<<<<< EOF'
-            except:
-                reports = str(reports) + '\n# path=fixes\n' + str(remove_non_ascii(adjustments)) + '<<<<<< EOF'
+            if adjustments:
+                write("  --> Found %s adjustments" % (adjustments.count('\n') - adjustments.count('\n\n') - 1))
+                try:
+                    reports = str(reports) + '\n# path=fixes\n' + str(adjustments.encode('utf-8')) + '<<<<<< EOF'
+                except:
+                    reports = str(reports) + '\n# path=fixes\n' + str(remove_non_ascii(adjustments)) + '<<<<<< EOF'
+            else:
+                write("  --> Found no adjustments")
 
         result = ''
         if codecov.dump:
