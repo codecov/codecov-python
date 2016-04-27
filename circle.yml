@@ -10,6 +10,7 @@ dependencies:
 test:
   override:
     - py.test tests/test.py --cov=codecov
+    - python setup.py install
     - codecov
 
 deployment:

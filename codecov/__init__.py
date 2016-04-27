@@ -631,8 +631,10 @@ def main(*argv, **kwargs):
                                      '''$(find "%(root)s" -type f -name '*.php'   -exec grep -nIH '^[[:space:]]*{' {} \;)"\n'''
                                      '''"''' % dict(root=root))
             write("  --> Found %s adjustments" % (adjustments.count('\n') - adjustments.count('\n\n') - 1))
-            adjustments = remove_non_ascii(adjustments)
-            reports = str(reports) + '\n# path=fixes\n' + str(adjustments) + '<<<<<< EOF'
+            try:
+                reports = str(reports) + '\n# path=fixes\n' + str(adjustments.encode('utf-8')) + '<<<<<< EOF'
+            except:
+                reports = str(reports) + '\n# path=fixes\n' + str(remove_non_ascii(adjustments)) + '<<<<<< EOF'
 
         result = ''
         if codecov.dump:
