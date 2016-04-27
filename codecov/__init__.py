@@ -609,9 +609,10 @@ def main(*argv, **kwargs):
         if include_env:
             write('==> Appending environment variables')
             for k in include_env:
-                write('    + ' + k)
+                if k:
+                    write('    + ' + k)
 
-            env = '\n'.join(["%s=%s" % (k, os.getenv(k, '')) for k in include_env]) + '\n<<<<<< ENV'
+            env = '\n'.join(["%s=%s" % (k, os.getenv(k, '')) for k in include_env if k]) + '\n<<<<<< ENV'
 
         # join reports together
         reports = '\n'.join((env, (toc or ''), '<<<<<< network',
