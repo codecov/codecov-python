@@ -520,6 +520,21 @@ def main(*argv, **kwargs):
         for _filename in toc:
             if _filename in ('codecov.yml', '.codecov.yml') or _filename.endswith(('/codecov.yml', '/.codecov.yml')):
                 query['yaml'] = _filename
+                from yaml import load
+                ccyaml = load(fopen(_filename)).get('codecov')
+                if ccyaml and type(ccyaml) is dict:
+                    if ccyaml.get('token'):
+                        write('    Set token from yaml')
+                        query['token'] = ccyaml.get('token')
+
+                    if ccyaml.get('url'):
+                        write('    Set url from yaml')
+                        codecov.url = ccyaml.get('url')
+
+                    if ccyaml.get('slug'):
+                        write('    Set slug from yaml')
+                        codecov.slug = ccyaml.get('slug')
+
                 break
 
         # Processing gcov
