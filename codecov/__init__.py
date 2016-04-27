@@ -30,6 +30,8 @@ COLOR = True
 
 remove_token = re.compile(r'token=[^\&]+').sub
 
+is_merge_commit = re.compile(r'^Merge\s\w{40}\s\w{40}$')
+
 ignored_path = re.compile(r'(/vendor)|'
                           r'(/js/generated/coverage)|'
                           r'(/__pycache__)|'
@@ -284,6 +286,12 @@ def main(*argv, **kwargs):
 
             if language == 'python' and os.getenv('TOXENV'):
                 include_env.add('TOXENV')
+
+            # Merge Commits
+            # -------------
+            res = try_to_run('git log -1 --pretty=%B').strip()
+            if is_merge_commit(res):
+                query['commit'] = res.split(' ')[1]
 
         # --------
         # Codeship
