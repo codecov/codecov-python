@@ -545,6 +545,7 @@ def main(*argv, **kwargs):
         else:
             write('==> Processing gcov (disable by -X gcov)')
             if os.path.isdir(os.path.expanduser('~/Library/Developer/Xcode/DerivedData')):
+                write('WARNING: Depreciating Xcode support in python uploader. Please use Bash uploader: https://github.com/codecov/codecov-bash')
                 write('    Found OSX DerivedData')
                 try_to_run("find ~/Library/Developer/Xcode/DerivedData -name '*.gcda' -exec gcov -pb {} +")
 
