@@ -24,7 +24,7 @@ except:
     pass
 
 
-version = VERSION = __version__ = '2.0.0'
+version = VERSION = __version__ = '2.0.1'
 
 COLOR = True
 
@@ -517,7 +517,7 @@ def main(*argv, **kwargs):
                    or '').strip())
 
         # Detect codecov.yml location
-        for _filename in toc:
+        for _filename in toc.splitlines():
             if _filename in ('codecov.yml', '.codecov.yml') or _filename.endswith(('/codecov.yml', '/.codecov.yml')):
                 query['yaml'] = _filename
                 from yaml import load
@@ -641,6 +641,8 @@ def main(*argv, **kwargs):
         result = ''
         if codecov.dump:
             write('-------------------- Debug --------------------')
+            write('    .url ' + codecov.url)
+            write('    .query ' + remove_token('token=<secret>', urlargs))
             write(reports)
             write('--------------------  EOF  --------------------')
         else:
