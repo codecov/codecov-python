@@ -2,7 +2,7 @@
 from setuptools import setup
 import sys
 
-version = '2.0.1'
+version = '2.0.2'
 classifiers = ["Development Status :: 5 - Production/Stable",
                "Environment :: Plugins",
                "Intended Audience :: Developers",
@@ -27,6 +27,6 @@ setup(name='codecov',
       packages=['codecov'],
       include_package_data=True,
       zip_safe=True,
-      install_requires=["requests>=2.0.0", "coverage", "PyYaml==3.11"],
+      install_requires=["requests>=2.0.0", "coverage"],
       tests_require=["unittest2"],
       entry_points={'console_scripts': ['codecov=codecov:main']})
