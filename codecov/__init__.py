@@ -24,13 +24,13 @@ except:
     pass
 
 
-version = VERSION = __version__ = '2.0.2'
+version = VERSION = __version__ = '2.0.3'
 
 COLOR = True
 
 remove_token = re.compile(r'token=[^\&]+').sub
 
-is_merge_commit = re.compile(r'^Merge\s\w{40}\s\w{40}$')
+is_merge_commit = re.compile(r'^Merge\s\w{40}\sinto\s\w{40}$')
 
 ignored_path = re.compile(r'(/vendor)|'
                           r'(/js/generated/coverage)|'
