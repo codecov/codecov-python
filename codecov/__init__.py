@@ -24,7 +24,7 @@ except:
     pass
 
 
-version = VERSION = __version__ = '2.0.3'
+version = VERSION = __version__ = '2.0.4'
 
 COLOR = True
 
@@ -287,12 +287,6 @@ def main(*argv, **kwargs):
             if language == 'python' and os.getenv('TOXENV'):
                 include_env.add('TOXENV')
 
-            # Merge Commits
-            # -------------
-            res = try_to_run('git log -1 --pretty=%B')
-            if res and is_merge_commit.match(res.strip()):
-                query['commit'] = res.split(' ')[1]
-
         # --------
         # Codeship
         # --------
@@ -480,6 +474,13 @@ def main(*argv, **kwargs):
 
     if codecov.commit:
         query['commit'] = codecov.commit
+
+    else:
+        # Merge Commits
+        # -------------
+        res = try_to_run('git log -1 --pretty=%B')
+        if res and is_merge_commit.match(res.strip()):
+            query['commit'] = res.split(' ')[1]
 
     if codecov.slug:
         query['slug'] = codecov.slug
