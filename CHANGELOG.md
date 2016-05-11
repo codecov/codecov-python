@@ -1,3 +1,19 @@
+### `2.0.4`
+- fix detecting merge commits on all CI, not just Travis
+
+### `2.0.3`
+- add `-F` to flagging uploads [new feature]
+- fixed some reports ascii chars
+- added `--pr` flag for manually specifing pulls
+- added `--tag` flag for manually git tags
+- added env detection for Travis
+- added buildkite detection
+- added teamcity detection
+- added more snapci detection
+- detect `codecov.yml` file detection
+- depreciating xcode support, use [bash uploader](https://github.com/codecov/codecov-bash)
+- hide token from stdout
+
 ### `1.6.4`
 - fix gitlab project directory
 - fallback on git branch/commit
