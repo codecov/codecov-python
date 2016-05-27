@@ -637,7 +637,7 @@ def main(*argv, **kwargs):
                              '<<<<<< EOF'))
 
         query['package'] = "py" + VERSION
-        urlargs = (urlencode(dict([(k, v.strip()) for k, v in query.items() if v not in ('', None)])))
+        urlargs = (urlencode(dict([(k, v.strip()) for k, v in query.items() if v not in ('', None)]))).replace("+", "%20")
 
         result = ''
         if codecov.dump:
