@@ -1,3 +1,6 @@
+### `2.0.5`
+- Use `%20` for encoding spaces [appveyor] https://github.com/codecov/codecov-python/pull/66
+
 ### `2.0.4`
 - fix detecting merge commits on all CI, not just Travis
 
