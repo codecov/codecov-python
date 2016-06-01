@@ -358,7 +358,7 @@ def main(*argv, **kwargs):
             query.update(dict(service='teamcity',
                               build=os.getenv('BUILD_NUMBER'),
                               commit=os.getenv('BUILD_VCS_NUMBER')))
-            write('    TeamCity CI etected')
+            write('    TeamCity CI Detected')
 
         # --------
         # AppVeyor
