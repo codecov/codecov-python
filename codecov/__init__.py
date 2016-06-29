@@ -264,7 +264,7 @@ def main(*argv, **kwargs):
         # ---------
         # Travis CI
         # ---------
-        elif os.getenv('CI') == 'true' and os.getenv('TRAVIS') == "true":
+        elif os.getenv('CI') == 'true' and os.getenv('TRAVIS') == "true" and os.getenv('SHIPPABLE') != 'true':
             # http://docs.travis-ci.com/user/environment-variables/#Default-Environment-Variables
             query.update(dict(branch=os.getenv('TRAVIS_BRANCH'),
                               service='travis',
