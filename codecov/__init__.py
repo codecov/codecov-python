@@ -338,6 +338,19 @@ def main(*argv, **kwargs):
                               commit=os.getenv('REVISION')))
             write('    Semaphore Detected')
 
+        # ----------
+        # Greenhouse
+        # ----------
+        elif os.getenv('GREENHOUSE') == 'true':
+            # http://docs.greenhouseci.com/docs/environment-variables-files
+            query.update(dict(branch=os.getenv('GREENHOUSE_BRANCH'),
+                              service='greenhouse',
+                              build=os.getenv('GREENHOUSE_BUILD_NUMBER'),
+                              build_url=os.getenv('GREENHOUSE_BUILD_URL'),
+                              pr=os.getenv('GREENHOUSE_PULL_REQUEST'),
+                              commit=os.getenv('GREENHOUSE_COMMIT')))
+            write('    Greenhouse Detected')
+
         # --------
         # drone.io
         # --------
