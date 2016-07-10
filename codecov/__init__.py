@@ -456,6 +456,14 @@ def main(*argv, **kwargs):
 
             write('    Gitlab CI Detected')
 
+        else:
+            query.update(dict(commit=os.getenv('VCS_COMMIT_ID', ''),
+                              branch=os.getenv('VCS_BRANCH_NAME', ''),
+                              build_url=os.getenv('VCS_BRANCH_URL', ''),
+                              build=os.getenv('VCS_BUILD_ID', ''),
+                              pr=os.getenv('VCS_PULL_REQUEST', ''),
+                              slug=os.getenv('VCS_SLUG', '')))
+
         # ------
         # git/hg
         # ------
