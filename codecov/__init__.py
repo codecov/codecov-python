@@ -536,7 +536,7 @@ def main(*argv, **kwargs):
 
         # Build TOC
         # ---------
-        toc = str((try_to_run('cd %s && git ls-files' % root)
+        toc = str((try_to_run('cd %s && git ls-files' % root) or
                    try_to_run('git ls-files') or
                    try_to_run('cd %s && hg locate' % root) or
                    try_to_run('hg locate') or '').strip())
