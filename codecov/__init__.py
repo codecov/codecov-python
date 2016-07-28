@@ -638,7 +638,7 @@ def main(*argv, **kwargs):
             if os.path.exists(opj(os.getcwd(), '.coverage')) and not os.path.exists(opj(os.getcwd(), 'coverage.xml')):
                 write('    Generating coverage xml reports for Python')
                 # using `-i` to ignore "No source for code" error
-                try_to_run('coverage combine && coverage xml -i')
+                try_to_run('coverage xml -i')
                 reports.append(read(opj(os.getcwd(), 'coverage.xml')))
 
         reports = list(filter(bool, reports))
