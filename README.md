@@ -14,7 +14,7 @@ Find coverage reports for all the [languages below](#languages), gather them and
 ## Usage
 
 ```sh
-pip install --user codecov && codecov --token=<repo token>
+pip install --user codecov && codecov -t the-repository-upload-token
 ```
 > `--user` argument not needed for Python projects. [See example here](https://github.com/codecov/example-python).
 
@@ -35,7 +35,7 @@ passenv = CI TRAVIS_BUILD_ID TRAVIS TRAVIS_BRANCH TRAVIS_JOB_NUMBER TRAVIS_PULL_
 deps = codecov>=1.4.0
 commands = codecov -e TOXENV
 ```
-> See all the environment variables for other CI providers [here](https://github.com/codecov/codecov-python/blob/master/codecov/__init__.py#L260-L430)
+> See all the environment variables for other CI providers [here](https://github.com/codecov/codecov-python/blob/master/codecov/__init__.py#L254-L468)
 
 
 ## Configuration
@@ -45,7 +45,8 @@ commands = codecov -e TOXENV
 | Argument |   Environment   |                                                                    Description                                                                     |
 | -------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `-t`     | `CODECOV_TOKEN` | Private repo token for uploading                                                                                                                   |
-| `-e`     | `CODECOV_ENV`   | List of config vars to store for the build [see example](https://codecov.io/github/pyca/cryptography?ref=d47946f3d3e358b706e996d0b951d496ffc2461f) |
+| `-e`     | `CODECOV_ENV`   | List of config vars to store for the build  |
+| `-F`     |      | Flag this upload to group coverage reports. Ex. `unittests` or `integration`  |
 
 ```yaml
 # public repository on Travis CI
@@ -60,7 +61,7 @@ after_success:
 install:
   - pip install --user codecov
 after_success:
-  - codecov -t :repo-token
+  - codecov -t the-repository-upload-token
 ```
 
 
