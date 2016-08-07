@@ -3,6 +3,7 @@
 import os
 import re
 import sys
+import glob
 import requests
 import argparse
 from time import sleep
@@ -636,6 +637,10 @@ def main(*argv, **kwargs):
             # -----------------------------------------
             # Ran from current directory
             if os.path.exists(opj(os.getcwd(), '.coverage')) and not os.path.exists(opj(os.getcwd(), 'coverage.xml')):
+                if glob.glob(opj(os.getcwd(), '.coverage.*')):
+                    write('    Mergeing coverage reports')
+                    try_to_run('coverage merge')
+
                 write('    Generating coverage xml reports for Python')
                 # using `-i` to ignore "No source for code" error
                 try_to_run('coverage xml -i')
