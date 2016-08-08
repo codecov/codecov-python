@@ -185,6 +185,11 @@ def remove_non_ascii(data):
         return ''.join([i if ord(i) < 128 else '' for i in data])
 
 
+def _add_env_if_not_empty(lst, value):
+    if os.getenv(value) is not None:
+        lst.add(value)
+
+
 def main(*argv, **kwargs):
     root = os.getcwd()
 
@@ -283,12 +288,12 @@ def main(*argv, **kwargs):
                                     ('dart', 'go', 'haxe', 'jdk', 'julia', 'node', 'otp', 'xcode',
                                      'perl', 'php', 'python', 'r', 'ruby', 'rust', 'scala'))) + [''])[0]
 
-            include_env.add('TRAVIS_OS_NAME')
+            _add_env_if_not_empty(include_env, 'TRAVIS_OS_NAME')
             if language:
-                include_env.add('TRAVIS_%s_NAME' % language.upper())
+                _add_env_if_not_empty(include_env, 'TRAVIS_%s_NAME' % language.upper())
 
             if language == 'python' and os.getenv('TOXENV'):
-                include_env.add('TOXENV')
+                _add_env_if_not_empty(include_env, 'TOXENV')
 
         # --------
         # Codeship
@@ -413,7 +418,7 @@ def main(*argv, **kwargs):
                               build=os.getenv('SNAP_PIPELINE_COUNTER'),
                               pr=os.getenv('SNAP_PULL_REQUEST_NUMBER'),
                               commit=os.getenv('SNAP_COMMIT') or os.getenv('SNAP_UPSTREAM_COMMIT')))
-            include_env.add(os.getenv('DISPLAY'))
+            _add_env_if_not_empty(include_env, 'DISPLAY')
             write('    Snap CI Detected')
 
         # ------
