@@ -31,7 +31,7 @@ Just please make sure to pass all the necessary environment variables through:
 
 ```
 [testenv]
-passenv = CI TRAVIS_BUILD_ID TRAVIS TRAVIS_BRANCH TRAVIS_JOB_NUMBER TRAVIS_PULL_REQUEST TRAVIS_JOB_ID TRAVIS_REPO_SLUG TRAVIS_COMMIT
+passenv = TOXENV CI TRAVIS TRAVIS_*
 deps = codecov>=1.4.0
 commands = codecov -e TOXENV
 ```
