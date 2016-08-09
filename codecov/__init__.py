@@ -243,8 +243,9 @@ def main(*argv, **kwargs):
     include_env = set()
 
     # add from cli
-    for env in codecov.env:
-        include_env.add(env.strip())
+    if codecov.env:
+        for env in codecov.env:
+            include_env.add(env.strip())
 
     # add from env
     if os.getenv("CODECOV_ENV"):
