@@ -203,7 +203,7 @@ def main(*argv, **kwargs):
     basics.add_argument('--token', '-t', default=os.getenv("CODECOV_TOKEN"), help="Private repository token. Not required for public repositories on Travis-CI, CircleCI and AppVeyor")
     basics.add_argument('--file', '-f', nargs="*", default=None, help="Target a specific file for uploading")
     basics.add_argument('--flags', '-F', nargs="*", default=None, help="Flag these uploaded files with custom labels")
-    basics.add_argument('--env', '-e', nargs="*", default=os.getenv("CODECOV_ENV"), help="Store environment variables to help distinguish CI builds. Example: http://bit.ly/1ElohCu")
+    basics.add_argument('--env', '-e', nargs="*", default=None, help="Store environment variables to help distinguish CI builds. Example: http://bit.ly/1ElohCu")
     basics.add_argument('--required', action="store_true", default=False, help="If Codecov fails it will exit 1: failing the CI build.")
 
     gcov = parser.add_argument_group('======================== gcov ========================')
@@ -240,12 +240,24 @@ def main(*argv, **kwargs):
     global COLOR
     COLOR = not codecov.no_color
 
-    include_env = set(codecov.env or [])
+    include_env = set()
+
+    # add from cli
+    for env in codecov.env:
+        include_env.add(env.strip())
+
+    # add from env
+    if os.getenv("CODECOV_ENV"):
+        for env in os.getenv("CODECOV_ENV").split(','):
+            include_env.add(env.strip())
 
     write('Codecov v'+version)
     query = dict(commit='', branch='', job='', pr='', build_url='',
                  token=codecov.token)
     language = None
+
+    if os.getenv('TOXENV'):
+        _add_env_if_not_empty(include_env, 'TOXENV')
 
     # Detect CI
     # ---------
@@ -291,9 +303,6 @@ def main(*argv, **kwargs):
             _add_env_if_not_empty(include_env, 'TRAVIS_OS_NAME')
             if language:
                 _add_env_if_not_empty(include_env, 'TRAVIS_%s_NAME' % language.upper())
-
-            if language == 'python' and os.getenv('TOXENV'):
-                _add_env_if_not_empty(include_env, 'TOXENV')
 
         # --------
         # Codeship
