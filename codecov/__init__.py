@@ -235,7 +235,10 @@ def main(*argv, **kwargs):
     global COLOR
     COLOR = not codecov.no_color
 
-    include_env = set(codecov.env.split(",") or [])
+    include_env = set([])
+    if codecov.env:
+        # Can be none, e.g. codecov -f coverage.xml -e
+        include_env = set(codecov.env.split(","))
 
     write('Codecov v'+version)
     query = dict(commit='', branch='', job='', pr='', build_url='',
