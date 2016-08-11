@@ -200,7 +200,7 @@ def main(*argv, **kwargs):
                                      epilog="""Upload reports to Codecov""")
     basics = parser.add_argument_group('======================== Basics ========================')
     basics.add_argument('--version', action='version', version='Codecov py-v'+version+" - https://codecov.io/")
-    basics.add_argument('--token', '-t', default=os.getenv("CODECOV_TOKEN"), help="Private repository token. Not required for public repositories on Travis-CI, CircleCI and AppVeyor")
+    basics.add_argument('--token', '-t', default=os.getenv("CODECOV_TOKEN"), help="Private repository token or @filename for file containing the token. Defaults to $CODECOV_TOKEN. Not required for public repositories on Travis-CI, CircleCI and AppVeyor")
     basics.add_argument('--file', '-f', nargs="*", default=None, help="Target a specific file for uploading")
     basics.add_argument('--flags', '-F', nargs="*", default=None, help="Flag these uploaded files with custom labels")
     basics.add_argument('--env', '-e', nargs="*", default=None, help="Store environment variables to help distinguish CI builds.")
