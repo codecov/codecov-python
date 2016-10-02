@@ -470,7 +470,7 @@ def main(*argv, **kwargs):
             if os.getenv('CI_PROJECT_DIR', '').startswith('/'):
                 root = os.getenv('CI_PROJECT_DIR')
             else:
-                root = os.getenv('HOME') + '/' + os.getenv('CI_PROJECT_DIR')
+                root = os.getenv('HOME') + '/' + os.getenv('CI_PROJECT_DIR', '')
 
             write('    Gitlab CI Detected')
 
