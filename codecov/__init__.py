@@ -459,7 +459,7 @@ def main(*argv, **kwargs):
         # ---------
         # Gitlab CI
         # ---------
-        elif os.getenv('CI_SERVER_NAME') == "GitLab CI":
+        elif os.getenv('CI_SERVER_NAME', '').startswith("GitLab"):
             # http://doc.gitlab.com/ci/examples/README.html#environmental-variables
             # https://gitlab.com/gitlab-org/gitlab-ci-runner/blob/master/lib/build.rb#L96
             query.update(dict(service='gitlab',
@@ -470,7 +470,7 @@ def main(*argv, **kwargs):
             if os.getenv('CI_PROJECT_DIR', '').startswith('/'):
                 root = os.getenv('CI_PROJECT_DIR')
             else:
-                root = os.getenv('HOME') + '/' + os.getenv('CI_PROJECT_DIR')
+                root = os.getenv('HOME') + '/' + os.getenv('CI_PROJECT_DIR', '')
 
             write('    Gitlab CI Detected')
 
