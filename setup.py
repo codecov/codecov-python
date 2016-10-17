@@ -27,6 +27,6 @@ setup(name='codecov',
       packages=['codecov'],
       include_package_data=True,
       zip_safe=True,
-      install_requires=["requests>=2.0.0", "coverage", "argparse"],
+      install_requires=["requests>=2.7.9", "coverage", "argparse"],
       tests_require=["unittest2"],
       entry_points={'console_scripts': ['codecov=codecov:main']})
