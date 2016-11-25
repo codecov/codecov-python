@@ -14,6 +14,11 @@ classifiers = ["Development Status :: 5 - Production/Stable",
                "License :: OSI Approved :: Apache Software License",
                "Topic :: Software Development :: Testing"]
 
+if sys.version_info >= (2, 7):
+    install_requires = ["requests>=2.7.9", "coverage"]
+else:
+    install_requires = ["requests>=2.7.9", "coverage", "argparse"]
+
 setup(name='codecov',
       version=version,
       description="Hosted coverage reports for Github, Bitbucket and Gitlab",
@@ -27,6 +32,6 @@ setup(name='codecov',
       packages=['codecov'],
       include_package_data=True,
       zip_safe=True,
-      install_requires=["requests>=2.7.9", "coverage", "argparse"],
+      install_requires=install_requires,
       tests_require=["unittest2"],
       entry_points={'console_scripts': ['codecov=codecov:main']})
