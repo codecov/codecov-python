@@ -304,7 +304,7 @@ def main(*argv, **kwargs):
 
             _add_env_if_not_empty(include_env, 'TRAVIS_OS_NAME')
             if language:
-                _add_env_if_not_empty(include_env, 'TRAVIS_%s_NAME' % language.upper())
+                _add_env_if_not_empty(include_env, 'TRAVIS_%s_VERSION' % language.upper())
 
         # --------
         # Codeship
