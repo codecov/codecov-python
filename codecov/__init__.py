@@ -245,8 +245,10 @@ def main(*argv, **kwargs):
 
     # add from cli
     if codecov.env:
+        # -e VAR1,VAR2 or -e VAR1 -e VAR2
         for env in codecov.env:
-            include_env.add(env.strip())
+            for e in env.split(','):
+                include_env.add(e.strip())
 
     # add from env
     if os.getenv("CODECOV_ENV"):
