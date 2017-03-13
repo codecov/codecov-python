@@ -205,6 +205,7 @@ def main(*argv, **kwargs):
     basics.add_argument('--flags', '-F', nargs="*", default=None, help="Flag these uploaded files with custom labels")
     basics.add_argument('--env', '-e', nargs="*", default=None, help="Store environment variables to help distinguish CI builds.")
     basics.add_argument('--required', action="store_true", default=False, help="If Codecov fails it will exit 1: failing the CI build.")
+    basics.add_argument('--name', '-n', default=None, help="Custom defined name of the upload. Visible in Codecov UI.")
 
     gcov = parser.add_argument_group('======================== gcov ========================')
     gcov.add_argument('--gcov-root', default=None, help="Project root directory when preparing gcov")
@@ -508,6 +509,9 @@ def main(*argv, **kwargs):
 
     # Update Query
     # ------------
+    if codecov.name:
+        query['name'] = codecov.name
+
     if codecov.flags:
         query['flags'] = ','.join(codecov.flags)
 
