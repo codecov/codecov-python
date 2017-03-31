@@ -1,6 +1,7 @@
 *.egg
 *.egg-info
 *.pyc
+.cache
 .coverage
 .DS_Store
 .tox

@@ -276,10 +276,10 @@ def main(*argv, **kwargs):
         if os.getenv('JENKINS_URL'):
             # https://wiki.jenkins-ci.org/display/JENKINS/Building+a+software+project
             # https://wiki.jenkins-ci.org/display/JENKINS/GitHub+pull+request+builder+plugin#GitHubpullrequestbuilderplugin-EnvironmentVariables
-            query.update(dict(branch=os.getenv('ghprbSourceBranch') or os.getenv('GIT_BRANCH'),
+            query.update(dict(branch=os.getenv('ghprbSourceBranch') or os.getenv('GIT_BRANCH') or os.getenv('BRANCH_NAME'),
                               service='jenkins',
                               commit=os.getenv('ghprbActualCommit') or os.getenv('GIT_COMMIT'),
-                              pr=os.getenv('ghprbPullId', 'false'),
+                              pr=os.getenv('ghprbPullId') or os.getenv('CHANGE_ID'),
                               build=os.getenv('BUILD_NUMBER'),
                               build_url=os.getenv('BUILD_URL')))
             root = os.getenv('WORKSPACE') or root
