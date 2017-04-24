@@ -597,21 +597,6 @@ def main(*argv, **kwargs):
 
         else:
             write('==> Processing gcov (disable by -X gcov)')
-            if os.path.isdir(os.path.expanduser('~/Library/Developer/Xcode/DerivedData')):
-                write('WARNING: Depreciating Xcode support in python uploader. Please use Bash uploader: https://github.com/codecov/codecov-bash')
-                write('    Found OSX DerivedData')
-                try_to_run("find ~/Library/Developer/Xcode/DerivedData -name '*.gcda' -exec gcov -pb {} +")
-
-                # xcode7
-                profdata = try_to_run("find ~/Library/Developer/Xcode/DerivedData -name 'Coverage.profdata' | head -1")
-                if profdata:
-                    _dir = os.path.dirname(profdata)
-                    for _type in ('app', 'framework', 'xctest'):
-                        _file = try_to_run('find "%s" -name "*.%s" | head -1' % (_dir, _type))
-                        if _file:
-                            _proj = _file.split('/')[-2].split('.')[0]
-                            try_to_run('xcrun llvm-cov show -instr-profile "%s" "%s/%s" > "%s.coverage.txt"' % (profdata, _file, _proj, _type))
-
             cmd = "find %s -type f -name '*.gcno' %s -exec %s -pb %s {} +" % (
                   (codecov.gcov_root or root),
                   " ".join(map(lambda a: "-not -path '%s'" % a, codecov.gcov_glob)),
