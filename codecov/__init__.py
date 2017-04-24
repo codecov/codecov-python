@@ -408,6 +408,7 @@ def main(*argv, **kwargs):
                               slug=os.getenv('APPVEYOR_REPO_NAME'),
                               commit=os.getenv('APPVEYOR_REPO_COMMIT')))
             write('    AppVeyor Detected')
+            codecov.disable.append('search')
 
         # -------
         # Wercker
