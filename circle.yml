@@ -4,7 +4,6 @@ machine:
 
 dependencies:
   override:
-    - pip install -U setuptools
     - pip install -r tests/requirements.txt
 
 test:
