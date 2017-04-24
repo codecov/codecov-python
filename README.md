@@ -74,7 +74,7 @@ after_success:
 | [Jenkins](https://jenkins-ci.org/)                  | Yes                                                                                                                                                                                | Public & Private |
 | [Semaphore](https://semaphoreci.com/)               | Yes                                                                                                                                                                                | Public & Private |
 | [Drone.io](https://drone.io/)                       | Yes                                                                                                                                                                                | Public & Private |
-| [AppVeyor](http://www.appveyor.com/)                | Yes [![Build status](https://ci.appveyor.com/api/projects/status/sw18lsj7786bw806/branch/master?svg=true)](https://ci.appveyor.com/project/stevepeak/codecov-python/branch/master) | Public & Private |
+| [AppVeyor](http://www.appveyor.com/)                | Yes [![Build status](https://ci.appveyor.com/api/projects/status/sw18lsj7786bw806/branch/master?svg=true)](https://ci.appveyor.com/project/stevepeak/codecov-python/branch/master) | Private only     |
 | [Wercker](http://wercker.com/)                      | Yes                                                                                                                                                                                | Public & Private |
 | [Magnum CI](https://magnum-ci.com/)                 | Yes                                                                                                                                                                                | Public & Private |
 | [Shippable](http://www.shippable.com/)              | Yes                                                                                                                                                                                | Public & Private |
@@ -95,4 +95,4 @@ after_success:
 
 ## Copyright
 
-> Copyright 2014-2015 codecov
+> Copyright 2014-2017 codecov
