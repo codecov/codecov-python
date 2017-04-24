@@ -505,7 +505,7 @@ class TestUploader(unittest.TestCase):
                      APPVEYOR_REPO_COMMIT='d653b934ed59c1a785cc1cc79d08c9aaa4eba73b',
                      CODECOV_TOKEN='token')
         self.fake_report()
-        res = self.run_cli()
+        res = self.run_cli(file=self.filepath)
         self.assertEqual(res['query']['service'], 'appveyor')
         self.assertEqual(res['query']['commit'], 'd653b934ed59c1a785cc1cc79d08c9aaa4eba73b')
         self.assertEqual(res['query']['job'], 'owner/repo/1.2.3')
