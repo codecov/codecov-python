@@ -555,7 +555,6 @@ def main(*argv, **kwargs):
             query['token'] = fopen(opj(os.getcwd(), query['token'][1:])).strip()
 
         assert query.get('commit') not in ('', None), "Commit sha is missing. Please specify via --commit=:sha"
-        assert query.get('job') or query.get('token'), "Missing repository upload token"
 
         # Build TOC
         # ---------
@@ -565,25 +564,31 @@ def main(*argv, **kwargs):
                    try_to_run('hg locate') or '').strip())
 
         # Detect codecov.yml location
-        for _filename in toc.splitlines():
-            if _filename in ('codecov.yml', '.codecov.yml') or _filename.endswith(('/codecov.yml', '/.codecov.yml')):
-                query['yaml'] = _filename
-                # from yaml import load
-                # ccyaml = load(fopen(_filename)).get('codecov')
-                # if ccyaml and type(ccyaml) is dict:
-                #     if ccyaml.get('token'):
-                #         write('    Set token from yaml')
-                #         query['token'] = ccyaml.get('token')
+        yaml_location = re.search(
+            r'\.?codecov\.ya?ml$',
+            toc,
+            re.M
+        )
+        if yaml_location:
+            query['yaml'] = yaml_location.group()
+            yaml = fopen(opj(os.getcwd(), query['yaml']))
+            _token = re.search(
+                r'token: (\'|\")?([0-9a-f]{8}(-?[0-9a-f]{4}){3}-?[0-9a-f]{12})',
+                yaml,
+                re.M
+            )
+            if _token:
+                query['token'] = _token.groups()[1]
 
-                #     if ccyaml.get('url'):
-                #         write('    Set url from yaml')
-                #         codecov.url = ccyaml.get('url')
+            _slug = re.search(
+                r'slug: (\'|\")?([\w\-\.\+]+\/[\w\-\.\+]+)',
+                yaml,
+                re.M
+            )
+            if _slug:
+                query['slug'] = _slug.groups()[1]
 
-                #     if ccyaml.get('slug'):
-                #         write('    Set slug from yaml')
-                #         codecov.slug = ccyaml.get('slug')
-
-                break
+        assert query.get('job') or query.get('token'), "Missing repository upload token"
 
         # Processing gcov
         # ---------------
