@@ -1,3 +1,14 @@
+### `2.0.7`
+- Add `--name/-n` to cli
+- Add support for Jenkins Blue
+- Fix environment variable joining
+- Add Greenhouse CI detection
+- Fix GitLab detection
+- Add default `VCS_*` environment
+- Auto-merge py-coverage
+- Remove Xcode processing support, please use bash uploader.
+- Support yaml:token and yaml:slug
+
 ### `2.0.5`
 - Use `%20` for encoding spaces [appveyor] https://github.com/codecov/codecov-python/pull/66
 
