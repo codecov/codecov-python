@@ -46,7 +46,7 @@ class TestUploader(unittest.TestCase):
                     "APPVEYOR_BUILD_VERSION", "APPVEYOR_JOB_ID", "APPVEYOR_REPO_NAME", "APPVEYOR_REPO_COMMIT", "WERCKER_GIT_BRANCH",
                     "WERCKER_MAIN_PIPELINE_STARTED", "WERCKER_GIT_OWNER", "WERCKER_GIT_REPOSITORY",
                     "CI_BUILD_REF_NAME", "CI_BUILD_ID", "CI_BUILD_REPO", "CI_PROJECT_DIR", "CI_BUILD_REF", "CI_SERVER_NAME",
-                    "ghprbActualCommit", "ghprbSourceBranch", "ghprbPullId", "WERCKER_GIT_COMMIT"):
+                    "ghprbActualCommit", "ghprbSourceBranch", "ghprbPullId", "WERCKER_GIT_COMMIT", "CHANGE_ID"):
             os.environ[key] = ""
 
     def tearDown(self):
@@ -333,6 +333,23 @@ class TestUploader(unittest.TestCase):
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'jenkins')
         self.assertEqual(res['query']['commit'], 'c739768fcac68144a3a6d82305b9c4106934d31a')
+        self.assertEqual(res['query']['build'], '41')
+        self.assertEqual(res['query']['build_url'], 'https://....')
+        self.assertEqual(res['query']['pr'], '1')
+        self.assertEqual(res['query']['branch'], 'master')
+        self.assertEqual(res['codecov'].token, 'token')
+
+    def test_ci_jenkins_blue_ocean(self):
+        self.set_env(JENKINS_URL='https://....',
+                     BUILD_URL='https://....',
+                     BRANCH_NAME='master',
+                     CHANGE_ID='1',
+                     BUILD_NUMBER='41',
+                     CODECOV_TOKEN='token')
+        self.fake_report()
+        res = self.run_cli()
+        self.assertEqual(res['query']['service'], 'jenkins')
+        self.assertEqual(res['query']['commit'], codecov.check_output(("git", "rev-parse", "HEAD")))
         self.assertEqual(res['query']['build'], '41')
         self.assertEqual(res['query']['build_url'], 'https://....')
         self.assertEqual(res['query']['pr'], '1')
