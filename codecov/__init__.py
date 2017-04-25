@@ -464,19 +464,29 @@ def main(*argv, **kwargs):
         # ---------
         # Gitlab CI
         # ---------
-        elif os.getenv('CI_SERVER_NAME', '').startswith("GitLab"):
+        elif os.getenv('CI') == 'true' and os.getenv('GITLAB_CI') == 'true':
             # http://doc.gitlab.com/ci/examples/README.html#environmental-variables
             # https://gitlab.com/gitlab-org/gitlab-ci-runner/blob/master/lib/build.rb#L96
-            query.update(dict(service='gitlab',
-                              branch=os.getenv('CI_BUILD_REF_NAME'),
-                              build=os.getenv('CI_BUILD_ID'),
-                              slug=os.getenv('CI_BUILD_REPO').split('/', 3)[-1].replace('.git', ''),
-                              commit=os.getenv('CI_BUILD_REF')))
+
+            # Gitlab Runner v8.9-
+            if int(os.getenv('CI_SERVER_VERSION', '8.9').split('.')[0]) <= 8:
+                query.update(dict(service='gitlab',
+                                  branch=os.getenv('CI_BUILD_REF_NAME'),
+                                  build=os.getenv('CI_BUILD_ID'),
+                                  slug=os.getenv('CI_BUILD_REPO').split('/', 3)[-1].replace('.git', ''),
+                                  commit=os.getenv('CI_BUILD_REF')))
+            # Gitlab Runner v9+
+            else:
+                query.update(dict(service='gitlab',
+                                  branch=os.getenv('CI_COMMIT_REF_NAME'),
+                                  build=os.getenv('CI_JOB_ID'),
+                                  slug=os.getenv('CI_REPOSITORY_URL').split('/', 3)[-1].replace('.git', ''),
+                                  commit=os.getenv('CI_COMMIT_SHA')))
+
             if os.getenv('CI_PROJECT_DIR', '').startswith('/'):
                 root = os.getenv('CI_PROJECT_DIR')
             else:
                 root = os.getenv('HOME') + '/' + os.getenv('CI_PROJECT_DIR', '')
-
             write('    Gitlab CI Detected')
 
         else:
