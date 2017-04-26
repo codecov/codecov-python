@@ -478,6 +478,8 @@ def main(*argv, **kwargs):
 
             if os.getenv('CI_BUILD_REPO'):
                 query['slug'] = os.getenv('CI_BUILD_REPO').split('/', 3)[-1].replace('.git', '')
+            elif os.getenv('CI_REPOSITORY_URL'):
+                query['slug'] = os.getenv('CI_REPOSITORY_URL').split('/', 3)[-1].replace('.git', '')
 
             write('    Gitlab CI Detected')
 
