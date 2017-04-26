@@ -470,12 +470,14 @@ def main(*argv, **kwargs):
             query.update(dict(service='gitlab',
                               branch=os.getenv('CI_BUILD_REF_NAME'),
                               build=os.getenv('CI_BUILD_ID'),
-                              slug=os.getenv('CI_BUILD_REPO').split('/', 3)[-1].replace('.git', ''),
                               commit=os.getenv('CI_BUILD_REF')))
             if os.getenv('CI_PROJECT_DIR', '').startswith('/'):
                 root = os.getenv('CI_PROJECT_DIR')
             else:
                 root = os.getenv('HOME') + '/' + os.getenv('CI_PROJECT_DIR', '')
+
+            if os.getenv('CI_BUILD_REPO'):
+                query['slug'] = os.getenv('CI_BUILD_REPO').split('/', 3)[-1].replace('.git', '')
 
             write('    Gitlab CI Detected')
 
