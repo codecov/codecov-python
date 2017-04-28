@@ -575,23 +575,26 @@ def main(*argv, **kwargs):
             re.M
         )
         if yaml_location:
-            query['yaml'] = yaml_location.group()
-            yaml = fopen(opj(os.getcwd(), query['yaml']))
-            _token = re.search(
-                r'token: (\'|\")?([0-9a-f]{8}(-?[0-9a-f]{4}){3}-?[0-9a-f]{12})',
-                yaml,
-                re.M
-            )
-            if _token:
-                query['token'] = _token.groups()[1]
+            yaml_location = yaml_location.group()
+            yaml_path = opj(root, yaml_location)
+            if os.path.exists(yaml_path):
+                query['yaml'] = yaml_location
+                yaml = fopen(yaml_path)
+                _token = re.search(
+                    r'token: (\'|\")?([0-9a-f]{8}(-?[0-9a-f]{4}){3}-?[0-9a-f]{12})',
+                    yaml,
+                    re.M
+                )
+                if _token:
+                    query['token'] = _token.groups()[1]
 
-            _slug = re.search(
-                r'slug: (\'|\")?([\w\-\.\+]+\/[\w\-\.\+]+)',
-                yaml,
-                re.M
-            )
-            if _slug:
-                query['slug'] = _slug.groups()[1]
+                _slug = re.search(
+                    r'slug: (\'|\")?([\w\-\.\+]+\/[\w\-\.\+]+)',
+                    yaml,
+                    re.M
+                )
+                if _slug:
+                    query['slug'] = _slug.groups()[1]
 
         assert query.get('job') or query.get('token'), "Missing repository upload token"
 
