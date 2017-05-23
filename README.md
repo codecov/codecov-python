@@ -16,6 +16,10 @@ Find coverage reports for all the [languages below](#languages), gather them and
 ```sh
 pip install --user codecov && codecov -t the-repository-upload-token
 ```
+or
+```sh
+conda install -c conda-forge codecov && codecov -t the-repository-upload-token
+```
 > `--user` argument not needed for Python projects. [See example here](https://github.com/codecov/example-python).
 
 ## Languages
@@ -52,6 +56,8 @@ commands = codecov -e TOXENV
 # public repository on Travis CI
 install:
   - pip install --user codecov
+# or
+  - conda install -c conda-forge codecov
 after_success:
   - codecov
 ```
@@ -60,6 +66,8 @@ after_success:
 # private repository on Travis CI
 install:
   - pip install --user codecov
+# or
+  - conda install -c conda-forge codecov
 after_success:
   - codecov -t the-repository-upload-token
 ```
