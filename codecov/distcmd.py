@@ -60,10 +60,11 @@ class Codecov(Command):
     ]
 
     def get_list(self, string):
-        for sep in ('\n', ','):
-            if sep in string:
-                return [line.strip() for line in string.split(sep)]
-        return []
+        if string is not None:
+            for sep in ('\n', ','):
+                if sep in string:
+                    return list(map(str.strip, filter(None, string.split(sep))))
+        return list()
 
     def initialize_options(self):
 
@@ -105,6 +106,12 @@ class Codecov(Command):
         self.parse_conf()
         self.parse_args()
 
+        self.files = self.get_list(self.files)
+        self.flags = self.get_list(self.flags)
+        self.env = self.get_list(self.env)
+        self.gcov_glob = self.get_list(self.gcov_glob)
+        self.disable = self.get_list(self.disable)
+
     def parse_args(self):
         argparser = ArgumentParser()
         for _long, short, _ in self.user_options:
@@ -125,22 +132,22 @@ class Codecov(Command):
 
         # ======================== Basics ======================== #
         self.version = section.getboolean('version', fallback=False)
-        if 'files' in section: self.files = self.get_list(section.get('files'))
-        elif 'file' in section: self.files = [section.get('file')]
+        if 'files' in section: self.files = section.get('files')
+        elif 'file' in section: self.files = section.get('file')
         self.token = section.get('token', fallback=None)
-        if 'flags' in section: self.flags = self.get_list(section.get('flags'))
+        if 'flags' in section: self.flags = section.get('flags')
         self.required = section.getboolean('required', fallback=None)
-        if 'env' in section: self.env = self.get_list(section.get('env'))
+        if 'env' in section: self.env = section.get('env')
         self.name = section.get('name', fallback=None)
 
         # ======================== gcov ======================== #
         self.gcov_root = section.get('gcov-root', fallback=None)
-        if 'gcov-glob' in section: self.gcov_glob = self.get_list(section.get('gcov-glob'))
+        if 'gcov-glob' in section: self.gcov_glob = section.get('gcov-glob')
         self.gcov_exec = section.get('gcov-exec', fallback=None)
         self.gcov_args = section.get('gcov-args', fallback=None)
 
         # ======================== Advanced ======================== #
-        if 'disable' in section: self.disable = self.get_list(section.get('disable'))
+        if 'disable' in section: self.disable = section.get('disable')
         self.root = section.get('root', fallback=None)
         self.commit = section.get('commit', fallback=None)
         self.branch = section.get('branch', fallback=None)
