@@ -11,16 +11,15 @@ try:
 except ImportError:
     from distutils.cmd import Command
 
+from argparse import ArgumentParser
 from distutils.errors import DistutilsArgError
 
 import codecov
 
 
-
 class Codecov(Command):
 
-
-    description = "run my command"
+    command_name = "codecov"
 
     user_options =  [
 
@@ -35,7 +34,7 @@ class Codecov(Command):
 
         # ======================== gcov ======================== #
         ('gcov-root=', None, "Project root directory when preparing gcov"),
-        ('gcov-glob=', None, "Paths to ignore during gcov gathering"),
+        ('gcov-glob=', None, "Paths to ignore during gcov gathering (comma separated)"),
         ('gcov-exec=', None, "gcov executable to run. Defaults to 'gcov'"),
         ('gcov-args=', None, "extra arguments to pass to gcov"),
 
@@ -55,7 +54,7 @@ class Codecov(Command):
 
         # ======================== Debugging ======================== #
         ('dump', None, "Dump collected data and do not send to Codecov"),
-        ('verbose', 'v', "No comfigured yet"),
+        ('verbose', 'v', "Not configured yet"),
         ('no-color', None, "Do not output with color"),
 
     ]
@@ -68,30 +67,24 @@ class Codecov(Command):
 
     def initialize_options(self):
 
-        parser = ConfigParser()
-        parser.read(['setup.cfg'])
-        section = parser['codecov'] if 'codecov' in parser else parser['DEFAULT']
-
         # ======================== Basics ======================== #
-        self.version = section.getboolean('version', fallback=False)
-        self.token = section.get('token', fallback=None)
-        if 'files' in section:
-            self.files = self.get_list(section.get('files'))
-        else:
-            self.files = []
-        self.flags = self.get_list(section.get('flags', fallback=''))
-        self.env = self.get_list(section.get('env', fallback=''))
-        self.required = section.getboolean('required', fallback=False)
-        self.name = section.get('name', fallback=None)
+        self.version = None #section.getboolean('version', fallback=False)
+        self.token = None #section.get('token', fallback=None)
+        self.files = None
+
+        self.flags = None #self.get_list(section.get('flags', fallback=''))
+        self.env = None #self.get_list(section.get('env', fallback=''))
+        self.required = False
+        self.name = None #section.get('name', fallback=None)
 
         # ======================== gcov ======================== #
-        self.gcov_root = section.get('gcov-root', fallback=None)
-        self.gcov_glob = self.get_list(section.get('gcov-glob', fallback=''))
-        self.gcov_exec = section.get('gcov-exec', fallback=None)
-        self.gcov_args = section.get('gcov-args', fallback=None)
+        self.gcov_root = None #section.get('gcov-root', fallback=None)
+        self.gcov_glob = None #self.get_list(section.get('gcov-glob', fallback=''))
+        self.gcov_exec = None #section.get('gcov-exec', fallback=None)
+        self.gcov_args = None #section.get('gcov-args', fallback=None)
 
         # ======================== Advanced ======================== #
-        self.disable = []
+        self.disable = None #[]
         self.root = None
         self.commit = None
         self.branch = None
@@ -109,12 +102,64 @@ class Codecov(Command):
         self.no_color = False
 
     def finalize_options(self):
-        # Do not check any option since Codecov will check them anyway
-        # plus we don't want to stop the pipeline if codecov is not --required
-        pass
+        self.parse_conf()
+        self.parse_args()
+
+    def parse_args(self):
+        argparser = ArgumentParser()
+        for _long, short, _ in self.user_options:
+            names = ['--'+_long.rstrip('=')]
+            if short is not None:
+                names.append('-'+short)
+            options = {} if _long.endswith('=') else {'action': 'store_true'}
+            argparser.add_argument(*names, **options)
+
+        argparser.parse_args(
+            self.distribution.script_args[1:], namespace=self)
+
+    def parse_conf(self):
+
+        parser = ConfigParser()
+        parser.read(['setup.cfg'])
+        section = parser['codecov'] if 'codecov' in parser else parser['DEFAULT']
+
+        # ======================== Basics ======================== #
+        self.version = section.getboolean('version', fallback=False)
+        if 'files' in section: self.files = self.get_list(section.get('files'))
+        elif 'file' in section: self.files = [section.get('file')]
+        self.token = section.get('token', fallback=None)
+        if 'flags' in section: self.flags = self.get_list(section.get('flags'))
+        self.required = section.getboolean('required', fallback=None)
+        if 'env' in section: self.env = self.get_list(section.get('env'))
+        self.name = section.get('name', fallback=None)
+
+        # ======================== gcov ======================== #
+        self.gcov_root = section.get('gcov-root', fallback=None)
+        if 'gcov-glob' in section: self.gcov_glob = self.get_list(section.get('gcov-glob'))
+        self.gcov_exec = section.get('gcov-exec', fallback=None)
+        self.gcov_args = section.get('gcov-args', fallback=None)
+
+        # ======================== Advanced ======================== #
+        if 'disable' in section: self.disable = self.get_list(section.get('disable'))
+        self.root = section.get('root', fallback=None)
+        self.commit = section.get('commit', fallback=None)
+        self.branch = section.get('branch', fallback=None)
+        self.build = section.get('build', fallback=None)
+        self.pr = section.get('pr', fallback=None)
+        self.tag = section.get('tag', fallback=None)
+
+        # ======================== Enterprise ======================== #
+        self.slug = section.get('slug', fallback=None)
+        self.url = section.get('url', fallback=None)
+        self.cacert = section.get('cacert', fallback=None)
+
+        # ======================== Debugging ======================== #
+        self.dump = section.get('dump', fallback=None)
+        self.no_color = section.get('no-color', fallback=None)
 
     def run(self):
 
+        self.ensure_finalized()
         if self.version:
             return codecov.main('--version')
 
@@ -151,6 +196,8 @@ class Codecov(Command):
         # ======================== Debugging ======================== #
         if self.dump: argv.append('--dump')
         if self.no_color: argv.append('--no-color')
+
+        print(argv)
 
         # Patch sys.argv so that if argv is empty,
         # codecov does not see the options passed to setup.py
