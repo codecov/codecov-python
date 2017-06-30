@@ -1,6 +1,8 @@
 
 import os
 import tempfile
+import shutil
+import subprocess
 import contextlib
 
 try:
@@ -12,6 +14,11 @@ try:
     from setuptools.dist import Distribution
 except ImportError:
     from distutil.dist import Distribution
+
+try:
+    from io import StringIO
+except ImportError:
+    from StringIO import StringIO
 
 from mock import patch
 import unittest2 as unittest
@@ -25,12 +32,15 @@ class TestDistutilsCommand(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.initdir = os.getcwd()
-        cls.tempdir = tempfile.gettempdir()
+        cls.tempdir = 'tmp'
+        if not os.path.isdir('tmp'):
+            os.mkdir('tmp')
         os.chdir(cls.tempdir)
 
     @classmethod
     def tearDownClass(cls):
         os.chdir(cls.initdir)
+        shutil.rmtree('tmp')
 
     @contextlib.contextmanager
     def environ(self, setup_cfg=None, *args, **variables):
@@ -51,7 +61,6 @@ class TestDistutilsCommand(unittest.TestCase):
         #finally:
         if os.path.isfile('setup.cfg'):
             os.remove('setup.cfg')
-
 
     def test_plain(self):
         # No setup.cfg, no argument, just like running 'codecov' directly
