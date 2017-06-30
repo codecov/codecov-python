@@ -40,7 +40,7 @@ ignored_path = re.compile(r'(/vendor)|'
                           r'(/build/lib)|'
                           r'(/htmlcov)|'
                           r'(/node_modules)|'
-                          r'(/\.yarn-cache)|'                          
+                          r'(/\.yarn-cache)|'
                           r'(\.egg-info)|'
                           r'(/\.git)|'
                           r'(/\.hg)|'
@@ -235,10 +235,11 @@ def main(*argv, **kwargs):
 
     # Parse Arguments
     # ---------------
-    if argv:
-        codecov = parser.parse_args(argv)
-    else:
-        codecov = parser.parse_args()
+
+    try: # (prevent argparse from exiting directly with sys.exit())
+        codecov = parser.parse_args(argv) if argv else parser.parse_args()
+    except SystemExit as system_exit:
+        return system_exit.code
 
     global COLOR
     COLOR = not codecov.no_color
@@ -762,7 +763,7 @@ def main(*argv, **kwargs):
               '  IRC:     #codecov\n'
               '  Gitter:  https://gitter.im/codecov/support\n'
               '  Twitter: @codecov\n')
-        sys.exit(1 if codecov.required else 0)
+        return 1 if codecov.required else 0
 
     else:
         if kwargs.get('debug'):
@@ -770,4 +771,4 @@ def main(*argv, **kwargs):
 
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())
