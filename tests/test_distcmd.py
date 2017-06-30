@@ -89,3 +89,27 @@ class TestDistutilsCommand(unittest.TestCase):
             command = Codecov(dist)
             with self.assertRaises(SystemExit):
                 command.run()
+
+    def test_lists(self):
+        # files and disable in setup.cfg, env in arguments
+
+        setup_cfg = {
+            'disable': 'search, detect, gcov, pycov', # single line list
+            'files': # multi line string
+                '''
+                some random file
+                /some/root/file
+                '''
+        }
+
+        with self.environ(setup_cfg, '--env', 'CI,TRAVIS') as dist:
+            command = Codecov(dist)
+            command.ensure_finalized()
+
+            files = vars(command).get('files')
+            env = vars(command).get('env')
+            disable = vars(command).get('disable')
+
+            self.assertEqual(files, ['some random file', '/some/root/file'])
+            self.assertEqual(env, ['CI', 'TRAVIS'])
+            self.assertEqual(disable, ['search', 'detect', 'gcov', 'pycov'])
