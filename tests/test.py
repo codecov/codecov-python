@@ -6,6 +6,11 @@ from ddt import ddt, data
 from mock import patch, Mock
 import unittest2 as unittest
 
+try:
+    from io import StringIO
+except ImportError:
+    from StringIO import StringIO
+
 import subprocess
 
 import codecov
@@ -95,31 +100,21 @@ class TestUploader(unittest.TestCase):
     def test_ignore_report(self, path):
         self.assertTrue(bool(codecov.ignored_report('/home/file/' + path)), path + ' should be ignored')
 
-    def test_command(self):
-        try:
-            self.run_cli(True, '--help')
-        except SystemExit as e:
-            self.assertEqual(str(e), '0')
-        else:
-            raise Exception("help not shown")
+    @patch('sys.stdout', new_callable=StringIO)
+    def test_command(self, stdout):
+        return_code = self.run_cli(True, '--help')
+        self.assertEqual(return_code, 0)
+        self.assertTrue(stdout.getvalue().startswith('usage: codecov [-h] '))
 
     def test_exits_0(self):
-        try:
-            sys.argv = ['']
-            codecov.main()
-        except SystemExit as e:
-            self.assertEqual(str(e), '0')
-        else:
-            raise Exception("did not exit")
+        sys.argv = ['']
+        return_code = codecov.main()
+        self.assertEqual(return_code, 0)
 
     def test_exits_1(self):
-        try:
-            sys.argv = ['']
-            codecov.main('--required')
-        except SystemExit as e:
-            self.assertEqual(str(e), '1')
-        else:
-            raise Exception("did not exit")
+        sys.argv = ['']
+        return_code = codecov.main('--required')
+        self.assertEqual(return_code, 1)
 
     def test_returns_none(self):
         with patch('requests.post') as post:
