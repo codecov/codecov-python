@@ -23,8 +23,8 @@ except ImportError:
 from mock import patch
 import unittest2 as unittest
 
-import codecov
-from codecov.distcmd import Codecov
+from codecov import main, __version__
+from codecov.distcmd import codecov
 
 
 class TestDistutilsCommand(unittest.TestCase):
@@ -66,7 +66,7 @@ class TestDistutilsCommand(unittest.TestCase):
         # No setup.cfg, no argument, just like running 'codecov' directly
 
         with self.environ() as dist:
-            command = Codecov(dist)
+            command = codecov(dist)
             try:
                 command.run()
             except SystemExit as se:
@@ -77,7 +77,7 @@ class TestDistutilsCommand(unittest.TestCase):
         # No setup.cfg, --required argument
 
         with self.environ(None, '--required') as dist:
-            command = Codecov(dist)
+            command = codecov(dist)
             with self.assertRaises(SystemExit):
                 command.run()
 
@@ -86,7 +86,7 @@ class TestDistutilsCommand(unittest.TestCase):
 
         setup_cfg = {'required': True}
         with self.environ(setup_cfg) as dist:
-            command = Codecov(dist)
+            command = codecov(dist)
             with self.assertRaises(SystemExit):
                 command.run()
 
@@ -103,7 +103,7 @@ class TestDistutilsCommand(unittest.TestCase):
         }
 
         with self.environ(setup_cfg, '--env', 'CI,TRAVIS') as dist:
-            command = Codecov(dist)
+            command = codecov(dist)
             command.ensure_finalized()
 
             files = vars(command).get('files')
@@ -113,3 +113,26 @@ class TestDistutilsCommand(unittest.TestCase):
             self.assertEqual(files, ['some random file', '/some/root/file'])
             self.assertEqual(env, ['CI', 'TRAVIS'])
             self.assertEqual(disable, ['search', 'detect', 'gcov', 'pycov'])
+
+    def test_lists_2(self):
+        setup_cfg = {'file': 'some single file'}
+
+        with self.environ(setup_cfg, '--gcov-glob', 'test*') as dist:
+            command = codecov(dist)
+            command.ensure_finalized()
+
+            files = vars(command).get('files')
+            gcov_glob = vars(command).get('gcov_glob')
+
+            self.assertEqual(files, ['some single file'])
+            self.assertEqual(gcov_glob, ['test*'])
+
+
+
+    def test_version(self):
+        with self.environ(None, '--version') as dist:
+            command = codecov(dist)
+            with patch('sys.stdout', new_callable=StringIO) as stdout:
+                command.run()
+                version = 'Codecov py-v{}'.format(__version__)
+                self.assertIn(version, stdout.getvalue())
