@@ -1,3 +1,4 @@
 import codecov
+import sys
 
-codecov.main()
+sys.exit(codecov.main())
