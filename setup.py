@@ -34,4 +34,7 @@ setup(name='codecov',
       zip_safe=True,
       install_requires=install_requires,
       tests_require=["unittest2"],
-      entry_points={'console_scripts': ['codecov=codecov:main']})
+      entry_points={
+          'console_scripts': ['codecov=codecov:main'],
+          'distutils.commands': ['codecov=codecov.distcmd:Codecov']
+      })
