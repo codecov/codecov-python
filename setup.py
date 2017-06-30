@@ -36,5 +36,5 @@ setup(name='codecov',
       tests_require=["unittest2"],
       entry_points={
           'console_scripts': ['codecov=codecov:main'],
-          'distutils.commands': ['codecov=codecov.distcmd:Codecov']
+          'distutils.commands': ['codecov=codecov.distcmd:codecov']
       })

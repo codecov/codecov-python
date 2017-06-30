@@ -3,23 +3,23 @@ import sys
 
 try:
     from configparser import ConfigParser
-except ImportError:
+except ImportError: # pragma: no cover
     from ConfigParser import ConfigParser
 
 try:
     from setuptools import Command
-except ImportError:
+except ImportError: # pragma: no cover
     from distutils.cmd import Command
 
 from argparse import ArgumentParser
 from distutils.errors import DistutilsArgError
 
-import codecov
+from codecov import main
 
 
-class Codecov(Command):
+class codecov(Command):
 
-    command_name = "codecov"
+    description = "Upload coverage reports to a codecov server."
 
     user_options =  [
 
@@ -64,6 +64,7 @@ class Codecov(Command):
             for sep in ('\n', ','):
                 if sep in string:
                     return list(map(str.strip, filter(None, string.split(sep))))
+            return [string.strip()]
         return list()
 
     def initialize_options(self):
@@ -168,7 +169,7 @@ class Codecov(Command):
 
         self.ensure_finalized()
         if self.version:
-            return codecov.main('--version')
+            return main('--version')
 
         argv = []
 
@@ -209,7 +210,7 @@ class Codecov(Command):
         # Patch sys.argv so that if argv is empty,
         # codecov does not see the options passed to setup.py
         sys._argv, sys.argv = sys.argv, []
-        return_code = codecov.main(*argv)
+        return_code = main(*argv)
         sys.argv = sys._argv
         del sys._argv
 
