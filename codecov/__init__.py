@@ -205,7 +205,7 @@ def main(*argv, **kwargs):
     basics.add_argument('--file', '-f', nargs="*", default=None, help="Target a specific file for uploading")
     basics.add_argument('--flags', '-F', nargs="*", default=None, help="Flag these uploaded files with custom labels")
     basics.add_argument('--env', '-e', nargs="*", default=None, help="Store environment variables to help distinguish CI builds.")
-    basics.add_argument('--required', action="store_true", default=False, help="If Codecov fails it will exit 1: failing the CI build.")
+    basics.add_argument('--required', action="store_true", default=False, help="If Codecov fails it will exit 1 - possibly failing the CI build.")
     basics.add_argument('--name', '-n', default=None, help="Custom defined name of the upload. Visible in Codecov UI.")
 
     gcov = parser.add_argument_group('======================== gcov ========================')
