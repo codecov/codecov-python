@@ -230,7 +230,7 @@ def main(*argv, **kwargs):
 
     debugging = parser.add_argument_group('======================== Debugging ========================')
     debugging.add_argument('--dump', action="store_true", help="Dump collected data and do not send to Codecov")
-    debugging.add_argument('-v', '--verbose', action="store_true", help="No comfigured yet")
+    debugging.add_argument('-v', '--verbose', action="store_true", help="Be verbose, e.g. dump the collected data")
     debugging.add_argument('--no-color', action="store_true", help="Do not output with color")
 
     # Parse Arguments
@@ -700,6 +700,10 @@ def main(*argv, **kwargs):
             write('==> Uploading')
             write('    .url ' + codecov.url)
             write('    .query ' + remove_token('token=<secret>', urlargs))
+            if codecov.verbose:
+                write('-------------------- Reports --------------------')
+                write(reports)
+                write('-------------------------------------------------')
 
             s3 = None
             trys = 0
