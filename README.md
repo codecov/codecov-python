@@ -65,7 +65,7 @@ after_success:
 ```yaml
 # private repository on Travis CI
 install:
-  - pip install --user codecov
+  - pip install codecov
 # or
   - conda install -c conda-forge codecov
 after_success:
