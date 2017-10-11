@@ -399,7 +399,7 @@ def main(*argv, **kwargs):
         # --------
         # AppVeyor
         # --------
-        elif os.getenv('CI') == "True" and os.getenv('APPVEYOR') == 'True':
+        elif os.getenv('CI') == "True" and os.getenv('APPVEYOR', '').lower() == 'true':
             # http://www.appveyor.com/docs/environment-variables
             query.update(dict(branch=os.getenv('APPVEYOR_REPO_BRANCH'),
                               service="appveyor",
