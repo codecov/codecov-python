@@ -201,7 +201,7 @@ def main(*argv, **kwargs):
                                      epilog="""Upload reports to Codecov""")
     basics = parser.add_argument_group('======================== Basics ========================')
     basics.add_argument('--version', action='version', version='Codecov py-v'+version+" - https://codecov.io/")
-    basics.add_argument('--token', '-t', default=os.getenv("CODECOV_TOKEN"), help="Private repository token or @filename for file containing the token. Defaults to $CODECOV_TOKEN. Not required for public repositories on Travis-CI, CircleCI and AppVeyor")
+    basics.add_argument('--token', '-t', default=os.getenv("CODECOV_TOKEN"), help="Private repository token or @filename for file containing the token. Defaults to $CODECOV_TOKEN. Not required for public repositories on Travis CI, CircleCI and AppVeyor")
     basics.add_argument('--file', '-f', nargs="*", default=None, help="Target a specific file for uploading")
     basics.add_argument('--flags', '-F', nargs="*", default=None, help="Flag these uploaded files with custom labels")
     basics.add_argument('--env', '-e', nargs="*", default=None, help="Store environment variables to help distinguish CI builds.")
@@ -217,10 +217,10 @@ def main(*argv, **kwargs):
     advanced = parser.add_argument_group('======================== Advanced ========================')
     advanced.add_argument('-X', '--disable', nargs="*", default=[], help="Disable features. Accepting **search** to disable crawling through directories, **detect** to disable detecting CI provider, **gcov** disable gcov commands, `pycov` disables running python `coverage xml`, **fix** to disable report adjustments http://bit.ly/1O4eBpt")
     advanced.add_argument('--root', default=None, help="Project directory. Default: current direcory or provided in CI environment variables")
-    advanced.add_argument('--commit', '-c', default=None, help="Commit sha, set automatically")
+    advanced.add_argument('--commit', '-c', default=None, help="Commit SHA, set automatically")
     advanced.add_argument('--branch', '-b', default=None, help="Branch name")
-    advanced.add_argument('--build', default=None, help="Specify a custom build number to distinguish ci jobs, provided automatically for supported ci companies")
-    advanced.add_argument('--pr', default=None, help="Specify a custom pr number, provided automatically for supported ci companies")
+    advanced.add_argument('--build', default=None, help="Specify a custom build number to distinguish CI jobs, provided automatically for supported CI companies")
+    advanced.add_argument('--pr', default=None, help="Specify a custom pr number, provided automatically for supported CI companies")
     advanced.add_argument('--tag', default=None, help="Git tag")
 
     enterprise = parser.add_argument_group('======================== Enterprise ========================')
@@ -230,7 +230,7 @@ def main(*argv, **kwargs):
 
     debugging = parser.add_argument_group('======================== Debugging ========================')
     debugging.add_argument('--dump', action="store_true", help="Dump collected data and do not send to Codecov")
-    debugging.add_argument('-v', '--verbose', action="store_true", help="No comfigured yet")
+    debugging.add_argument('-v', '--verbose', action="store_true", help="Not configured yet")
     debugging.add_argument('--no-color', action="store_true", help="Do not output with color")
 
     # Parse Arguments
