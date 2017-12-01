@@ -40,7 +40,7 @@ ignored_path = re.compile(r'(/vendor)|'
                           r'(/build/lib)|'
                           r'(/htmlcov)|'
                           r'(/node_modules)|'
-                          r'(/\.yarn-cache)|'                          
+                          r'(/\.yarn-cache)|'
                           r'(\.egg-info)|'
                           r'(/\.git)|'
                           r'(/\.hg)|'
@@ -139,7 +139,7 @@ def fopen(path):
                 return f.read()
         else:
             try:
-                with open(path, 'r', encoding='utf8') as f:
+                with open(path, 'r', encoding='utf-8') as f:
                     return f.read()
             except UnicodeDecodeError:
                 with open(path, 'r', encoding='ISO-8859-1') as f:
