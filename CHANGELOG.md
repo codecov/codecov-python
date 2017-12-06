@@ -1,4 +1,4 @@
-### `2.0.9`
+### `2.0.10`
 - fix uploading when reports contain characters outside of latin-1
 - remove reduced_redundancy header from
 
