@@ -709,7 +709,8 @@ def main(*argv, **kwargs):
                     write('    Pinging Codecov...')
                     res = requests.post('%s/upload/v4?%s' % (codecov.url, urlargs),
                                         verify=codecov.cacert,
-                                        headers={'Accept': 'text/plain'})
+                                        headers={'Accept': 'text/plain',
+                                                 'X-Reduced-Redundancy': 'false'})
                     if res.status_code in (400, 406):
                         raise Exception(res.text)
 
@@ -721,8 +722,7 @@ def main(*argv, **kwargs):
                         write('    Uploading to S3...')
                         s3 = requests.put(upload_url, data=reports,
                                           headers={'Content-Type': 'text/plain',
-                                                   'x-amz-acl': 'public-read',
-                                                   'x-amz-storage-class': 'REDUCED_REDUNDANCY'})
+                                                   'x-amz-acl': 'public-read'})
                         s3.raise_for_status()
                         assert s3.status_code == 200
                         write('    ' + result)

@@ -1,3 +1,7 @@
+### `2.0.9`
+- fix uploading when reports contain characters outside of latin-1
+- remove reduced_redundancy header from
+
 ### `2.0.7`
 - Add `--name/-n` to cli
 - Add support for Jenkins Blue
