@@ -605,9 +605,15 @@ def main(*argv, **kwargs):
             write('XX> Skip processing gcov')
 
         else:
+            dont_search_here = (
+                "-not -path ./bower_components/** "
+                "-not -path ./node_modules/** "
+                "-not -path ./vendor/**"
+            )
             write('==> Processing gcov (disable by -X gcov)')
-            cmd = "find %s -type f -name '*.gcno' %s -exec %s -pb %s {} +" % (
+            cmd = "find %s %s -type f -name '*.gcno' %s -exec %s -pb %s {} +" % (
                   (codecov.gcov_root or root),
+                  dont_search_here,
                   " ".join(map(lambda a: "-not -path '%s'" % a, codecov.gcov_glob)),
                   (codecov.gcov_exec or ''),
                   (codecov.gcov_args or ''))
