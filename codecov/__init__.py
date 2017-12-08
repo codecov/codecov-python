@@ -606,9 +606,9 @@ def main(*argv, **kwargs):
 
         else:
             dont_search_here = (
-                "-not -path ./bower_components/** "
-                "-not -path ./node_modules/** "
-                "-not -path ./vendor/**"
+                "-not -path './bower_components/**' "
+                "-not -path './node_modules/**' "
+                "-not -path './vendor/**'"
             )
             write('==> Processing gcov (disable by -X gcov)')
             cmd = "find %s %s -type f -name '*.gcno' %s -exec %s -pb %s {} +" % (
