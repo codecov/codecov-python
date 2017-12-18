@@ -3,11 +3,11 @@ notifications:
   email: false
 sudo: false
 python:
-  - 2.6
   - 2.7
   - pypy
-  - 3.3
   - 3.4
+  - 3.5
+  - 3.6 
   - pypy3
 matrix:
   include:
