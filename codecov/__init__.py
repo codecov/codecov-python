@@ -673,7 +673,7 @@ def main(*argv, **kwargs):
             if os.path.exists(opj(os.getcwd(), '.coverage')) and not os.path.exists(opj(os.getcwd(), 'coverage.xml')):
                 if glob.glob(opj(os.getcwd(), '.coverage.*')):
                     write('    Mergeing coverage reports')
-                    try_to_run('coverage merge')
+                    try_to_run('coverage combine')
 
                 write('    Generating coverage xml reports for Python')
                 # using `-i` to ignore "No source for code" error
