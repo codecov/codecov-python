@@ -31,8 +31,6 @@ COLOR = True
 
 remove_token = re.compile(r'token=[^\&]+').sub
 
-is_merge_commit = re.compile(r'^Merge\s\w{40}\sinto\s\w{40}$')
-
 ignored_path = re.compile(r'(/vendor)|'
                           r'(/js/generated/coverage)|'
                           r'(/__pycache__)|'
@@ -530,9 +528,11 @@ def main(*argv, **kwargs):
     else:
         # Merge Commits
         # -------------
-        res = try_to_run('git log -1 --pretty=%B')
-        if res and is_merge_commit.match(res.strip()):
-            query['commit'] = res.split(' ')[1]
+        res = try_to_run('git show --no-patch --format="%P"')
+        if res:
+            heads = res.split(' ')
+            if len(heads) > 1:
+                query['commit'] = heads[0]
 
     if codecov.slug:
         query['slug'] = codecov.slug
