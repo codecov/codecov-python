@@ -726,7 +726,7 @@ def main(*argv, **kwargs):
                         result, upload_url = res[0], res[1]
 
                         write('    Uploading to S3...')
-                        s3 = requests.put(upload_url, data=reports,
+                        s3 = requests.put(upload_url, data=reports.encode('utf-8'),
                                           headers={'Content-Type': 'text/plain',
                                                    'x-amz-acl': 'public-read'})
                         s3.raise_for_status()
