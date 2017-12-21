@@ -380,12 +380,12 @@ def main(*argv, **kwargs):
         # --------
         # drone.io
         # --------
-        elif os.getenv('CI') == "true" and os.getenv('DRONE') == "true":
+        elif os.getenv('CI') == "drone" and os.getenv('DRONE') == "true":
             # http://docs.drone.io/env.html
             query.update(dict(branch=os.getenv('DRONE_BRANCH'),
                               service='drone.io',
                               build=os.getenv('DRONE_BUILD_NUMBER'),
-                              build_url=os.getenv('DRONE_BUILD_URL')))
+                              build_url=os.getenv('DRONE_BUILD_LINK')))
             root = os.getenv('DRONE_BUILD_DIR') or root
             write('    Drone Detected')
 
