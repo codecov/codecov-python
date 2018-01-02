@@ -1,6 +1,9 @@
 ### `2.0.11`
 - fix merge commit when it's a pull request
 - remove snapci, business closed
+- skip vendor directories for gcov parsing
+- run coverage combine not merge
+- fix report encoding
 
 ### `2.0.10`
 - fix uploading when reports contain characters outside of latin-1
