@@ -41,7 +41,7 @@ class TestUploader(unittest.TestCase):
                     "BUILDKITE", "BUILDKITE_BUILD_NUMBER", "BUILDKITE_JOB_ID", "BUILDKITE_BRANCH", "BUILDKITE_PROJECT_SLUG", "BUILDKITE_COMMIT",
                     "DRONE", "DRONE_BRANCH", "DRONE_BUILD_DIR", "JENKINS_URL", "TRAVIS_TAG",
                     "GIT_BRANCH", "GIT_COMMIT", "WORKSPACE", "BUILD_NUMBER", "CI_BUILD_URL", "SEMAPHORE_REPO_SLUG", "SEMAPHORE_CURRENT_THREAD",
-                    "DRONE_BUILD_URL", "TRAVIS_REPO_SLUG", "CODECOV_TOKEN", "APPVEYOR", "APPVEYOR_REPO_BRANCH",
+                    "DRONE_BUILD_LINK", "TRAVIS_REPO_SLUG", "CODECOV_TOKEN", "APPVEYOR", "APPVEYOR_REPO_BRANCH",
                     "APPVEYOR_BUILD_VERSION", "APPVEYOR_JOB_ID", "APPVEYOR_REPO_NAME", "APPVEYOR_REPO_COMMIT", "WERCKER_GIT_BRANCH",
                     "WERCKER_MAIN_PIPELINE_STARTED", "WERCKER_GIT_OWNER", "WERCKER_GIT_REPOSITORY",
                     "CI_BUILD_REF_NAME", "CI_BUILD_ID", "CI_BUILD_REPO", "CI_PROJECT_DIR", "CI_BUILD_REF", "CI_SERVER_NAME",
@@ -445,10 +445,11 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res['query']['branch'], 'master')
 
     def test_ci_drone(self):
-        self.set_env(DRONE='true',
+        self.set_env(CI='drone',
+                     DRONE='true',
                      DRONE_BUILD_NUMBER='10',
                      DRONE_BRANCH='master',
-                     DRONE_BUILD_URL='https://drone.io/github/builds/1',
+                     DRONE_BUILD_LINK='https://drone.io/github/builds/1',
                      CODECOV_TOKEN='token')
         self.fake_report()
         res = self.run_cli()
