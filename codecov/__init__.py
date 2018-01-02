@@ -426,20 +426,6 @@ def main(*argv, **kwargs):
                               commit=os.getenv('WERCKER_GIT_COMMIT')))
             write('    Wercker Detected')
 
-        # -------
-        # Snap CI
-        # -------
-        elif os.getenv('CI') == "true" and os.getenv('SNAP_CI') == "true":
-            # https://docs.snap-ci.com/environment-variables/
-            query.update(dict(branch=os.getenv('SNAP_BRANCH') or os.getenv('SNAP_UPSTREAM_BRANCH'),
-                              service="snap",
-                              job=os.getenv('SNAP_STAGE_NAME'),
-                              build=os.getenv('SNAP_PIPELINE_COUNTER'),
-                              pr=os.getenv('SNAP_PULL_REQUEST_NUMBER'),
-                              commit=os.getenv('SNAP_COMMIT') or os.getenv('SNAP_UPSTREAM_COMMIT')))
-            _add_env_if_not_empty(include_env, 'DISPLAY')
-            write('    Snap CI Detected')
-
         # ------
         # Magnum
         # ------

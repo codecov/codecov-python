@@ -34,9 +34,8 @@ class TestUploader(unittest.TestCase):
         # set all environ back
         os.environ['CI'] = "true"
         for key in ("TRAVIS", "TRAVIS_BRANCH", "TRAVIS_COMMIT", "TRAVIS_BUILD_DIR", "TRAVIS_JOB_ID", "TRAVIS_PULL_REQUEST",
-                    "CI_NAME", "CI_BRANCH", "CI_COMMIT_ID", "SNAP_CI", "SHIPPABLE",
+                    "CI_NAME", "CI_BRANCH", "CI_COMMIT_ID", "SHIPPABLE",
                     "CI_BUILD_NUMBER", "MAGNUM", "CI_COMMIT", "APPVEYOR_ACCOUNT_NAME", "APPVEYOR_PROJECT_SLUG", "APPVEYOR_PULL_REQUEST_NUMBER",
-                    "SNAP_UPSTREAM_BRANCH", "SNAP_BRANCH", "SNAP_PIPELINE_COUNTER", "SNAP_PULL_REQUEST_NUMBER", "SNAP_COMMIT", "SNAP_UPSTREAM_COMMIT", "SNAP_STAGE_NAME",
                     "CIRCLECI", "CIRCLE_BRANCH", "CIRCLE_ARTIFACTS", "CIRCLE_SHA1", "CIRCLE_NODE_INDEX", "CIRCLE_PR_NUMBER",
                     "SEMAPHORE", "BRANCH_NAME", "SEMAPHORE_PROJECT_DIR", "REVISION",
                     "BUILDKITE", "BUILDKITE_BUILD_NUMBER", "BUILDKITE_JOB_ID", "BUILDKITE_BRANCH", "BUILDKITE_PROJECT_SLUG", "BUILDKITE_COMMIT",
@@ -444,23 +443,6 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res['query']['build'], '10.1')
         self.assertEqual(res['query']['slug'], 'owner/repo')
         self.assertEqual(res['query']['branch'], 'master')
-
-    def test_ci_snap(self):
-        self.set_env(SNAP_BRANCH='master',
-                     SNAP_CI='true',
-                     SNAP_STAGE_NAME='default',
-                     SNAP_PIPELINE_COUNTER='10',
-                     SNAP_PULL_REQUEST_NUMBER='10',
-                     SNAP_COMMIT='743b04806ea677403aa2ff26c6bdeb85005de658',
-                     CODECOV_TOKEN='token')
-        self.fake_report()
-        res = self.run_cli()
-        self.assertEqual(res['query']['service'], 'snap')
-        self.assertEqual(res['query']['commit'], '743b04806ea677403aa2ff26c6bdeb85005de658')
-        self.assertEqual(res['query']['build'], '10')
-        self.assertEqual(res['query']['pr'], '10')
-        self.assertEqual(res['query']['job'], 'default')
-        self.assertEqual(res['codecov'].token, 'token')
 
     def test_ci_drone(self):
         self.set_env(DRONE='true',
