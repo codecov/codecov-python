@@ -527,10 +527,13 @@ def main(*argv, **kwargs):
     if codecov.build:
         query['build'] = codecov.build
 
+    if codecov.pr:
+        query['pr'] = codecov.pr
+
     if codecov.commit:
         query['commit'] = codecov.commit
 
-    else:
+    elif query['pr'] and query['pr'] != 'false':
         # Merge Commits
         # -------------
         res = try_to_run('git show --no-patch --format="%P"')
@@ -538,15 +541,13 @@ def main(*argv, **kwargs):
             heads = res.split(' ')
             if len(heads) > 1:
                 query['commit'] = heads[0]
+                write('    Fixing merge commit SHA')
 
     if codecov.slug:
         query['slug'] = codecov.slug
 
     if codecov.branch:
         query['branch'] = codecov.branch
-
-    if codecov.pr:
-        query['pr'] = codecov.pr
 
     if codecov.tag:
         query['tag'] = codecov.tag
