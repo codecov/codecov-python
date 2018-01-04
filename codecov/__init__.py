@@ -526,7 +526,7 @@ def main(*argv, **kwargs):
         if res:
             heads = res.split(' ')
             if len(heads) > 1:
-                query['commit'] = heads[0]
+                query['commit'] = heads[1]
                 write('    Fixing merge commit SHA')
 
     if codecov.slug:
