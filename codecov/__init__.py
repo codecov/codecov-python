@@ -34,6 +34,8 @@ version = VERSION = __version__ = '2.0.11'
 
 COLOR = True
 
+is_merge_commit = re.compile(r'^Merge\s\w{40}\sinto\s\w{40}$')
+
 remove_token = re.compile(r'token=[^\&]+').sub
 
 ignored_path = re.compile(r'(/vendor)|'
@@ -522,12 +524,10 @@ def main(*argv, **kwargs):
     elif query['pr'] and query['pr'] != 'false':
         # Merge Commits
         # -------------
-        res = try_to_run('git show --no-patch --format="%P"')
-        if res:
-            heads = res.split(' ')
-            if len(heads) > 1:
-                query['commit'] = heads[0]
-                write('    Fixing merge commit SHA')
+        res = try_to_run('git log -1 --pretty=%B')
+        if res and is_merge_commit.match(res.strip()):
+            query['commit'] = res.split(' ')[1]
+            write('    Fixing merge commit SHA')
 
     if codecov.slug:
         query['slug'] = codecov.slug
