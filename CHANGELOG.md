@@ -1,3 +1,6 @@
+### `2.0.12`
+- revert merge commit fix, back to old way
+
 ### `2.0.11`
 - fix merge commit when it's a pull request
 - remove snapci, business closed
