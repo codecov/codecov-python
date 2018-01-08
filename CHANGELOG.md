@@ -1,3 +1,6 @@
+### `2.0.13`
+- fix encoding issues
+
 ### `2.0.12`
 - revert merge commit fix, back to old way
 
