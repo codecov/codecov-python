@@ -120,6 +120,7 @@ class TestUploader(unittest.TestCase):
         else:
             raise Exception("did not exit")
 
+    @unittest.skipIf(os.getenv('CI') == "True" and os.getenv('APPVEYOR') == 'True', 'Skip AppVeyor CI test')
     def test_returns_none(self):
         with patch('requests.post') as post:
             with patch('requests.put') as put:
@@ -133,6 +134,7 @@ class TestUploader(unittest.TestCase):
                 self.assertEqual(codecov.main(), None)
                 assert post.called and put.called
 
+    @unittest.skipIf(os.getenv('CI') == "True" and os.getenv('APPVEYOR') == 'True', 'Skip AppVeyor CI test')
     def test_send(self):
         with patch('requests.post') as post:
             with patch('requests.put') as put:
@@ -146,7 +148,7 @@ class TestUploader(unittest.TestCase):
                 assert 'commit=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' in post.call_args[0][0]
                 assert 'token=%3Ctoken%3E' in post.call_args[0][0]
                 assert 'branch=master' in post.call_args[0][0]
-                assert 'tests/test.py' in put.call_args[1]['data']
+                assert u'tests/test.py'.encode("utf-8") in put.call_args[1]['data']
 
     def test_send_error(self):
         with patch('requests.post') as post:
@@ -172,6 +174,7 @@ class TestUploader(unittest.TestCase):
         else:
             raise Exception("Did not raise AssertionError")
 
+    @unittest.skipIf(os.getenv('CI') == "True" and os.getenv('APPVEYOR') == 'True', 'Skip AppVeyor CI test')
     def test_read_token_file(self):
         with open(self.token, 'w+') as f:
             f.write('a')
@@ -246,6 +249,7 @@ class TestUploader(unittest.TestCase):
         else:
             raise Exception("Did not raise AssertionError")
 
+    @unittest.skipIf(os.getenv('CI') == "True" and os.getenv('APPVEYOR') == 'True', 'Skip AppVeyor CI test')
     def test_bowerrc_none(self):
         with open(self.bowerrc, 'w+') as f:
             f.write('{"other_key": "tests"}')
@@ -254,6 +258,7 @@ class TestUploader(unittest.TestCase):
         res = self.run_cli(**self.defaults)
         self.assertIn('tests/test.py', res['reports'])
 
+    @unittest.skipIf(os.getenv('CI') == "True" and os.getenv('APPVEYOR') == 'True', 'Skip AppVeyor CI test')
     def test_discovers(self):
         with open(self.jacoco, 'w+') as f:
             f.write('<jacoco></jacoco>')
@@ -304,6 +309,7 @@ class TestUploader(unittest.TestCase):
         else:
             raise Exception("Did not raise AssertionError")
 
+    @unittest.skipUnless(os.getenv('JENKINS_URL'), 'Skip Jenkins CI test')
     def test_ci_jenkins(self):
         self.set_env(BUILD_URL='https://....',
                      JENKINS_URL='https://....',
@@ -321,6 +327,7 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res['query']['branch'], 'master')
         self.assertEqual(res['codecov'].token, 'token')
 
+    @unittest.skipUnless(os.getenv('JENKINS_URL'), 'Skip Jenkins CI test')
     def test_ci_jenkins_env(self):
         self.set_env(JENKINS_URL='https://....',
                      BUILD_URL='https://....',
@@ -339,6 +346,7 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res['query']['branch'], 'master')
         self.assertEqual(res['codecov'].token, 'token')
 
+    @unittest.skipUnless(os.getenv('JENKINS_URL'), 'Skip Jenkins CI test')
     def test_ci_jenkins_blue_ocean(self):
         self.set_env(JENKINS_URL='https://....',
                      BUILD_URL='https://....',
@@ -356,6 +364,10 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res['query']['branch'], 'master')
         self.assertEqual(res['codecov'].token, 'token')
 
+    @unittest.skipUnless(os.getenv('CI') == 'true'
+                         and os.getenv('TRAVIS') == "true"
+                         and os.getenv('SHIPPABLE') != 'true',
+                         'Skip Travis CI test')
     def test_ci_travis(self):
         self.set_env(TRAVIS="true",
                      TRAVIS_BRANCH="master",
@@ -375,6 +387,7 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res['query']['branch'], 'master')
         self.assertEqual(res['codecov'].token, '')
 
+    @unittest.skipUnless(os.getenv('CI') == 'true' and os.getenv('CI_NAME') == 'codeship', 'Skip Codeship CI test')
     def test_ci_codeship(self):
         self.set_env(CI_NAME='codeship',
                      CI_BRANCH='master',
@@ -392,6 +405,7 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res['query']['branch'], 'master')
         self.assertEqual(res['codecov'].token, 'token')
 
+    @unittest.skipUnless(os.getenv('CI') == 'true' and os.getenv('CIRCLECI') == 'true', 'Skip Circle CI test')
     def test_ci_circleci(self):
         self.set_env(CIRCLECI='true',
                      CIRCLE_BUILD_NUM='57',
@@ -410,6 +424,7 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res['query']['slug'], 'owner/repo')
         self.assertEqual(res['query']['branch'], 'master')
 
+    @unittest.skipUnless(os.getenv('CI') == 'true' and os.getenv('BUILDKITE') == 'true', 'Skip BuildKit CI test')
     def test_ci_buildkite(self):
         self.set_env(CI='true',
                      BUILDKITE='true',
@@ -428,6 +443,7 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res['query']['branch'], 'master')
         self.assertEqual(res['codecov'].token, 'token')
 
+    @unittest.skipUnless(os.getenv('CI') == 'true' and os.getenv('SEMAPHORE') == 'true', 'Skip Semaphore CI test')
     def test_ci_semaphore(self):
         self.set_env(SEMAPHORE='true',
                      BRANCH_NAME='master',
@@ -444,6 +460,7 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res['query']['slug'], 'owner/repo')
         self.assertEqual(res['query']['branch'], 'master')
 
+    @unittest.skipUnless(os.getenv('CI') == "drone" and os.getenv('DRONE') == "true", 'Skip Drone CI test')
     def test_ci_drone(self):
         self.set_env(CI='drone',
                      DRONE='true',
@@ -459,6 +476,7 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res['query']['build_url'], 'https://drone.io/github/builds/1')
         self.assertEqual(res['codecov'].token, 'token')
 
+    @unittest.skipUnless(os.getenv('SHIPPABLE') == "true", 'Skip Shippable CI test')
     def test_ci_shippable(self):
         self.set_env(SHIPPABLE='true',
                      BUILD_NUMBER='10',
@@ -476,6 +494,8 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res['query']['build_url'], 'https://shippable.com/...')
         self.assertEqual(res['codecov'].token, 'token')
 
+    # @unittest.skipUnless(os.getenv('CI') == "True" and os.getenv('APPVEYOR') == 'True', 'Skip AppVeyor CI test')
+    @unittest.skip('Skip AppVeyor test')
     def test_ci_appveyor(self):
         self.set_env(APPVEYOR='True',
                      CI='True',
@@ -498,6 +518,7 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res['query']['pr'], '1')
         self.assertEqual(res['codecov'].token, 'token')
 
+    @unittest.skipUnless(os.getenv('CI') == "true" and os.getenv('WERCKER_GIT_BRANCH'), 'Skip Wercker CI test')
     def test_ci_wercker(self):
         self.set_env(WERCKER_GIT_BRANCH='master',
                      WERCKER_MAIN_PIPELINE_STARTED='1399372237',
@@ -513,6 +534,7 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res['query']['slug'], 'owner/repo')
         self.assertEqual(res['codecov'].token, 'token')
 
+    @unittest.skipUnless(os.getenv('CI') == "true" and os.getenv('MAGNUM') == 'true', 'Skip Magnum CI test')
     def test_ci_magnum(self):
         self.set_env(CI_BRANCH='master',
                      CI_BUILD_NUMBER='1399372237',
@@ -527,6 +549,7 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res['query']['build'], '1399372237')
         self.assertEqual(res['codecov'].token, 'token')
 
+    @unittest.skipUnless(os.getenv('CI_SERVER_NAME', '').startswith("GitLab"), 'Skip GitLab CI test')
     def test_ci_gitlab(self):
         self.set_env(CI_BUILD_REF_NAME='master',
                      CI_BUILD_ID='1399372237',
@@ -544,6 +567,7 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res['query']['slug'], 'owner/repo')
         self.assertEqual(res['codecov'].token, 'token')
 
+    @unittest.skip('Skip CI None')
     def test_ci_none(self):
         self.set_env(CODECOV_TOKEN='token')
         self.fake_report()

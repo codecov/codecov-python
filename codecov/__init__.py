@@ -719,8 +719,12 @@ def main(*argv, **kwargs):
                         res = res.text.strip().split()
                         result, upload_url = res[0], res[1]
 
+                        # Handle reports encoding for Python 2 and 3
+                        if not isinstance(reports, bytes):
+                            reports = reports.encode('utf-8')
+
                         write('    Uploading to S3...')
-                        s3 = requests.put(upload_url, data=reports.encode('utf-8'),
+                        s3 = requests.put(upload_url, data=reports,
                                           headers={'Content-Type': 'text/plain',
                                                    'x-amz-acl': 'public-read'})
                         s3.raise_for_status()
