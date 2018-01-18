@@ -30,7 +30,7 @@ except:
     pass
 
 
-version = VERSION = __version__ = '2.0.13'
+version = VERSION = __version__ = '2.0.14'
 
 COLOR = True
 
@@ -659,8 +659,8 @@ def main(*argv, **kwargs):
             # Ran from current directory
             if glob.glob(opj(os.getcwd(), '.coverage.*')):
                 write('    Mergeing coverage reports')
-                # The `-a` option is mandatory here. If we 
-                # have a `.coverage` in the current directory, calling 
+                # The `-a` option is mandatory here. If we
+                # have a `.coverage` in the current directory, calling
                 # without the option would delete the previous data
                 try_to_run('coverage combine -a')
 

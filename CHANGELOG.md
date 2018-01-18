@@ -1,3 +1,6 @@
+### `2.0.14`
+- fixed coverage combine
+
 ### `2.0.13`
 - fix encoding issues
 
