@@ -204,6 +204,11 @@ class TestUploader(unittest.TestCase):
         else:
             raise Exception("Did not raise AssertionError")
 
+    def test_prefix(self):
+        self.fake_report()
+        res = self.run_cli(prefix='/foo/bar/', dump=True, token='a', branch='b', commit='c')
+        assert '\nfoo/bar/.gitignore' in res['reports']
+
     def write_c(self):
         c = '\n'.join(('#include <stdio.h>',
                        'static int t = 1;'

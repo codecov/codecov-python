@@ -223,6 +223,7 @@ def main(*argv, **kwargs):
     advanced.add_argument('-X', '--disable', nargs="*", default=[], help="Disable features. Accepting **search** to disable crawling through directories, **detect** to disable detecting CI provider, **gcov** disable gcov commands, `pycov` disables running python `coverage xml`, **fix** to disable report adjustments http://bit.ly/1O4eBpt")
     advanced.add_argument('--root', default=None, help="Project directory. Default: current direcory or provided in CI environment variables")
     advanced.add_argument('--commit', '-c', default=None, help="Commit SHA, set automatically")
+    advanced.add_argument('--prefix', '-P', default=None, help="Prefix network paths to help resolve paths: https://github.com/codecov/support/issues/472")
     advanced.add_argument('--branch', '-b', default=None, help="Branch name")
     advanced.add_argument('--build', default=None, help="Specify a custom build number to distinguish CI jobs, provided automatically for supported CI companies")
     advanced.add_argument('--pr', default=None, help="Specify a custom pr number, provided automatically for supported CI companies")
@@ -562,6 +563,13 @@ def main(*argv, **kwargs):
                    try_to_run('git ls-files') or
                    try_to_run('cd %s && hg locate' % root) or
                    try_to_run('hg locate') or '').strip())
+
+        if codecov.prefix:
+            prefix = codecov.prefix.strip('/')
+            toc = '{}/{}'.format(
+                prefix,
+                toc.replace('\n', '\n{}/'.format(prefix))
+            )
 
         # Detect codecov.yml location
         yaml_location = re.search(
