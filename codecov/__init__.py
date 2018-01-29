@@ -716,46 +716,51 @@ def main(*argv, **kwargs):
             trys = 0
             while trys < 3:
                 trys += 1
-                try:
-                    write('    Pinging Codecov...')
-                    res = requests.post('%s/upload/v4?%s' % (codecov.url, urlargs),
-                                        verify=codecov.cacert,
-                                        headers={'Accept': 'text/plain',
-                                                 'X-Reduced-Redundancy': 'false'})
-                    if res.status_code in (400, 406):
-                        raise Exception(res.text)
+                if 's3' not in codecov.disable:
+                    try:
+                        write('    Pinging Codecov...')
+                        res = requests.post('%s/upload/v4?%s' % (codecov.url, urlargs),
+                                            verify=codecov.cacert,
+                                            headers={'Accept': 'text/plain',
+                                                     'X-Reduced-Redundancy': 'false'})
+                        if res.status_code in (400, 406):
+                            raise Exception(res.text)
 
-                    elif res.status_code < 500:
-                        assert res.status_code == 200
-                        res = res.text.strip().split()
-                        result, upload_url = res[0], res[1]
+                        elif res.status_code < 500:
+                            assert res.status_code == 200
+                            res = res.text.strip().split()
+                            result, upload_url = res[0], res[1]
 
-                        # Handle reports encoding for Python 2 and 3
-                        if not isinstance(reports, bytes):
-                            reports = reports.encode('utf-8')
+                            # Handle reports encoding for Python 2 and 3
+                            if not isinstance(reports, bytes):
+                                reports = reports.encode('utf-8')
 
-                        write('    Uploading to S3...')
-                        s3 = requests.put(upload_url, data=reports,
-                                          headers={'Content-Type': 'text/plain',
-                                                   'x-amz-acl': 'public-read'})
-                        s3.raise_for_status()
-                        assert s3.status_code == 200
-                        write('    ' + result)
-                        break
+                            write('    Uploading to S3...')
+                            s3 = requests.put(upload_url, data=reports,
+                                              headers={'Content-Type': 'text/plain',
+                                                       'x-amz-acl': 'public-read'})
+                            s3.raise_for_status()
+                            assert s3.status_code == 200
+                            write('    ' + result)
+                            break
+                        else:
+                            # try again
+                            continue
 
-                except AssertionError:
-                    write('    Direct to s3 failed. Using backup v2 endpoint.')
-                    write('    Uploading to Codecov...')
-                    # just incase, try traditional upload
-                    res = requests.post('%s/upload/v2?%s' % (codecov.url, urlargs),
-                                        verify=codecov.cacert,
-                                        data='\n'.join((reports, s3.reason if s3 else '', s3.text if s3 else '')),
-                                        headers={"Accept": "text/plain"})
-                    if res.status_code < 500:
-                        write('    ' + res.text)
-                        res.raise_for_status()
-                        result = res.text
-                        return
+                    except AssertionError:
+                        write('    Direct to s3 failed. Using backup v2 endpoint.')
+
+                write('    Uploading to Codecov...')
+                # just incase, try traditional upload
+                res = requests.post('%s/upload/v2?%s' % (codecov.url, urlargs),
+                                    verify=codecov.cacert,
+                                    data='\n'.join((reports, s3.reason if s3 else '', s3.text if s3 else '')),
+                                    headers={"Accept": "text/plain"})
+                if res.status_code < 500:
+                    write('    ' + res.text)
+                    res.raise_for_status()
+                    result = res.text
+                    return
 
                 write('    Retrying... in %ds' % (trys * 30))
                 sleep(trys * 30)
