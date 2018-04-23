@@ -666,7 +666,7 @@ def main(*argv, **kwargs):
             # -----------------------------------------
             # Ran from current directory
             if glob.glob(opj(os.getcwd(), '.coverage.*')):
-                write('    Mergeing coverage reports')
+                write('    Merging coverage reports')
                 # The `-a` option is mandatory here. If we
                 # have a `.coverage` in the current directory, calling
                 # without the option would delete the previous data
