@@ -739,6 +739,7 @@ def main(*argv, **kwargs):
                             s3 = requests.put(upload_url, data=reports,
                                               headers={'Content-Type': 'text/plain',
                                                        'x-amz-acl': 'public-read'})
+                            write('    Took %s' % s3.elapsed)
                             s3.raise_for_status()
                             assert s3.status_code == 200
                             write('    ' + result)
