@@ -35,7 +35,7 @@ Just please make sure to pass all the necessary environment variables through:
 
 ```
 [testenv]
-passenv = TOXENV CI TRAVIS TRAVIS_*
+passenv = TOXENV CI TRAVIS TRAVIS_* CODECOV_*
 deps = codecov>=1.4.0
 commands = codecov -e TOXENV
 ```
