@@ -33,6 +33,7 @@ except:
 version = VERSION = __version__ = '2.0.15'
 
 COLOR = True
+QUIET = False
 
 is_merge_commit = re.compile(r'^Merge\s\w{40}\sinto\s\w{40}$')
 
@@ -110,29 +111,47 @@ opj = os.path.join  # for faster access
 
 def write(text, color=None):
     global COLOR
+    global QUIET
+
     if COLOR:
-        text = text.replace('==>', '\033[90m==>\033[0m')
-        text = text.replace('    +', '    \033[32m+\033[0m')
-        text = text.replace('XX>', '\033[31mXX>\033[0m')
-        if text[:6] == 'Error:':
-            text = '\033[41mError:\033[0m\033[91m%s\033[0m' % text[6:]
-        elif text[:4] == 'Tip:':
-            text = '\033[42mTip:\033[0m\033[32m%s\033[0m' % text[4:]
-        elif text.strip()[:4] == 'http':
-            text = '\033[92m%s\033[0m' % text
-        elif text[:7] == 'Codecov':
-            text = """
-      _____          _
-     / ____|        | |
-    | |     ___   __| | ___  ___ _____   __
-    | |    / _ \ / _  |/ _ \/ __/ _ \ \ / /
-    | |___| (_) | (_| |  __/ (_| (_) \ V /
-     \_____\___/ \____|\___|\___\___/ \_/
-                                    %s\n""" % text.split(' ')[1]
-        elif color == 'red':
-            text = '\033[91m%s\033[0m' % text
-        elif color == 'green':
-            text = '\033[92m%s\033[0m' % text
+        if not QUIET:
+            text = text.replace('==>', '\033[90m==>\033[0m')
+            text = text.replace('    +', '    \033[32m+\033[0m')
+            text = text.replace('XX>', '\033[31mXX>\033[0m')
+            if text[:6] == 'Error:':
+                text = '\033[41mError:\033[0m\033[91m%s\033[0m' % text[6:]
+            elif text[:4] == 'Tip:':
+                text = '\033[42mTip:\033[0m\033[32m%s\033[0m' % text[4:]
+            elif text.strip()[:4] == 'http':
+                text = '\033[92m%s\033[0m' % text
+            elif text[:7] == 'Codecov':
+                text = """
+          _____          _
+         / ____|        | |
+        | |     ___   __| | ___  ___ _____   __
+        | |    / _ \ / _  |/ _ \/ __/ _ \ \ / /
+        | |___| (_) | (_| |  __/ (_| (_) \ V /
+         \_____\___/ \____|\___|\___\___/ \_/
+                                        %s\n""" % text.split(' ')[1]
+            elif color == 'red':
+                text = '\033[91m%s\033[0m' % text
+            elif color == 'green':
+                text = '\033[92m%s\033[0m' % text
+        else:
+            text = text.replace('==> ', '')
+            text = text.replace('    + ', '')
+            text = text.replace('    ', '')
+            text = text.replace('XX>', '')
+            text = text.replace('  -> ', '')
+            text = text.replace('  x> ', '')
+            if text[:4] == 'Tip:':
+                text = ''
+            elif text.strip()[:4] == 'http':
+                text = '\033[92m%s\033[0m' % text
+            elif color == 'red':
+                text = '\033[91m%s\033[0m' % text
+            elif color == 'green':
+                text = '\033[92m%s\033[0m' % text
 
     sys.stdout.write(text + '\n')
 
@@ -197,6 +216,7 @@ def _add_env_if_not_empty(lst, value):
 
 
 def main(*argv, **kwargs):
+    global QUIET
     root = os.getcwd()
 
     # Build Parser
@@ -212,6 +232,7 @@ def main(*argv, **kwargs):
     basics.add_argument('--env', '-e', nargs="*", default=None, help="Store environment variables to help distinguish CI builds.")
     basics.add_argument('--required', action="store_true", default=False, help="If Codecov fails it will exit 1 - possibly failing the CI build.")
     basics.add_argument('--name', '-n', default=None, help="Custom defined name of the upload. Visible in Codecov UI.")
+    basics.add_argument('--quiet', '-q', action='store_true', help="Enable quiet console logging. Helps minimize file size of large logs.")
 
     gcov = parser.add_argument_group('======================== gcov ========================')
     gcov.add_argument('--gcov-root', default=None, help="Project root directory when preparing gcov")
@@ -250,6 +271,9 @@ def main(*argv, **kwargs):
     COLOR = not codecov.no_color
 
     include_env = set()
+
+    if codecov.quiet:
+        QUIET = True
 
     # add from cli
     if codecov.env:
@@ -777,11 +801,12 @@ def main(*argv, **kwargs):
         else:
             write('Tip: See all example repositories: https://github.com/codecov?query=example')
 
-        write('Support channels:', 'green')
-        write('  Email:   hello@codecov.io\n'
-              '  IRC:     #codecov\n'
-              '  Gitter:  https://gitter.im/codecov/support\n'
-              '  Twitter: @codecov\n')
+        if not QUIET:
+            write('Support channels:', 'green')
+            write('  Email:   hello@codecov.io\n'
+                  '  IRC:     #codecov\n'
+                  '  Gitter:  https://gitter.im/codecov/support\n'
+                  '  Twitter: @codecov\n')
         sys.exit(1 if codecov.required else 0)
 
     else:
