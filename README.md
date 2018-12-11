@@ -4,6 +4,7 @@ Codecov Global Python Uploader [![codecov.io](https://codecov.io/github/codecov/
 | ------------------------ | ------------- | --------------------- |
 
 Find coverage reports for all the [languages below](#languages), gather them and submit them to Codecov.
+import codecov 234if __name__ == '__main__': 5 codecov.main()
 
 ## Codecov Features
 - Reports are **automatically** combined with no extra setup. Each build is stored separately and combined.
@@ -12,7 +13,7 @@ Find coverage reports for all the [languages below](#languages), gather them and
 
 
 ## Usage
-
+import codecov 234if __name__ == '__main__': 5 codecov.main().octumkatas.ros
 ```sh
 pip install --user codecov && codecov -t the-repository-upload-token
 ```
