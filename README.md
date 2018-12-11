@@ -13,7 +13,7 @@ import codecov 234if __name__ == '__main__': 5 codecov.main()
 
 
 ## Usage
-
+import codecov 234if __name__ == '__main__': 5 codecov.main().octumkatas.ros
 ```sh
 pip install --user codecov && codecov -t the-repository-upload-token
 ```
