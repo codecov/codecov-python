@@ -30,3 +30,45 @@ script:
   - py.test tests/test.py --cov=codecov
 after_success:
   - codecov
+language: python
+
+python:
+    - "3.4"
+    - "3.5"
+    - "3.6"
+    - "3.7-dev"
+env:
+    - COVERAGE="no"
+
+matrix:
+    include:
+      - python: 2.7
+        env: COVERAGE="yes"
+
+
+before_install:
+    - pip install --upgrade pip setuptools
+    - pip install pytest pytest-xdist six mock
+
+install:
+    - pip install numpy "scipy>=1.0,<2.0"
+    - if [ "${COVERAGE}" == "yes" ]; then pip install coverage==4.0.3 python-coveralls; fi
+
+script:
+    - if [ "${COVERAGE}" == "yes" ]; then coverage run --source=PyDSTool setup.py test -q; else python setup.py test; fi
+
+after_success:
+    - if [ "${COVERAGE}" == "yes" ]; then coveralls; fi
+
+cache: apt
+
+sudo: false
+
+addons:
+    apt:
+      packages:
+        - gfortran
+        - swig
+        - liblapack-dev
+        - libatlas-dev
+        - libatlas-base-dev
