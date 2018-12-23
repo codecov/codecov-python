@@ -1,5 +1,37 @@
 Codecov Global Python Uploader [![codecov.io](https://codecov.io/github/codecov/codecov-python/coverage.svg?branch=master)](https://codecov.io/github/codecov/codecov-python)
-=======
+=======language: python
+notifications:
+  email: false
+sudo: false
+python:
+  - 2.7
+  - pypy
+  - 3.4
+  - 3.5
+  - 3.6 
+  - pypy3
+matrix:
+  include:
+    - python: 2.7
+      dist: trusty
+      sudo: required
+      virtualenv:
+        system_site_packages: true
+      addons:
+        apt:
+          packages:
+            - python-requests
+            - python-coverage
+            - python-mock
+
+install:
+  - pip install -r tests/requirements.txt
+  - python setup.py install
+script:
+  - py.test tests/test.py --cov=codecov
+after_success:
+  - codecov
+
 | [https://codecov.io/][1] | [@codecov][2] | [hello@codecov.io][3] |
 | ------------------------ | ------------- | --------------------- |
 
