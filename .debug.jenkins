@@ -1,0 +1,69 @@
+Skip to content
+ 
+Search or jump to…
+
+Pull requests
+Issues
+Marketplace
+Explore
+ @therealcurlsport Sign out
+Your account has been flagged.
+Because of that, your profile is hidden from the public. If you believe this is a mistake, contact support to have your account status reviewed.
+0
+0 9 therealcurlsport/EiffelStudio_old
+forked from EiffelSoftware/EiffelStudio_old
+ Code  Pull requests 0  Projects 0  Insights  Settings
+*WARNING* Former mirror of https://svn.eiffel.com/eiffelstudio/trunk, use https://github.com/EiffelSoftware/EiffelStudio instead
+ 90,067 commits
+ 2 branches
+ 0 releases
+ 4 contributors
+ Eiffel 53.3%	 C 21.6%	 C++ 14.9%	 E 2.7%	 HTML 2.4%	 Roff 1.6%	 Other 3.5%
+ Pull request   Compare This branch is even with EiffelSoftware:master.
+@kwaxer
+kwaxer Fixed bug#19241 (Infinite recursion in flat version of `show`) by rep…  …
+Latest commit 9e167e8  on Jun 10, 2016
+Type	Name	Latest commit message	Commit time
+Documentation/tools	fixed references on template	9 years ago
+Src	Fixed bug#19241 (Infinite recursion in flat version of `show`) by rep…	3 years ago
+benchmarks	Added a variable to add an affinity mask when required.	3 years ago
+eweasel	Removed calls to {ANY}.as_attached.	3 years ago
+free_add_ons/gcc	Fixed improper properties and missing neol.	6 years ago
+historic/library/base_original	Removed `base_original' to the `historic' location as it was only kep…	8 years ago
+.gitattributes	Adding a few exceptions to the .gitattributes.	5 years ago
+.gitignore	Updated for git support.	6 years ago
+README.md	Made README a mark down file so that it looks nice on GitHub.	4 years ago
+forum.txt	Added texts of licenses used by Eiffel Software's Open Source Software.	13 years ago
+gitsvn.sh	Added gitsvn.sh script to build a mirror of the subversion repository…	4 years ago
+gpl.txt	Added texts of licenses used by Eiffel Software's Open Source Software.	13 years ago
+ README.md
+EiffelStudio
+Introduction
+EiffelStudio is the IDE for the Eiffel programming language.
+
+The master repository for the source code of EiffelStudio is a subversion repository located at:
+
+https://svn.eiffel.com/eiffelstudio
+In addition, there is a mirror hosted on GitHub that only contains the development branch (i.e. trunk subdirectory of the above subversion repository) at:
+
+https://github.com/EiffelSoftware/EiffelStudio
+The source code is licensed under the GPL v2.0 license, see gpl.txt for a copy of the license.
+
+Chat Room
+Want to chat with other members of the EiffelStudio developer community?
+
+Join the chat at https://gitter.im/EiffelSoftware/EiffelStudio
+
+© 2018 GitHub, Inc.
+Terms
+Privacy
+Security
+Status
+Help
+Contact GitHub
+Pricing
+API
+Training
+Blog
+About
+Press h to open a hovercard with more details.
