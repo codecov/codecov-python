@@ -102,4 +102,4 @@ after_success:
 
 ## Copyright
 
-> Copyright 2014-2017 codecov
+> Copyright 2014-2019 codecov
