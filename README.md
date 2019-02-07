@@ -14,11 +14,11 @@ Find coverage reports for all the [languages below](#languages), gather them and
 ## Usage
 
 ```sh
-pip install --user codecov && codecov -t the-repository-upload-token
+pip install --user codecov && codecov -t <the-repository-upload-token>
 ```
 or
 ```sh
-conda install -c conda-forge codecov && codecov -t the-repository-upload-token
+conda install -c conda-forge codecov && codecov -t <the-repository-upload-token>
 ```
 > `--user` argument not needed for Python projects. [See example here](https://github.com/codecov/example-python).
 
