@@ -38,4 +38,6 @@ setup(name='codecov',
       zip_safe=True,
       install_requires=install_requires,
       tests_require=["unittest2"],
-      entry_points={'console_scripts': ['codecov=codecov:main']})
+      entry_points={'console_scripts': ['codecov=codecov:main']},
+      python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*',
+      )
