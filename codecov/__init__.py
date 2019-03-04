@@ -297,7 +297,7 @@ def main(*argv, **kwargs):
         # Travis CI
         # ---------
         elif os.getenv('CI') == 'true' and os.getenv('TRAVIS') == "true" and os.getenv('SHIPPABLE') != 'true':
-            # http://docs.travis-ci.com/user/environment-variables/#Default-Environment-Variables
+            # https://docs.travis-ci.com/user/environment-variables/#Default-Environment-Variables
             query.update(dict(branch=os.getenv('TRAVIS_BRANCH'),
                               service='travis',
                               build=os.getenv('TRAVIS_JOB_NUMBER'),
@@ -315,6 +315,27 @@ def main(*argv, **kwargs):
             _add_env_if_not_empty(include_env, 'TRAVIS_OS_NAME')
             if language:
                 _add_env_if_not_empty(include_env, 'TRAVIS_%s_VERSION' % language.upper())
+
+        # ---------------
+        # Azure Pipelines
+        # ---------------
+        elif os.getenv("TF_BUILD") == "True" and os.getenv("SHIPPABLE") != "true":
+            # https://docs.microsoft.com/en-us/azure/devops/pipelines/build/variables?view=azure-devops&tabs=yaml
+            # https://docs.microsoft.com/en-us/azure/devops/pipelines/migrate/from-travis?view=azure-devops#predefined-variables
+            query.update(dict(branch=os.getenv("BUILD_SOURCEBRANCH",
+                                               os.getenv("SYSTEM_PULLREQUEST_TARGETBRANCH")),
+                              service="azurepipelines",
+                              build=os.getenv("AGENT_JOBNAME"),
+                              pr=os.getenv("SYSTEM_PULLREQUEST_PULLREQUESTID",
+                                           os.getenv("SYSTEM_PULLREQUEST_PULLREQUESTNUMBER")),
+                              tag=os.getenv("BUILD_SOURCEBRANCH"),
+                              slug=os.getenv("BUILD_REPOSITORYNAME"),
+                              commit=os.getenv("BUILD_SOURCEVERSION"),
+                              ),
+                         )
+            root = os.getenv("BUILD_SOURCESDIRECTORY") or root
+            write("    Azure Pipelines Detected")
+            _add_env_if_not_empty(include_env, "AGENT_OS")
 
         # --------
         # Codeship

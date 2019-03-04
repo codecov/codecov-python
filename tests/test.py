@@ -45,7 +45,13 @@ class TestUploader(unittest.TestCase):
                     "APPVEYOR_BUILD_VERSION", "APPVEYOR_JOB_ID", "APPVEYOR_REPO_NAME", "APPVEYOR_REPO_COMMIT", "WERCKER_GIT_BRANCH",
                     "WERCKER_MAIN_PIPELINE_STARTED", "WERCKER_GIT_OWNER", "WERCKER_GIT_REPOSITORY",
                     "CI_BUILD_REF_NAME", "CI_BUILD_ID", "CI_BUILD_REPO", "CI_PROJECT_DIR", "CI_BUILD_REF", "CI_SERVER_NAME",
-                    "ghprbActualCommit", "ghprbSourceBranch", "ghprbPullId", "WERCKER_GIT_COMMIT", "CHANGE_ID"):
+                    "ghprbActualCommit", "ghprbSourceBranch", "ghprbPullId", "WERCKER_GIT_COMMIT", "CHANGE_ID",
+                    "AGENT_JOBNAME", "AGENT_OS", "BUILD_REPOSITORYNAME",
+                    "BUILD_SOURCEBRANCH", "BUILD_SOURCESDIRECTORY",
+                    "BUILD_SOURCEVERSION", "SYSTEM_PULLREQUEST_PULLREQUESTID",
+                    "SYSTEM_PULLREQUEST_PULLREQUESTNUMBER",
+                    "SYSTEM_PULLREQUEST_TARGETBRANCH", "TF_BUILD",
+                    ):
             os.environ[key] = ""
 
     def tearDown(self):
@@ -390,6 +396,32 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res['query']['tag'], 'v1.1.1')
         self.assertEqual(res['query']['slug'], 'owner/repo')
         self.assertEqual(res['query']['branch'], 'master')
+        self.assertEqual(res['codecov'].token, '')
+
+    @unittest.skipUnless(os.getenv("TF_BUILD") == "true"
+                         and os.getenv("SHIPPABLE") != "true",
+                         "Skip Azure Pipelines test")
+    def test_ci_azurepipelines(self):
+        self.set_env(TF_BUILD="True",
+                     AGENT_JOBNAME="job name",
+                     AGENT_OS="Linux",
+                     BUILD_REPOSITORYNAME="owner/repo",
+                     BUILD_SOURCEBRANCH="feature-branch",
+                     BUILD_SOURCESDIRECTORY="some/path",
+                     BUILD_SOURCEVERSION="c739768fcac68144a3a6d82305b9c4106934d31a",
+                     SYSTEM_PULLREQUEST_PULLREQUESTID="123",
+                     SYSTEM_PULLREQUEST_PULLREQUESTNUMBER="123456",
+                     SYSTEM_PULLREQUEST_TARGETBRANCH="master",
+                     )
+        self.fake_report()
+        res = self.run_cli()
+        self.assertEqual(res['query']['service'], 'azurepipelines')
+        self.assertEqual(res['query']['commit'], 'c739768fcac68144a3a6d82305b9c4106934d31a')
+        self.assertEqual(res['query']['build'], 'job name')
+        self.assertEqual(res['query']['pr'], '123')
+        self.assertEqual(res['query']['tag'], 'feature-branch')
+        self.assertEqual(res['query']['slug'], 'owner/repo')
+        self.assertEqual(res['query']['branch'], 'feature-branch')
         self.assertEqual(res['codecov'].token, '')
 
     @unittest.skipUnless(os.getenv('CI') == 'true' and os.getenv('CI_NAME') == 'codeship', 'Skip Codeship CI test')
