@@ -127,7 +127,7 @@
 
 ### `1.1.5`
 - search for all `lcov|gcov` files
-- depreciate `--min-coverage`, use Github Status Update feature
+- depreciate `--min-coverage`, use GitHub Status Update feature
 - pre-process xml => json
 
 ### `1.1.4`

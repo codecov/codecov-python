@@ -19,7 +19,7 @@ classifiers = ["Development Status :: 5 - Production/Stable",
 
 setup(name='codecov',
       version=version,
-      description="Hosted coverage reports for Github, Bitbucket and Gitlab",
+      description="Hosted coverage reports for GitHub, Bitbucket and Gitlab",
       long_description=None,
       classifiers=classifiers,
       keywords='coverage codecov code python java scala php',
