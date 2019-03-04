@@ -92,7 +92,6 @@ after_success:
 | [Bamboo](https://www.atlassian.com/software/bamboo) | `coming soon`                                                                                                                                                                      |                  |
 | [Solano Labs](https://www.solanolabs.com/)          | `coming soon`                                                                                                                                                                      |                  |
 
-> Using **Travis CI**? Uploader is compatible with `sudo: false` which can speed up your builds. :+1:
 
 
 
