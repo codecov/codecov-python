@@ -1,7 +1,7 @@
 language: python
 notifications:
   email: false
-sudo: false
+
 python:
   - 2.7
   - pypy
@@ -13,7 +13,6 @@ matrix:
   include:
     - python: 2.7
       dist: trusty
-      sudo: required
       virtualenv:
         system_site_packages: true
       addons:
