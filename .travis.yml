@@ -1,6 +1,8 @@
+
 language: python
 notifications:
   email: false
+dist: xenial
 sudo: false
 python:
   - 2.7
@@ -8,6 +10,7 @@ python:
   - 3.4
   - 3.5
   - 3.6
+  - 3.7
   - pypy3
 matrix:
   include:
