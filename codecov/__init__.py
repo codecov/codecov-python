@@ -183,6 +183,20 @@ def try_to_run(cmd):
     except subprocess.CalledProcessError as e:
         write('    Error running `%s`: %s' % (cmd, str(getattr(e, 'output', str(e)))))
 
+def run_python_coverage(args):
+    """Run the Python coverage tool
+    
+    If it's importable in this Python, launch it using 'python -m'.
+    Otherwise, look it up on PATH like any other command.
+    """
+    try:
+        import coverage
+    except ImportError:
+        # Coverage is not installed on this Python. Hope it's on PATH.
+        try_to_run(['coverage'] + args)
+    else:
+        # Coverage is installed on this Python. Run it as a module.
+        try_to_run([sys.executable, '-m', 'coverage'] + args)
 
 def remove_non_ascii(data):
     try:
@@ -670,12 +684,12 @@ def main(*argv, **kwargs):
                 # The `-a` option is mandatory here. If we
                 # have a `.coverage` in the current directory, calling
                 # without the option would delete the previous data
-                try_to_run('coverage combine -a')
+                run_python_coverage(['combine', '-a'])
 
             if os.path.exists(opj(os.getcwd(), '.coverage')) and not os.path.exists(opj(os.getcwd(), 'coverage.xml')):
                 write('    Generating coverage xml reports for Python')
                 # using `-i` to ignore "No source for code" error
-                try_to_run('coverage xml -i')
+                run_python_coverage(['xml', '-i'])
                 reports.append(read(opj(os.getcwd(), 'coverage.xml')))
 
         reports = list(filter(bool, reports))
