@@ -177,9 +177,9 @@ def check_output(cmd, **popen_args):
         return output.decode('utf-8')
 
 
-def try_to_run(cmd):
+def try_to_run(cmd, shell=True):
     try:
-        return check_output(cmd, shell=True)
+        return check_output(cmd, shell=shell)
     except subprocess.CalledProcessError as e:
         write('    Error running `%s`: %s' % (cmd, str(getattr(e, 'output', str(e)))))
 
@@ -193,10 +193,10 @@ def run_python_coverage(args):
         import coverage
     except ImportError:
         # Coverage is not installed on this Python. Hope it's on PATH.
-        try_to_run(['coverage'] + args)
+        try_to_run(['coverage'] + args, shell=False)
     else:
         # Coverage is installed on this Python. Run it as a module.
-        try_to_run([sys.executable, '-m', 'coverage'] + args)
+        try_to_run([sys.executable, '-m', 'coverage'] + args, shell=False)
 
 def remove_non_ascii(data):
     try:
