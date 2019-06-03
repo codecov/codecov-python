@@ -181,7 +181,7 @@ def try_to_run(cmd):
     try:
         return check_output(cmd, shell=True)
     except subprocess.CalledProcessError as e:
-        write('    Error running `%s`: %s' % (cmd, str(getattr(e, 'output', str(e)))))
+        write('    Error running `%s`: %s' % (cmd, e.output or str(e)))
 
 
 def remove_non_ascii(data):
