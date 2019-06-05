@@ -324,7 +324,7 @@ def main(*argv, **kwargs):
             # https://docs.microsoft.com/en-us/azure/devops/pipelines/migrate/from-travis?view=azure-devops#predefined-variables
             query.update(dict(branch=os.getenv("BUILD_SOURCEBRANCH",
                                                os.getenv("SYSTEM_PULLREQUEST_TARGETBRANCH")),
-                              service="azurepipelines",
+                              service="azure_pipelines",
                               build=os.getenv("AGENT_JOBNAME"),
                               pr=os.getenv("SYSTEM_PULLREQUEST_PULLREQUESTID",
                                            os.getenv("SYSTEM_PULLREQUEST_PULLREQUESTNUMBER")),
