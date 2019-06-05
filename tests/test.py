@@ -415,7 +415,7 @@ class TestUploader(unittest.TestCase):
                      )
         self.fake_report()
         res = self.run_cli()
-        self.assertEqual(res['query']['service'], 'azurepipelines')
+        self.assertEqual(res['query']['service'], 'azure_pipelines')
         self.assertEqual(res['query']['commit'], 'c739768fcac68144a3a6d82305b9c4106934d31a')
         self.assertEqual(res['query']['build'], 'job name')
         self.assertEqual(res['query']['pr'], '123')
