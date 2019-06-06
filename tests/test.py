@@ -204,6 +204,7 @@ class TestUploader(unittest.TestCase):
         else:
             raise Exception("Did not raise AssertionError")
 
+    @unittest.skipIf(os.getenv('CI') == "True" and os.getenv('APPVEYOR') == 'True', 'Skip AppVeyor CI test')
     def test_prefix(self):
         self.fake_report()
         res = self.run_cli(prefix='/foo/bar/', dump=True, token='a', branch='b', commit='c')
