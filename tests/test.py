@@ -4,7 +4,7 @@ import pickle
 import itertools
 from ddt import ddt, data
 from mock import patch, Mock
-import unittest2 as unittest
+import unittest
 
 import subprocess
 

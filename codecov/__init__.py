@@ -22,12 +22,8 @@ except ImportError: # pragma: no cover
 import subprocess
 
 # https://urllib3.readthedocs.org/en/latest/security.html#insecureplatformwarning
-try:
-    import logging
-    logging.captureWarnings(True)
-except:
-    # not py2.6 compatible
-    pass
+import logging
+logging.captureWarnings(True)
 
 
 version = VERSION = __version__ = '2.0.15'
