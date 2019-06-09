@@ -14,24 +14,25 @@ try:
 except ImportError:  # pragma: no cover
     from urllib import urlencode
 
+try:
+    from shlex import quote
+except ImportError: # pragma: no cover
+    from pipes import quote
+
 import subprocess
 
 # https://urllib3.readthedocs.org/en/latest/security.html#insecureplatformwarning
-try:
-    import logging
-    logging.captureWarnings(True)
-except:
-    # not py2.6 compatible
-    pass
+import logging
+logging.captureWarnings(True)
 
 
-version = VERSION = __version__ = '2.0.9'
+version = VERSION = __version__ = '2.0.15'
 
 COLOR = True
 
-remove_token = re.compile(r'token=[^\&]+').sub
-
 is_merge_commit = re.compile(r'^Merge\s\w{40}\sinto\s\w{40}$')
+
+remove_token = re.compile(r'token=[^\&]+').sub
 
 ignored_path = re.compile(r'(/vendor)|'
                           r'(/js/generated/coverage)|'
@@ -40,7 +41,7 @@ ignored_path = re.compile(r'(/vendor)|'
                           r'(/build/lib)|'
                           r'(/htmlcov)|'
                           r'(/node_modules)|'
-                          r'(/\.yarn-cache)|'                          
+                          r'(/\.yarn-cache)|'
                           r'(\.egg-info)|'
                           r'(/\.git)|'
                           r'(/\.hg)|'
@@ -139,7 +140,7 @@ def fopen(path):
                 return f.read()
         else:
             try:
-                with open(path, 'r', encoding='utf8') as f:
+                with open(path, 'r', encoding='utf-8') as f:
                     return f.read()
             except UnicodeDecodeError:
                 with open(path, 'r', encoding='ISO-8859-1') as f:
@@ -172,12 +173,26 @@ def check_output(cmd, **popen_args):
         return output.decode('utf-8')
 
 
-def try_to_run(cmd):
+def try_to_run(cmd, shell=True):
     try:
-        return check_output(cmd, shell=True)
+        return check_output(cmd, shell=shell)
     except subprocess.CalledProcessError as e:
-        write('    Error running `%s`: %s' % (cmd, str(getattr(e, 'output', str(e)))))
+        write('    Error running `%s`: %s' % (cmd, e.output or str(e)))
 
+def run_python_coverage(args):
+    """Run the Python coverage tool
+    
+    If it's importable in this Python, launch it using 'python -m'.
+    Otherwise, look it up on PATH like any other command.
+    """
+    try:
+        import coverage
+    except ImportError:
+        # Coverage is not installed on this Python. Hope it's on PATH.
+        try_to_run(['coverage'] + args, shell=False)
+    else:
+        # Coverage is installed on this Python. Run it as a module.
+        try_to_run([sys.executable, '-m', 'coverage'] + args, shell=False)
 
 def remove_non_ascii(data):
     try:
@@ -201,11 +216,11 @@ def main(*argv, **kwargs):
                                      epilog="""Upload reports to Codecov""")
     basics = parser.add_argument_group('======================== Basics ========================')
     basics.add_argument('--version', action='version', version='Codecov py-v'+version+" - https://codecov.io/")
-    basics.add_argument('--token', '-t', default=os.getenv("CODECOV_TOKEN"), help="Private repository token or @filename for file containing the token. Defaults to $CODECOV_TOKEN. Not required for public repositories on Travis-CI, CircleCI and AppVeyor")
+    basics.add_argument('--token', '-t', default=os.getenv("CODECOV_TOKEN"), help="Private repository token or @filename for file containing the token. Defaults to $CODECOV_TOKEN. Not required for public repositories on Travis CI, CircleCI and AppVeyor")
     basics.add_argument('--file', '-f', nargs="*", default=None, help="Target a specific file for uploading")
     basics.add_argument('--flags', '-F', nargs="*", default=None, help="Flag these uploaded files with custom labels")
     basics.add_argument('--env', '-e', nargs="*", default=None, help="Store environment variables to help distinguish CI builds.")
-    basics.add_argument('--required', action="store_true", default=False, help="If Codecov fails it will exit 1: failing the CI build.")
+    basics.add_argument('--required', action="store_true", default=False, help="If Codecov fails it will exit 1 - possibly failing the CI build.")
     basics.add_argument('--name', '-n', default=None, help="Custom defined name of the upload. Visible in Codecov UI.")
 
     gcov = parser.add_argument_group('======================== gcov ========================')
@@ -217,10 +232,11 @@ def main(*argv, **kwargs):
     advanced = parser.add_argument_group('======================== Advanced ========================')
     advanced.add_argument('-X', '--disable', nargs="*", default=[], help="Disable features. Accepting **search** to disable crawling through directories, **detect** to disable detecting CI provider, **gcov** disable gcov commands, `pycov` disables running python `coverage xml`, **fix** to disable report adjustments http://bit.ly/1O4eBpt")
     advanced.add_argument('--root', default=None, help="Project directory. Default: current direcory or provided in CI environment variables")
-    advanced.add_argument('--commit', '-c', default=None, help="Commit sha, set automatically")
+    advanced.add_argument('--commit', '-c', default=None, help="Commit SHA, set automatically")
+    advanced.add_argument('--prefix', '-P', default=None, help="Prefix network paths to help resolve paths: https://github.com/codecov/support/issues/472")
     advanced.add_argument('--branch', '-b', default=None, help="Branch name")
-    advanced.add_argument('--build', default=None, help="Specify a custom build number to distinguish ci jobs, provided automatically for supported ci companies")
-    advanced.add_argument('--pr', default=None, help="Specify a custom pr number, provided automatically for supported ci companies")
+    advanced.add_argument('--build', default=None, help="Specify a custom build number to distinguish CI jobs, provided automatically for supported CI companies")
+    advanced.add_argument('--pr', default=None, help="Specify a custom pr number, provided automatically for supported CI companies")
     advanced.add_argument('--tag', default=None, help="Git tag")
 
     enterprise = parser.add_argument_group('======================== Enterprise ========================')
@@ -377,12 +393,12 @@ def main(*argv, **kwargs):
         # --------
         # drone.io
         # --------
-        elif os.getenv('CI') == "true" and os.getenv('DRONE') == "true":
+        elif os.getenv('CI') == "drone" and os.getenv('DRONE') == "true":
             # http://docs.drone.io/env.html
             query.update(dict(branch=os.getenv('DRONE_BRANCH'),
                               service='drone.io',
                               build=os.getenv('DRONE_BUILD_NUMBER'),
-                              build_url=os.getenv('DRONE_BUILD_URL')))
+                              build_url=os.getenv('DRONE_BUILD_LINK')))
             root = os.getenv('DRONE_BUILD_DIR') or root
             write('    Drone Detected')
 
@@ -399,7 +415,7 @@ def main(*argv, **kwargs):
         # --------
         # AppVeyor
         # --------
-        elif os.getenv('CI') == "True" and os.getenv('APPVEYOR') == 'True':
+        elif os.getenv('CI', 'false').lower() == 'true' and os.getenv('APPVEYOR', 'false').lower() == 'true':
             # http://www.appveyor.com/docs/environment-variables
             query.update(dict(branch=os.getenv('APPVEYOR_REPO_BRANCH'),
                               service="appveyor",
@@ -422,20 +438,6 @@ def main(*argv, **kwargs):
                               slug=os.getenv('WERCKER_GIT_OWNER') + '/' + os.getenv('WERCKER_GIT_REPOSITORY'),
                               commit=os.getenv('WERCKER_GIT_COMMIT')))
             write('    Wercker Detected')
-
-        # -------
-        # Snap CI
-        # -------
-        elif os.getenv('CI') == "true" and os.getenv('SNAP_CI') == "true":
-            # https://docs.snap-ci.com/environment-variables/
-            query.update(dict(branch=os.getenv('SNAP_BRANCH') or os.getenv('SNAP_UPSTREAM_BRANCH'),
-                              service="snap",
-                              job=os.getenv('SNAP_STAGE_NAME'),
-                              build=os.getenv('SNAP_PIPELINE_COUNTER'),
-                              pr=os.getenv('SNAP_PULL_REQUEST_NUMBER'),
-                              commit=os.getenv('SNAP_COMMIT') or os.getenv('SNAP_UPSTREAM_COMMIT')))
-            _add_env_if_not_empty(include_env, 'DISPLAY')
-            write('    Snap CI Detected')
 
         # ------
         # Magnum
@@ -524,15 +526,19 @@ def main(*argv, **kwargs):
     if codecov.build:
         query['build'] = codecov.build
 
+    if codecov.pr:
+        query['pr'] = codecov.pr
+
     if codecov.commit:
         query['commit'] = codecov.commit
 
-    else:
+    elif query['pr'] and query['pr'] != 'false':
         # Merge Commits
         # -------------
         res = try_to_run('git log -1 --pretty=%B')
         if res and is_merge_commit.match(res.strip()):
             query['commit'] = res.split(' ')[1]
+            write('    Fixing merge commit SHA')
 
     if codecov.slug:
         query['slug'] = codecov.slug
@@ -540,14 +546,13 @@ def main(*argv, **kwargs):
     if codecov.branch:
         query['branch'] = codecov.branch
 
-    if codecov.pr:
-        query['pr'] = codecov.pr
-
     if codecov.tag:
         query['tag'] = codecov.tag
 
     if codecov.root:
         root = codecov.root
+
+    root = quote(root)
 
     # Upload
     # ------
@@ -568,6 +573,13 @@ def main(*argv, **kwargs):
                    try_to_run('git ls-files') or
                    try_to_run('cd %s && hg locate' % root) or
                    try_to_run('hg locate') or '').strip())
+
+        if codecov.prefix:
+            prefix = codecov.prefix.strip('/')
+            toc = '{}/{}'.format(
+                prefix,
+                toc.replace('\n', '\n{}/'.format(prefix))
+            )
 
         # Detect codecov.yml location
         yaml_location = re.search(
@@ -605,9 +617,15 @@ def main(*argv, **kwargs):
             write('XX> Skip processing gcov')
 
         else:
+            dont_search_here = (
+                "-not -path './bower_components/**' "
+                "-not -path './node_modules/**' "
+                "-not -path './vendor/**'"
+            )
             write('==> Processing gcov (disable by -X gcov)')
-            cmd = "find %s -type f -name '*.gcno' %s -exec %s -pb %s {} +" % (
+            cmd = "find %s %s -type f -name '*.gcno' %s -exec %s -pb %s {} +" % (
                   (codecov.gcov_root or root),
+                  dont_search_here,
                   " ".join(map(lambda a: "-not -path '%s'" % a, codecov.gcov_glob)),
                   (codecov.gcov_exec or ''),
                   (codecov.gcov_args or ''))
@@ -657,14 +675,17 @@ def main(*argv, **kwargs):
             # Call `coverage xml` when .coverage exists
             # -----------------------------------------
             # Ran from current directory
-            if os.path.exists(opj(os.getcwd(), '.coverage')) and not os.path.exists(opj(os.getcwd(), 'coverage.xml')):
-                if glob.glob(opj(os.getcwd(), '.coverage.*')):
-                    write('    Mergeing coverage reports')
-                    try_to_run('coverage merge')
+            if glob.glob(opj(os.getcwd(), '.coverage.*')):
+                write('    Merging coverage reports')
+                # The `-a` option is mandatory here. If we
+                # have a `.coverage` in the current directory, calling
+                # without the option would delete the previous data
+                run_python_coverage(['combine', '-a'])
 
+            if os.path.exists(opj(os.getcwd(), '.coverage')) and not os.path.exists(opj(os.getcwd(), 'coverage.xml')):
                 write('    Generating coverage xml reports for Python')
                 # using `-i` to ignore "No source for code" error
-                try_to_run('coverage xml -i')
+                run_python_coverage(['xml', '-i'])
                 reports.append(read(opj(os.getcwd(), 'coverage.xml')))
 
         reports = list(filter(bool, reports))
@@ -709,42 +730,51 @@ def main(*argv, **kwargs):
             trys = 0
             while trys < 3:
                 trys += 1
-                try:
-                    write('    Pinging Codecov...')
-                    res = requests.post('%s/upload/v4?%s' % (codecov.url, urlargs),
-                                        verify=codecov.cacert,
-                                        headers={'Accept': 'text/plain'})
-                    if res.status_code in (400, 406):
-                        raise Exception(res.text)
+                if 's3' not in codecov.disable:
+                    try:
+                        write('    Pinging Codecov...')
+                        res = requests.post('%s/upload/v4?%s' % (codecov.url, urlargs),
+                                            verify=codecov.cacert,
+                                            headers={'Accept': 'text/plain',
+                                                     'X-Reduced-Redundancy': 'false'})
+                        if res.status_code in (400, 406):
+                            raise Exception(res.text)
 
-                    elif res.status_code < 500:
-                        assert res.status_code == 200
-                        res = res.text.strip().split()
-                        result, upload_url = res[0], res[1]
+                        elif res.status_code < 500:
+                            assert res.status_code == 200
+                            res = res.text.strip().split()
+                            result, upload_url = res[0], res[1]
 
-                        write('    Uploading to S3...')
-                        s3 = requests.put(upload_url, data=reports,
-                                          headers={'Content-Type': 'text/plain',
-                                                   'x-amz-acl': 'public-read',
-                                                   'x-amz-storage-class': 'REDUCED_REDUNDANCY'})
-                        s3.raise_for_status()
-                        assert s3.status_code == 200
-                        write('    ' + result)
-                        break
+                            # Handle reports encoding for Python 2 and 3
+                            if not isinstance(reports, bytes):
+                                reports = reports.encode('utf-8')
 
-                except AssertionError:
-                    write('    Direct to s3 failed. Using backup v2 endpoint.')
-                    write('    Uploading to Codecov...')
-                    # just incase, try traditional upload
-                    res = requests.post('%s/upload/v2?%s' % (codecov.url, urlargs),
-                                        verify=codecov.cacert,
-                                        data='\n'.join((reports, s3.reason if s3 else '', s3.text if s3 else '')),
-                                        headers={"Accept": "text/plain"})
-                    if res.status_code < 500:
-                        write('    ' + res.text)
-                        res.raise_for_status()
-                        result = res.text
-                        return
+                            write('    Uploading to S3...')
+                            s3 = requests.put(upload_url, data=reports,
+                                              headers={'Content-Type': 'text/plain',
+                                                       'x-amz-acl': 'public-read'})
+                            s3.raise_for_status()
+                            assert s3.status_code == 200
+                            write('    ' + result)
+                            break
+                        else:
+                            # try again
+                            continue
+
+                    except AssertionError:
+                        write('    Direct to s3 failed. Using backup v2 endpoint.')
+
+                write('    Uploading to Codecov...')
+                # just incase, try traditional upload
+                res = requests.post('%s/upload/v2?%s' % (codecov.url, urlargs),
+                                    verify=codecov.cacert,
+                                    data='\n'.join((reports, s3.reason if s3 else '', s3.text if s3 else '')),
+                                    headers={"Accept": "text/plain"})
+                if res.status_code < 500:
+                    write('    ' + res.text)
+                    res.raise_for_status()
+                    result = res.text
+                    return
 
                 write('    Retrying... in %ds' % (trys * 30))
                 sleep(trys * 30)

@@ -1,3 +1,26 @@
+### `2.0.15`
+- add `-X s3` to disable direct to S3 uploading
+
+### `2.0.14`
+- fixed coverage combine
+
+### `2.0.13`
+- fix encoding issues
+
+### `2.0.12`
+- revert merge commit fix, back to old way
+
+### `2.0.11`
+- fix merge commit when it's a pull request
+- remove snapci, business closed
+- skip vendor directories for gcov parsing
+- run coverage combine not merge
+- fix report encoding
+
+### `2.0.10`
+- fix uploading when reports contain characters outside of latin-1
+- remove reduced_redundancy header from
+
 ### `2.0.7`
 - Add `--name/-n` to cli
 - Add support for Jenkins Blue
@@ -104,7 +127,7 @@
 
 ### `1.1.5`
 - search for all `lcov|gcov` files
-- depreciate `--min-coverage`, use Github Status Update feature
+- depreciate `--min-coverage`, use GitHub Status Update feature
 - pre-process xml => json
 
 ### `1.1.4`
