@@ -152,10 +152,17 @@ def fopen(path):
 
 def read(filepath):
     try:
+        # Starting from gcov-8, line counts can have additional asterisk
+        # at the end. This regex removes it.
+        gcov_fixer = re.compile(r'(^\s*)(\d+)\*:', flags=re.MULTILINE)
+        num_fixes = 0
         report = fopen(filepath)
         if report is None:
             return
-        write('    + %s bytes=%d' % (filepath, os.path.getsize(filepath)))
+        if os.path.splitext(filepath)[1] == '.gcov':
+            report, num_fixes = gcov_fixer.subn(r'\1 \2:', report)
+        write('    + %s bytes=%d fixes=%d' % (
+              filepath, os.path.getsize(filepath), num_fixes))
         return '# path=' + filepath + '\n' + report
     except Exception as e:
         # Ex: No such file or directory, skip them
@@ -181,7 +188,7 @@ def try_to_run(cmd, shell=True):
 
 def run_python_coverage(args):
     """Run the Python coverage tool
-    
+
     If it's importable in this Python, launch it using 'python -m'.
     Otherwise, look it up on PATH like any other command.
     """
