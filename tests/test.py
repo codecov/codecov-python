@@ -45,7 +45,9 @@ class TestUploader(unittest.TestCase):
                     "APPVEYOR_BUILD_VERSION", "APPVEYOR_JOB_ID", "APPVEYOR_REPO_NAME", "APPVEYOR_REPO_COMMIT", "WERCKER_GIT_BRANCH",
                     "WERCKER_MAIN_PIPELINE_STARTED", "WERCKER_GIT_OWNER", "WERCKER_GIT_REPOSITORY",
                     "CI_BUILD_REF_NAME", "CI_BUILD_ID", "CI_BUILD_REPO", "CI_PROJECT_DIR", "CI_BUILD_REF", "CI_SERVER_NAME",
+                    "CI_COMMIT_REF_NAME", "CI_JOB_ID", "CI_REPOSITORY_URL", "CI_COMMIT_SHA",
                     "ghprbActualCommit", "ghprbSourceBranch", "ghprbPullId", "WERCKER_GIT_COMMIT", "CHANGE_ID"):
+
             os.environ[key] = ""
 
     def tearDown(self):
@@ -556,12 +558,30 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res['codecov'].token, 'token')
 
     @unittest.skipUnless(os.getenv('CI_SERVER_NAME', '').startswith("GitLab"), 'Skip GitLab CI test')
-    def test_ci_gitlab(self):
+    def test_ci_gitlab_pre9(self):
         self.set_env(CI_BUILD_REF_NAME='master',
                      CI_BUILD_ID='1399372237',
                      CI_BUILD_REPO='https://gitlab.com/owner/repo.git',
                      CI_SERVER_NAME='GitLab CI',
                      CI_BUILD_REF='d653b934ed59c1a785cc1cc79d08c9aaa4eba73b',
+                     HOME='/',
+                     CI_PROJECT_DIR=os.getcwd().strip('/'),
+                     CODECOV_TOKEN='token')
+        self.fake_report()
+        res = self.run_cli()
+        self.assertEqual(res['query']['service'], 'gitlab')
+        self.assertEqual(res['query']['commit'], 'd653b934ed59c1a785cc1cc79d08c9aaa4eba73b')
+        self.assertEqual(res['query']['build'], '1399372237')
+        self.assertEqual(res['query']['slug'], 'owner/repo')
+        self.assertEqual(res['codecov'].token, 'token')
+
+    @unittest.skipUnless(os.getenv('CI_SERVER_NAME', '').startswith("GitLab"), 'Skip GitLab CI test')
+    def test_ci_gitlab(self):
+        self.set_env(CI_COMMIT_REF_NAME='master',
+                     CI_JOB_ID='1399372237',
+                     CI_REPOSITORY_URL='https://gitlab.com/owner/repo.git',
+                     CI_SERVER_NAME='GitLab CI',
+                     CI_COMMIT_SHA='d653b934ed59c1a785cc1cc79d08c9aaa4eba73b',
                      HOME='/',
                      CI_PROJECT_DIR=os.getcwd().strip('/'),
                      CODECOV_TOKEN='token')
