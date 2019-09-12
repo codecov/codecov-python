@@ -4,7 +4,7 @@ import pickle
 import itertools
 from ddt import ddt, data
 from mock import patch, Mock
-import unittest2 as unittest
+import unittest
 
 import subprocess
 
@@ -204,6 +204,7 @@ class TestUploader(unittest.TestCase):
         else:
             raise Exception("Did not raise AssertionError")
 
+    @unittest.skipIf(os.getenv('CI') == "True" and os.getenv('APPVEYOR') == 'True', 'Skip AppVeyor CI test')
     def test_prefix(self):
         self.fake_report()
         res = self.run_cli(prefix='/foo/bar/', dump=True, token='a', branch='b', commit='c')

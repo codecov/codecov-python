@@ -34,12 +34,8 @@ if quote is None:
 import subprocess
 
 # https://urllib3.readthedocs.org/en/latest/security.html#insecureplatformwarning
-try:
-    import logging
-    logging.captureWarnings(True)
-except:
-    # not py2.6 compatible
-    pass
+import logging
+logging.captureWarnings(True)
 
 
 version = VERSION = __version__ = '2.0.15'
@@ -189,12 +185,26 @@ def check_output(cmd, **popen_args):
         return output.decode('utf-8')
 
 
-def try_to_run(cmd):
+def try_to_run(cmd, shell=True):
     try:
-        return check_output(cmd, shell=True)
+        return check_output(cmd, shell=shell)
     except subprocess.CalledProcessError as e:
-        write('    Error running `%s`: %s' % (cmd, str(getattr(e, 'output', str(e)))))
+        write('    Error running `%s`: %s' % (cmd, e.output or str(e)))
 
+def run_python_coverage(args):
+    """Run the Python coverage tool
+    
+    If it's importable in this Python, launch it using 'python -m'.
+    Otherwise, look it up on PATH like any other command.
+    """
+    try:
+        import coverage
+    except ImportError:
+        # Coverage is not installed on this Python. Hope it's on PATH.
+        try_to_run(['coverage'] + args, shell=False)
+    else:
+        # Coverage is installed on this Python. Run it as a module.
+        try_to_run([sys.executable, '-m', 'coverage'] + args, shell=False)
 
 def remove_non_ascii(data):
     try:
@@ -248,7 +258,7 @@ def main(*argv, **kwargs):
 
     debugging = parser.add_argument_group('======================== Debugging ========================')
     debugging.add_argument('--dump', action="store_true", help="Dump collected data and do not send to Codecov")
-    debugging.add_argument('-v', '--verbose', action="store_true", help="Not configured yet")
+    debugging.add_argument('-v', '--verbose', action="store_true", help="Be verbose, e.g. dump the collected data")
     debugging.add_argument('--no-color', action="store_true", help="Do not output with color")
 
     # Parse Arguments
@@ -417,7 +427,7 @@ def main(*argv, **kwargs):
         # --------
         # AppVeyor
         # --------
-        elif os.getenv('CI') == "True" and os.getenv('APPVEYOR') == 'True':
+        elif os.getenv('CI', 'false').lower() == 'true' and os.getenv('APPVEYOR', 'false').lower() == 'true':
             # http://www.appveyor.com/docs/environment-variables
             query.update(dict(branch=os.getenv('APPVEYOR_REPO_BRANCH'),
                               service="appveyor",
@@ -678,16 +688,16 @@ def main(*argv, **kwargs):
             # -----------------------------------------
             # Ran from current directory
             if glob.glob(opj(os.getcwd(), '.coverage.*')):
-                write('    Mergeing coverage reports')
+                write('    Merging coverage reports')
                 # The `-a` option is mandatory here. If we
                 # have a `.coverage` in the current directory, calling
                 # without the option would delete the previous data
-                try_to_run('coverage combine -a')
+                run_python_coverage(['combine', '-a'])
 
             if os.path.exists(opj(os.getcwd(), '.coverage')) and not os.path.exists(opj(os.getcwd(), 'coverage.xml')):
                 write('    Generating coverage xml reports for Python')
                 # using `-i` to ignore "No source for code" error
-                try_to_run('coverage xml -i')
+                run_python_coverage(['xml', '-i'])
                 reports.append(read(opj(os.getcwd(), 'coverage.xml')))
 
         reports = list(filter(bool, reports))
@@ -723,6 +733,10 @@ def main(*argv, **kwargs):
             write('==> Uploading')
             write('    .url ' + codecov.url)
             write('    .query ' + remove_token('token=<secret>', urlargs))
+            if codecov.verbose:
+                write('-------------------- Reports --------------------')
+                write(reports)
+                write('-------------------------------------------------')
 
             s3 = None
             trys = 0

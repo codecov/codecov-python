@@ -11,3 +11,4 @@ coverage.xml
 dist
 htmlcov
 venv
+*.sw[op]
