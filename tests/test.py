@@ -41,7 +41,7 @@ class TestUploader(unittest.TestCase):
                     "BUILDKITE", "BUILDKITE_BUILD_NUMBER", "BUILDKITE_JOB_ID", "BUILDKITE_BRANCH", "BUILDKITE_PROJECT_SLUG", "BUILDKITE_COMMIT",
                     "DRONE", "DRONE_BRANCH", "DRONE_BUILD_DIR", "JENKINS_URL", "TRAVIS_TAG",
                     "GIT_BRANCH", "GIT_COMMIT", "WORKSPACE", "BUILD_NUMBER", "CI_BUILD_URL", "SEMAPHORE_REPO_SLUG", "SEMAPHORE_CURRENT_THREAD",
-                    "DRONE_BUILD_LINK", "TRAVIS_REPO_SLUG", "CODECOV_TOKEN", "APPVEYOR", "APPVEYOR_REPO_BRANCH",
+                    "DRONE_BUILD_LINK", "TRAVIS_REPO_SLUG", "CODECOV_TOKEN", "CODECOV_NAME", "APPVEYOR", "APPVEYOR_REPO_BRANCH",
                     "APPVEYOR_BUILD_VERSION", "APPVEYOR_JOB_ID", "APPVEYOR_REPO_NAME", "APPVEYOR_REPO_COMMIT", "WERCKER_GIT_BRANCH",
                     "WERCKER_MAIN_PIPELINE_STARTED", "WERCKER_GIT_OWNER", "WERCKER_GIT_REPOSITORY",
                     "CI_BUILD_REF_NAME", "CI_BUILD_ID", "CI_BUILD_REPO", "CI_PROJECT_DIR", "CI_BUILD_REF", "CI_SERVER_NAME",
@@ -246,7 +246,8 @@ class TestUploader(unittest.TestCase):
         #     self.skipTest("Skipped, works on Travis only.")
 
     def test_disable_detect(self):
-        self.set_env(JENKINS_URL='a', GIT_BRANCH='b', GIT_COMMIT='c', CODECOV_TOKEN='d')
+        self.set_env(JENKINS_URL='a', GIT_BRANCH='b', GIT_COMMIT='c', CODECOV_TOKEN='d',
+                     CODECOV_NAME='e')
         self.fake_report()
         try:
             self.run_cli(disable='detect')
@@ -322,7 +323,9 @@ class TestUploader(unittest.TestCase):
                      GIT_BRANCH='master',
                      GIT_COMMIT='c739768fcac68144a3a6d82305b9c4106934d31a',
                      BUILD_NUMBER='41',
-                     CODECOV_TOKEN='token')
+                     CODECOV_TOKEN='token',
+                     CODECOV_NAME='name',
+                     )
         self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'jenkins')
@@ -332,6 +335,7 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res['query']['pr'], '')
         self.assertEqual(res['query']['branch'], 'master')
         self.assertEqual(res['codecov'].token, 'token')
+        self.assertEqual(res['codecov'].name, 'name')
 
     @unittest.skipUnless(os.getenv('JENKINS_URL'), 'Skip Jenkins CI test')
     def test_ci_jenkins_env(self):
@@ -341,7 +345,9 @@ class TestUploader(unittest.TestCase):
                      ghprbActualCommit='c739768fcac68144a3a6d82305b9c4106934d31a',
                      ghprbPullId='1',
                      BUILD_NUMBER='41',
-                     CODECOV_TOKEN='token')
+                     CODECOV_TOKEN='token',
+                     CODECOV_NAME='name',
+                     )
         self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'jenkins')
@@ -351,6 +357,7 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res['query']['pr'], '1')
         self.assertEqual(res['query']['branch'], 'master')
         self.assertEqual(res['codecov'].token, 'token')
+        self.assertEqual(res['codecov'].name, 'name')
 
     @unittest.skipUnless(os.getenv('JENKINS_URL'), 'Skip Jenkins CI test')
     def test_ci_jenkins_blue_ocean(self):
@@ -359,7 +366,9 @@ class TestUploader(unittest.TestCase):
                      BRANCH_NAME='master',
                      CHANGE_ID='1',
                      BUILD_NUMBER='41',
-                     CODECOV_TOKEN='token')
+                     CODECOV_TOKEN='token',
+                     CODECOV_NAME='name',
+                     )
         self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'jenkins')
@@ -369,6 +378,7 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res['query']['pr'], '1')
         self.assertEqual(res['query']['branch'], 'master')
         self.assertEqual(res['codecov'].token, 'token')
+        self.assertEqual(res['codecov'].name, 'name')
 
     @unittest.skipUnless(os.getenv('CI') == 'true'
                          and os.getenv('TRAVIS') == "true"
@@ -400,7 +410,9 @@ class TestUploader(unittest.TestCase):
                      CI_BUILD_NUMBER='20',
                      CI_BUILD_URL='https://codeship.io/build/1',
                      CI_COMMIT_ID='743b04806ea677403aa2ff26c6bdeb85005de658',
-                     CODECOV_TOKEN='token')
+                     CODECOV_TOKEN='token',
+                     CODECOV_NAME='name',
+                     )
         self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'codeship')
@@ -410,6 +422,7 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res['query']['pr'], '')
         self.assertEqual(res['query']['branch'], 'master')
         self.assertEqual(res['codecov'].token, 'token')
+        self.assertEqual(res['codecov'].name, 'name')
 
     @unittest.skipUnless(os.getenv('CI') == 'true' and os.getenv('CIRCLECI') == 'true', 'Skip Circle CI test')
     def test_ci_circleci(self):
@@ -439,7 +452,9 @@ class TestUploader(unittest.TestCase):
                      BUILDKITE_BRANCH='master',
                      BUILDKITE_PROJECT_SLUG='owner/repo',
                      BUILDKITE_COMMIT='d653b934ed59c1a785cc1cc79d08c9aaa4eba73b',
-                     CODECOV_TOKEN='token')
+                     CODECOV_TOKEN='token',
+                     CODECOV_NAME='name',
+                     )
         self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'buildkite')
@@ -448,6 +463,7 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res['query']['slug'], 'owner/repo')
         self.assertEqual(res['query']['branch'], 'master')
         self.assertEqual(res['codecov'].token, 'token')
+        self.assertEqual(res['codecov'].name, 'name')
 
     @unittest.skipUnless(os.getenv('CI') == 'true' and os.getenv('SEMAPHORE') == 'true', 'Skip Semaphore CI test')
     def test_ci_semaphore(self):
@@ -457,7 +473,9 @@ class TestUploader(unittest.TestCase):
                      SEMAPHORE_CURRENT_THREAD='1',
                      SEMAPHORE_REPO_SLUG='owner/repo',
                      REVISION='743b04806ea677403aa2ff26c6bdeb85005de658',
-                     CODECOV_TOKEN='token')
+                     CODECOV_TOKEN='token',
+                     CODECOV_NAME='name',
+                     )
         self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'semaphore')
@@ -473,7 +491,9 @@ class TestUploader(unittest.TestCase):
                      DRONE_BUILD_NUMBER='10',
                      DRONE_BRANCH='master',
                      DRONE_BUILD_LINK='https://drone.io/github/builds/1',
-                     CODECOV_TOKEN='token')
+                     CODECOV_TOKEN='token',
+                     CODECOV_NAME='name',
+                     )
         self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'drone.io')
@@ -481,6 +501,7 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res['query']['build'], '10')
         self.assertEqual(res['query']['build_url'], 'https://drone.io/github/builds/1')
         self.assertEqual(res['codecov'].token, 'token')
+        self.assertEqual(res['codecov'].name, 'name')
 
     @unittest.skipUnless(os.getenv('SHIPPABLE') == "true", 'Skip Shippable CI test')
     def test_ci_shippable(self):
@@ -490,7 +511,9 @@ class TestUploader(unittest.TestCase):
                      BRANCH='master',
                      BUILD_URL='https://shippable.com/...',
                      COMMIT='743b04806ea677403aa2ff26c6bdeb85005de658',
-                     CODECOV_TOKEN='token')
+                     CODECOV_TOKEN='token',
+                     CODECOV_NAME='name',
+                     )
         self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'shippable')
@@ -499,6 +522,7 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res['query']['slug'], 'owner/repo')
         self.assertEqual(res['query']['build_url'], 'https://shippable.com/...')
         self.assertEqual(res['codecov'].token, 'token')
+        self.assertEqual(res['codecov'].name, 'name')
 
     # @unittest.skipUnless(os.getenv('CI') == "True" and os.getenv('APPVEYOR') == 'True', 'Skip AppVeyor CI test')
     @unittest.skip('Skip AppVeyor test')
@@ -513,7 +537,9 @@ class TestUploader(unittest.TestCase):
                      APPVEYOR_REPO_BRANCH='master',
                      APPVEYOR_REPO_NAME='owner/repo',
                      APPVEYOR_REPO_COMMIT='d653b934ed59c1a785cc1cc79d08c9aaa4eba73b',
-                     CODECOV_TOKEN='token')
+                     CODECOV_TOKEN='token',
+                     CODECOV_NAME='name',
+                     )
         self.fake_report()
         res = self.run_cli(file=self.filepath)
         self.assertEqual(res['query']['service'], 'appveyor')
@@ -523,6 +549,7 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res['query']['slug'], 'owner/repo')
         self.assertEqual(res['query']['pr'], '1')
         self.assertEqual(res['codecov'].token, 'token')
+        self.assertEqual(res['codecov'].name, 'name')
 
     @unittest.skipUnless(os.getenv('CI') == "true" and os.getenv('WERCKER_GIT_BRANCH'), 'Skip Wercker CI test')
     def test_ci_wercker(self):
@@ -531,7 +558,9 @@ class TestUploader(unittest.TestCase):
                      WERCKER_GIT_OWNER='owner',
                      WERCKER_GIT_REPOSITORY='repo',
                      WERCKER_GIT_COMMIT='d653b934ed59c1a785cc1cc79d08c9aaa4eba73b',
-                     CODECOV_TOKEN='token')
+                     CODECOV_TOKEN='token',
+                     CODECOV_NAME='name',
+                     )
         self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'wercker')
@@ -539,6 +568,7 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res['query']['build'], '1399372237')
         self.assertEqual(res['query']['slug'], 'owner/repo')
         self.assertEqual(res['codecov'].token, 'token')
+        self.assertEqual(res['codecov'].name, 'name')
 
     @unittest.skipUnless(os.getenv('CI') == "true" and os.getenv('MAGNUM') == 'true', 'Skip Magnum CI test')
     def test_ci_magnum(self):
@@ -547,13 +577,16 @@ class TestUploader(unittest.TestCase):
                      MAGNUM='true',
                      CI='true',
                      CI_COMMIT='d653b934ed59c1a785cc1cc79d08c9aaa4eba73b',
-                     CODECOV_TOKEN='token')
+                     CODECOV_TOKEN='token',
+                     CODECOV_NAME='name',
+                     )
         self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'magnum')
         self.assertEqual(res['query']['commit'], 'd653b934ed59c1a785cc1cc79d08c9aaa4eba73b')
         self.assertEqual(res['query']['build'], '1399372237')
         self.assertEqual(res['codecov'].token, 'token')
+        self.assertEqual(res['codecov'].name, 'name')
 
     @unittest.skipUnless(os.getenv('CI_SERVER_NAME', '').startswith("GitLab"), 'Skip GitLab CI test')
     def test_ci_gitlab(self):
@@ -564,7 +597,9 @@ class TestUploader(unittest.TestCase):
                      CI_BUILD_REF='d653b934ed59c1a785cc1cc79d08c9aaa4eba73b',
                      HOME='/',
                      CI_PROJECT_DIR=os.getcwd().strip('/'),
-                     CODECOV_TOKEN='token')
+                     CODECOV_TOKEN='token',
+                     CODECOV_NAME='name',
+                     )
         self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'gitlab')
@@ -572,10 +607,11 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res['query']['build'], '1399372237')
         self.assertEqual(res['query']['slug'], 'owner/repo')
         self.assertEqual(res['codecov'].token, 'token')
+        self.assertEqual(res['codecov'].name, 'name')
 
     @unittest.skip('Skip CI None')
     def test_ci_none(self):
-        self.set_env(CODECOV_TOKEN='token')
+        self.set_env(CODECOV_TOKEN='token', CODECOV_NAME='name')
         self.fake_report()
         res = self.run_cli(build=10,
                            commit='d653b934ed59c1a785cc1cc79d08c9aaa4eba73b',
@@ -586,3 +622,4 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res['query']['build'], '10')
         self.assertEqual(res['query']['slug'], 'owner/repo')
         self.assertEqual(res['codecov'].token, 'token')
+        self.assertEqual(res['codecov'].name, 'name')
