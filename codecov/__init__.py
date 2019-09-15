@@ -342,8 +342,8 @@ def main(*argv, **kwargs):
     basics.add_argument(
         "--name",
         "-n",
-        default=None,
-        help="Custom defined name of the upload. Visible in Codecov UI.",
+        default=os.getenv("CODECOV_NAME"),
+        help="Custom defined name of the upload. Visible in Codecov UI. Defaults to $CODECOV_NAME.",
     )
 
     gcov = parser.add_argument_group(
