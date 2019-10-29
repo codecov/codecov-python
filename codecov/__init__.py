@@ -181,7 +181,7 @@ def try_to_run(cmd, shell=True):
 
 def run_python_coverage(args):
     """Run the Python coverage tool
-    
+
     If it's importable in this Python, launch it using 'python -m'.
     Otherwise, look it up on PATH like any other command.
     """
@@ -485,6 +485,20 @@ def main(*argv, **kwargs):
                 query['slug'] = os.getenv('CI_REPOSITORY_URL').split('/', 3)[-1].replace('.git', '')
 
             write('    Gitlab CI Detected')
+
+        # --------------
+        # GitHub Actions
+        # --------------
+        elif os.getenv('GITHUB_ACTIONS'):
+            # https://help.github.com/en/github/automating-your-workflow-with-github-actions/virtual-environments-for-github-actions
+            query.update(dict(build=os.getenv('GITHUB_ACTION'),
+                              commit=os.getenv('GITHUB_SHA'),
+                              slug=os.getenv('GITHUB_REPOSITORY')))
+
+            if os.getenv('GITHUB_REF'):
+                query['branch'] = os.getenv('GITHUB_REF').split('/', 3)[-1]
+
+            write('    GitHub Actions CI Detected')
 
         else:
             query.update(dict(commit=os.getenv('VCS_COMMIT_ID', ''),
