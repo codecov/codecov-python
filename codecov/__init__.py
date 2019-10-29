@@ -790,6 +790,33 @@ def main(*argv, **kwargs):
 
             write("    Gitlab CI Detected")
 
+        # --------------
+        # GitHub Actions
+        # --------------
+        elif os.getenv("GITHUB_ACTION"):
+            # https://help.github.com/en/actions/configuring-and-managing-workflows/using-environment-variables
+            query.update(
+                dict(
+                    service="github",
+                    build=os.getenv("GITHUB_RUN_ID"),
+                    commit=os.getenv("GITHUB_SHA"),
+                    slug=os.getenv("GITHUB_REPOSITORY"),
+                    build_url="http://github.com/"
+                    + os.getenv("GITHUB_REPOSITORY")
+                    + "/actions/runs/"
+                    + os.getenv("GITHUB_RUN_ID"),
+                )
+            )
+
+            if os.getenv("GITHUB_REF"):
+                query["branch"] = os.getenv("GITHUB_REF").split("/", 3)[-1]
+            if os.getenv("GITHUB_HEAD_REF"):
+                # PR refs are in the format: refs/pull/7/merge
+                query["pr"] = os.getenv("GITHUB_REF").split("/")[-2]
+                query["branch"] = os.getenv("GITHUB_HEAD_REF")
+
+            write("    GitHub Actions CI Detected")
+
         else:
             query.update(
                 dict(
