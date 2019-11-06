@@ -7,6 +7,7 @@ import glob
 import requests
 import argparse
 import fnmatch
+import zlib
 from time import sleep
 from json import loads
 
@@ -1021,6 +1022,16 @@ def main(*argv, **kwargs):
                 write(reports)
                 write("-------------------------------------------------")
 
+            # Handle reports encoding for Python 2 and 3
+            if not isinstance(reports, bytes):
+                reports = reports.encode("utf-8")
+
+            # Compress reports using zlib and output with gzip header
+            write("    Gzipping contents..")
+            gzip_worker = zlib.compressobj(9, zlib.DEFLATED, zlib.MAX_WBITS | 16)
+            reports_gzip = gzip_worker.compress(reports) + gzip_worker.flush()
+            write("    Compressed contents to {0} bytes".format(len(reports_gzip)))
+
             s3 = None
             trys = 0
             while trys < 3:
@@ -1034,7 +1045,8 @@ def main(*argv, **kwargs):
                             headers={
                                 "Accept": "text/plain",
                                 "X-Reduced-Redundancy": "false",
-                            },
+                                "X-Content-Type": "application/x-gzip"
+                            }
                         )
                         if res.status_code in (400, 406):
                             raise Exception(res.text)
@@ -1044,15 +1056,14 @@ def main(*argv, **kwargs):
                             res = res.text.strip().split()
                             result, upload_url = res[0], res[1]
 
-                            # Handle reports encoding for Python 2 and 3
-                            if not isinstance(reports, bytes):
-                                reports = reports.encode("utf-8")
-
                             write("    Uploading to S3...")
                             s3 = requests.put(
                                 upload_url,
-                                data=reports,
-                                headers={"Content-Type": "text/plain",},
+                                data=reports_gzip,
+                                headers={
+                                    "Content-Type": "application/x-gzip",
+                                    "Content-Encoding": "gzip"
+                                }
                             )
                             s3.raise_for_status()
                             assert s3.status_code == 200
@@ -1070,10 +1081,12 @@ def main(*argv, **kwargs):
                 res = requests.post(
                     "%s/upload/v2?%s" % (codecov.url, urlargs),
                     verify=codecov.cacert,
-                    data="\n".join(
-                        (reports, s3.reason if s3 else "", s3.text if s3 else "")
-                    ),
-                    headers={"Accept": "text/plain"},
+                    data=reports_gzip,
+                    headers={
+                        "Accept": "text/plain",
+                        "Content-Type": "application/x-gzip",
+                        "Content-Encoding": "gzip"
+                    }
                 )
                 if res.status_code < 500:
                     write("    " + res.text)
