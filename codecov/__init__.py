@@ -6,6 +6,7 @@ import sys
 import glob
 import requests
 import argparse
+import fnmatch
 from time import sleep
 from json import loads
 
@@ -226,6 +227,26 @@ def remove_non_ascii(data):
 def _add_env_if_not_empty(lst, value):
     if os.getenv(value) is not None:
         lst.add(value)
+
+
+def find_files(directory, patterns, recursive=True, exclude_dirs=[]):
+    if recursive:
+        items = os.walk(directory, followlinks=False)
+    else:
+        items = [next(os.walk(directory, followLinks=False))]
+    if not isinstance(patterns, list):
+        patterns = [patterns]
+    for root, dirs, files in items:
+        dirs[:] = [d for d in dirs if d not in exclude_dirs]
+        for basename in files:
+            match = False
+            for pattern in patterns:
+                if fnmatch.fnmatch(basename, pattern):
+                    match = True
+                    break
+            if match:
+                filename = os.path.join(root, basename)
+                yield filename
 
 
 def generate_toc(root):
@@ -869,30 +890,19 @@ def main(*argv, **kwargs):
             write("XX> Skip processing gcov")
 
         else:
-            dont_search_here = (
-                "-not -path './bower_components/**' "
-                "-not -path './node_modules/**' "
-                "-not -path './vendor/**'"
-            )
-            write("==> Processing gcov (disable by -X gcov)")
-            cmd = [
-                "find",
-                (sanitize_arg("", codecov.gcov_root or root)),
-                dont_search_here,
-                "-type",
-                "f",
-                "-name",
-                "*.gcno",
-                " ".join(map(lambda a: "-not -path '%s'" % a, codecov.gcov_glob)),
-                "-exec",
-                (sanitize_arg("", codecov.gcov_exec or "")),
-                "-pb",
-                (sanitize_arg("", codecov.gcov_args or "")),
-                "{}",
-                "+",
+            dont_search_here = [
+                "bower_components"
+                "node_modules"
+                "vendor"
             ]
-            write("    Executing gcov (%s)" % cmd)
-            try_to_run(cmd)
+            if codecov.gcov_glob:
+                dont_search_here.append(codecov.gcov_glob)
+
+            write("==> Processing gcov (disable by -X gcov)")
+            for path in find_files(sanitize_arg("", codecov.gcov_root or root), "*.gcno", True, dont_search_here):
+                cmd = sanitize_arg("", codecov.gcov_exec or "") + " -pb " + sanitize_arg("", codecov.gcov_args or "") + " " + path
+                write("    Executing gcov (%s)" % cmd)
+                write(try_to_run(cmd))
 
         # Collect Reports
         # ---------------
