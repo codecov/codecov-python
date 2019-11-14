@@ -181,7 +181,7 @@ def try_to_run(cmd, shell=True):
 
 def run_python_coverage(args):
     """Run the Python coverage tool
-    
+
     If it's importable in this Python, launch it using 'python -m'.
     Otherwise, look it up on PATH like any other command.
     """
@@ -365,18 +365,30 @@ def main(*argv, **kwargs):
                               commit=os.getenv('CIRCLE_SHA1')))
             write('    Circle CI Detected')
 
-        # ---------
-        # Semaphore
-        # ---------
-        elif os.getenv('CI') == 'true' and os.getenv('SEMAPHORE') == 'true':
+        # -----------------
+        # Semaphore Classic
+        # -----------------
+        elif os.getenv('CI') == 'true' and os.getenv('SEMAPHORE') == 'true' and os.getenv('SEMAPHORE_REPO_SLUG'):
             # https://semaphoreapp.com/docs/available-environment-variables.html
             query.update(dict(branch=os.getenv('BRANCH_NAME'),
                               service='semaphore',
                               build=os.getenv('SEMAPHORE_BUILD_NUMBER') + '.' + os.getenv('SEMAPHORE_CURRENT_THREAD'),
                               slug=os.getenv('SEMAPHORE_REPO_SLUG'),
                               commit=os.getenv('REVISION')))
-            write('    Semaphore Detected')
+            write('    Semaphore Classic Detected')
 
+        # -------------
+        # Semaphore 2.0
+        # -------------
+        elif os.getenv('CI') == 'true' and os.getenv('SEMAPHORE') == 'true':
+            # https://docs.semaphoreci.com/article/12-environment-variables
+            query.update(dict(branch=os.getenv('SEMAPHORE_GIT_BRANCH'),
+                              service='semaphore',
+                              build=os.getenv('SEMAPHORE_WORKFLOW_ID'),
+                              job=os.getenv('SEMAPHORE_JOB_ID'),
+                              slug=os.getenv('SEMAPHORE_GIT_REPO_SLUG'),
+                              commit=os.getenv('SEMAPHORE_GIT_SHA')))
+            write('    Semaphore 2.0 Detected')
         # ----------
         # Greenhouse
         # ----------
