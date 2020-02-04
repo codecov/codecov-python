@@ -8,6 +8,11 @@ import requests
 import argparse
 from time import sleep
 from json import loads
+try:
+    import colorama
+except ImportError:  # pragma: no cover
+    # No color support on Windows
+    print('colorama not found -> No color support on Windows')
 
 try:
     from urllib.parse import urlencode
@@ -208,6 +213,9 @@ def _add_env_if_not_empty(lst, value):
 
 def main(*argv, **kwargs):
     root = os.getcwd()
+    
+    # Initialise Colorama
+    colorama.init()
 
     # Build Parser
     # ------------
