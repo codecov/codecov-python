@@ -407,6 +407,12 @@ def main(*argv, **kwargs):
         help="Specify a custom pr number, provided automatically for supported CI companies",
     )
     advanced.add_argument("--tag", default=None, help="Git tag")
+    advanced.add_argument(
+        "--tries",
+        default=3,
+        type=int,
+        help="Specify the number of attempts to make when uploading coverage report",
+    )
 
     enterprise = parser.add_argument_group(
         "======================== Enterprise ========================"
@@ -1108,6 +1114,7 @@ def main(*argv, **kwargs):
                     res = retry_upload(
                         "%s/upload/v4?%s" % (codecov.url, urlargs),
                         requests.post,
+                        codecov.tries,
                         break_codes=(200, 400, 406),
                         verify=codecov.cacert,
                         headers={
@@ -1128,6 +1135,7 @@ def main(*argv, **kwargs):
                         s3 = retry_upload(
                             upload_url,
                             requests.put,
+                            codecov.tries,
                             verify=codecov.cacert,
                             data=reports_gzip,
                             headers={
@@ -1149,6 +1157,7 @@ def main(*argv, **kwargs):
                     res = retry_upload(
                         "%s/upload/v2?%s" % (codecov.url, urlargs),
                         requests.post,
+                        codecov.tries,
                         verify=codecov.cacert,
                         data=reports_gzip,
                         headers={
