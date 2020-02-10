@@ -434,6 +434,12 @@ def main(*argv, **kwargs):
         default=os.getenv("CODECOV_CACERT", os.getenv("CURL_CA_BUNDLE")),
         help="Certificate pem bundle used to verify with your Codecov instance",
     )
+    enterprise.add_argument(
+        "--no-verify",
+        action="store_true",
+        default=False,
+        help="Don't use SSL verification",
+    )
 
     debugging = parser.add_argument_group(
         "======================== Debugging ========================"
@@ -1116,7 +1122,7 @@ def main(*argv, **kwargs):
                         requests.post,
                         retries=codecov.tries,
                         break_codes=(200, 400, 406),
-                        verify=codecov.cacert,
+                        verify=False if codecov.no_verify else codecov.cacert,
                         headers={
                             "Accept": "text/plain",
                             "X-Reduced-Redundancy": "false",
@@ -1136,7 +1142,7 @@ def main(*argv, **kwargs):
                             upload_url,
                             requests.put,
                             retries=codecov.tries,
-                            verify=codecov.cacert,
+                            verify=False if codecov.no_verify else codecov.cacert,
                             data=reports_gzip,
                             headers={
                                 "Content-Type": "application/x-gzip",
@@ -1158,7 +1164,7 @@ def main(*argv, **kwargs):
                         "%s/upload/v2?%s" % (codecov.url, urlargs),
                         requests.post,
                         retries=codecov.tries,
-                        verify=codecov.cacert,
+                        verify=False if codecov.no_verify else codecov.cacert,
                         data=reports_gzip,
                         headers={
                             "Accept": "text/plain",
