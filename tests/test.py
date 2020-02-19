@@ -315,6 +315,9 @@ class TestUploader(unittest.TestCase):
         else:
             raise Exception("Did not raise AssertionError")
 
+    def test_sanitize_arg(self):
+        self.assertEqual(codecov.sanitize_arg('', '& echo test > vuln1.txt'), ' echo test > vuln1.txt')
+
     @unittest.skipUnless(os.getenv('JENKINS_URL'), 'Skip Jenkins CI test')
     def test_ci_jenkins(self):
         self.set_env(BUILD_URL='https://....',

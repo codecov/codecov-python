@@ -34,6 +34,10 @@ is_merge_commit = re.compile(r'^Merge\s\w{40}\sinto\s\w{40}$')
 
 remove_token = re.compile(r'token=[^\&]+').sub
 
+def sanitize_arg(replacement, arg):
+    return re.sub(r'[\&]+', replacement, arg, 0, re.MULTILINE)
+
+
 ignored_path = re.compile(r'(/vendor)|'
                           r'(/js/generated/coverage)|'
                           r'(/__pycache__)|'
@@ -624,11 +628,11 @@ def main(*argv, **kwargs):
             )
             write('==> Processing gcov (disable by -X gcov)')
             cmd = "find %s %s -type f -name '*.gcno' %s -exec %s -pb %s {} +" % (
-                  (codecov.gcov_root or root),
+                  (sanitize_arg('', codecov.gcov_root or root)),
                   dont_search_here,
                   " ".join(map(lambda a: "-not -path '%s'" % a, codecov.gcov_glob)),
-                  (codecov.gcov_exec or ''),
-                  (codecov.gcov_args or ''))
+                  (sanitize_arg('', codecov.gcov_exec or '')),
+                  (sanitize_arg('', codecov.gcov_args or '')))
             write('    Executing gcov (%s)' % cmd)
             try_to_run(cmd)
 
