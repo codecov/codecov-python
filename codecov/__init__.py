@@ -201,10 +201,24 @@ def remove_non_ascii(data):
         return ''.join([i if ord(i) < 128 else '' for i in data])
 
 
+def detect_codebuild_branch_name():
+    if (os.getenv('CODEBUILD_WEBHOOK_HEAD_REF')):
+        return re.sub(r'^refs\/heads\/','', os.getenv('CODEBUILD_WEBHOOK_HEAD_REF'))
+    write('Cannot detect branch name')
+
+def detect_codebuild_pr_number():
+    if (os.getenv('CODEBUILD_SOURCE_VERSION')):
+        return re.sub(r'^pr\/','', os.getenv('CODEBUILD_SOURCE_VERSION'))
+    write('Cannot detect PR number')
+
+def detect_codebuild_repo_slug():
+    if (os.getenv('CODEBUILD_SOURCE_REPO_URL')):
+        return re.sub(r'(.+)\.git', r'\1', re.sub(r'(.*)github\.com\/', '', os.getenv('CODEBUILD_SOURCE_REPO_URL')))
+    write('Cannot detect repository slug')
+
 def _add_env_if_not_empty(lst, value):
     if os.getenv(value) is not None:
         lst.add(value)
-
 
 def main(*argv, **kwargs):
     root = os.getcwd()
@@ -485,6 +499,21 @@ def main(*argv, **kwargs):
                 query['slug'] = os.getenv('CI_REPOSITORY_URL').split('/', 3)[-1].replace('.git', '')
 
             write('    Gitlab CI Detected')
+
+        # ---------
+        # CODEBUILD
+        # ---------
+
+        elif os.getenv('CODEBUILD_CI') == "true":
+            # https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-env-vars.html
+            query.update(dict(service='codebuild',
+                              branch=detect_codebuild_branch_name(),
+                              build=os.getenv('CODEBUILD_BUILD_ID'),
+                              pr=detect_codebuild_pr_number(),
+                              slug=detect_codebuild_repo_slug(),
+                              job=os.getenv('CODEBUILD_BUILD_ID'),
+                              commit=os.getenv('CODEBUILD_RESOLVED_SOURCE_VERSION')))
+            write('    AWS CodeBuild Detected')
 
         else:
             query.update(dict(commit=os.getenv('VCS_COMMIT_ID', ''),
