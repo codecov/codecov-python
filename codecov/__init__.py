@@ -213,7 +213,7 @@ def detect_codebuild_pr_number():
 
 def detect_codebuild_repo_slug():
     if (os.getenv('CODEBUILD_SOURCE_REPO_URL')):
-        return re.sub(r'(.+)\.git', r'\1', re.sub(r'(.*)github\.com\/', '', os.getenv('CODEBUILD_SOURCE_REPO_URL')))
+        return re.sub(r'(.+)\.git', r'\1', re.sub(r'(.*)bitbucket\.org\/','', re.sub(r'(.*)github\.com\/', '', os.getenv('CODEBUILD_SOURCE_REPO_URL'))))
     write('Cannot detect repository slug')
 
 def _add_env_if_not_empty(lst, value):

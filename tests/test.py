@@ -595,6 +595,27 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res['query']['pr'], '123')
         self.assertEqual(res['codecov'].token, 'token')
 
+
+    @unittest.skipUnless(os.getenv('CODEBUILD_CI') == "true", 'Skip CodeBuild CI test')
+    def test_ci_codebuild_with_bitbucket_repo(self):
+        self.set_env(CODEBUILD_CI='true',
+                     CODEBUILD_BUILD_ID='codebuild-project:458dq3q8-7354-4513-8702-ea7b9c81efb3',
+                     CODEBUILD_RESOLVED_SOURCE_VERSION='d653b934ed59c1a785cc1cc79d08c9aaa4eba73b',
+                     CODEBUILD_WEBHOOK_HEAD_REF='refs/heads/master',
+                     CODEBUILD_SOURCE_VERSION='pr/123',
+                     CODEBUILD_SOURCE_REPO_URL='https://owner@bitbucket.org/owner/bb-repo.git',
+                     CODECOV_TOKEN='token')
+        self.fake_report()
+        res = self.run_cli()
+        self.assertEqual(res['query']['service'], 'codebuild')
+        self.assertEqual(res['query']['commit'], 'd653b934ed59c1a785cc1cc79d08c9aaa4eba73b')
+        self.assertEqual(res['query']['build'], 'codebuild-project:458dq3q8-7354-4513-8702-ea7b9c81efb3')
+        self.assertEqual(res['query']['job'], 'codebuild-project:458dq3q8-7354-4513-8702-ea7b9c81efb3')
+        self.assertEqual(res['query']['slug'], 'owner/bb-repo')
+        self.assertEqual(res['query']['branch'], 'master')
+        self.assertEqual(res['query']['pr'], '123')
+        self.assertEqual(res['codecov'].token, 'token')
+
     @unittest.skip('Skip CI None')
     def test_ci_none(self):
         self.set_env(CODECOV_TOKEN='token')
