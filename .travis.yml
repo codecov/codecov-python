@@ -1,6 +1,5 @@
-
 language: python
-cache: pip
+# cache: pip
 notifications:
   email: false
 dist: xenial
