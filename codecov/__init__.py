@@ -548,7 +548,7 @@ def main(*argv, **kwargs):
             try:
                 # find branch, commit, repo from git command
                 branch = try_to_run(
-                    'git rev-parse --abbrev-ref HEAD || hg branch')
+                    ['git',  'rev-parse', '--abbrev-ref', 'HEAD', '||', 'hg branch'])
                 query['branch'] = branch if branch != 'HEAD' else ''
                 write('  -> Got branch from git/hg')
 
@@ -558,7 +558,7 @@ def main(*argv, **kwargs):
         if not query.get('commit'):
             try:
                 query['commit'] = try_to_run(
-                    "git rev-parse HEAD || hg id -i --debug | tr -d '+'")
+                    ["git", "rev-parse", "HEAD", "||", "hg", "id", "-i", "--debug", "|", "tr", "-d", "'+'"])
                 write('  -> Got sha from git/hg')
 
             except:  # pragma: no cover
@@ -584,7 +584,7 @@ def main(*argv, **kwargs):
     elif query['pr'] and query['pr'] != 'false':
         # Merge Commits
         # -------------
-        res = try_to_run('git log -1 --pretty=%B')
+        res = try_to_run(['git', 'log', '-1', '--pretty=%B'])
         if res and is_merge_commit.match(res.strip()):
             query['commit'] = res.split(' ')[1]
             write('    Fixing merge commit SHA')
