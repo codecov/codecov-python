@@ -178,9 +178,9 @@ def check_output(cmd, **popen_args):
         return output.decode('utf-8')
 
 
-def try_to_run(cmd, shell=False):
+def try_to_run(cmd, shell=False, cwd=None):
     try:
-        return check_output(cmd, shell=shell)
+        return check_output(cmd, shell=shell, cwd=cwd)
     except subprocess.CalledProcessError as e:
         write('    Error running `%s`: %s' % (cmd, e.output or str(e)))
 
@@ -620,9 +620,9 @@ def main(*argv, **kwargs):
 
         # Build TOC
         # ---------
-        toc = str((try_to_run(['cd', root, '&&', 'git', 'ls-files']) or
+        toc = str((try_to_run(['git', 'ls-files'], cwd=root) or
                    try_to_run(['git', 'ls-files']) or
-                   try_to_run(['cd', root, '&&', 'hg', 'locate']) or
+                   try_to_run(['hg', 'locate'], cwd=root) or
                    try_to_run(['hg', 'locate']) or ['']).strip())
 
         if codecov.prefix:
