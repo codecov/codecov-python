@@ -547,8 +547,9 @@ def main(*argv, **kwargs):
         if not query.get('branch'):
             try:
                 # find branch, commit, repo from git command
-                branch = try_to_run(
-                    ['git',  'rev-parse', '--abbrev-ref', 'HEAD', '||', 'hg branch'])
+                branch = (try_to_run(
+                    ['git',  'rev-parse', '--abbrev-ref', 'HEAD']) or try_to_run(
+                    ['hg', 'branch']))
                 query['branch'] = branch if branch != 'HEAD' else ''
                 write('  -> Got branch from git/hg')
 
@@ -557,8 +558,9 @@ def main(*argv, **kwargs):
 
         if not query.get('commit'):
             try:
-                query['commit'] = try_to_run(
-                    ["git", "rev-parse", "HEAD", "||", "hg", "id", "-i", "--debug", "|", "tr", "-d", "'+'"])
+                query['commit'] = (try_to_run(
+                    ['git', 'rev-parse', "HEAD"]) or try_to_run(
+                    ["hg", "id", "-i", "--debug", '|', "tr", "-d", "'+'"]))
                 write('  -> Got sha from git/hg')
 
             except:  # pragma: no cover
