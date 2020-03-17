@@ -26,7 +26,7 @@ import logging
 logging.captureWarnings(True)
 
 
-version = VERSION = __version__ = '2.0.19'
+version = VERSION = __version__ = '2.0.21'
 
 COLOR = True
 
@@ -626,7 +626,7 @@ def main(*argv, **kwargs):
         toc = str((try_to_run(['git', 'ls-files'], cwd=root) or
                    try_to_run(['git', 'ls-files']) or
                    try_to_run(['hg', 'locate'], cwd=root) or
-                   try_to_run(['hg', 'locate']) or ['']).strip())
+                   try_to_run(['hg', 'locate']) or [''])).strip()
 
         if codecov.prefix:
             prefix = codecov.prefix.strip('/')

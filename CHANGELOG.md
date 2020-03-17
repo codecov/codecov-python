@@ -1,3 +1,11 @@
+### `2.0.21`
+
+- fixed string issues
+
+### `2.0.20`
+
+- fixed broken subprocess handling
+
 ### `2.0.19`
 
 - fixed broken subprocess handling
