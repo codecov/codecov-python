@@ -1,7 +1,8 @@
 deploy:
-	git tag -a v$(shell python -c "import codecov;print codecov.version;") -m ""
-	git push origin v$(shell python -c "import codecov;print codecov.version;")
-	python setup.py sdist bdist_wheel upload
+	git tag -a v$(python -c 'import codecov;print(codecov.version)') -m ""
+	git push origin v$(python -c 'import codecov;print(codecov.version)')
+	python setup.py sdist bdist_wheel
+	python -m twine upload dist/*
 
 reinstall:
 	pip uninstall -y codecov
