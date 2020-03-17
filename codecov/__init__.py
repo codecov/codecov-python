@@ -214,6 +214,17 @@ def _add_env_if_not_empty(lst, value):
         lst.add(value)
 
 
+def generate_toc(root):
+    return str(
+        (
+            try_to_run(['git', 'ls-files'], cwd=root) or
+            try_to_run(['git', 'ls-files']) or
+            try_to_run(['hg', 'locate'], cwd=root) or
+            try_to_run(['hg', 'locate'])
+        )
+    ).strip() or ""
+
+
 def main(*argv, **kwargs):
     root = os.getcwd()
 
@@ -623,10 +634,7 @@ def main(*argv, **kwargs):
 
         # Build TOC
         # ---------
-        toc = str((try_to_run(['git', 'ls-files'], cwd=root) or
-                   try_to_run(['git', 'ls-files']) or
-                   try_to_run(['hg', 'locate'], cwd=root) or
-                   try_to_run(['hg', 'locate']) or [''])).strip()
+        toc = generate_toc(root)
 
         if codecov.prefix:
             prefix = codecov.prefix.strip('/')
