@@ -182,7 +182,7 @@ def try_to_run(cmd, shell=False, cwd=None):
     try:
         return check_output(cmd, shell=shell, cwd=cwd)
     except Exception as e:
-        write('    Error running `%s`: %s' % (cmd, e.output or str(e)))
+        write('    Error running `%s`: %s' % (cmd, e or str(e)))
         return None
 
 
