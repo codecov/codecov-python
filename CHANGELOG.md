@@ -1,3 +1,11 @@
+### `2.0.19`
+
+- fixed broken subprocess handling
+
+### `2.0.18`
+
+- fixed broken subprocess handling
+
 ### `2.0.17`
 
 - fixed reported command injection vulnerability.
