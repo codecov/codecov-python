@@ -181,8 +181,9 @@ def check_output(cmd, **popen_args):
 def try_to_run(cmd, shell=False, cwd=None):
     try:
         return check_output(cmd, shell=shell, cwd=cwd)
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError, FileNotFoundError as e:
         write('    Error running `%s`: %s' % (cmd, e.output or str(e)))
+        return None
 
 
 def run_python_coverage(args):
