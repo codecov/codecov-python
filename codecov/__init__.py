@@ -587,7 +587,7 @@ def main(*argv, **kwargs):
 
         # Detect codecov.yml location
         yaml_location = re.search(
-            r'\.?codecov\.ya?ml$',
+            r'.*\.?codecov\.ya?ml$',
             toc,
             re.M
         )
