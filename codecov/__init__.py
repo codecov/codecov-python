@@ -16,7 +16,7 @@ except ImportError:  # pragma: no cover
 
 try:
     from shlex import quote
-except ImportError: # pragma: no cover
+except ImportError:  # pragma: no cover
     from pipes import quote
 
 import subprocess
@@ -26,13 +26,14 @@ import logging
 logging.captureWarnings(True)
 
 
-version = VERSION = __version__ = '2.0.15'
+version = VERSION = __version__ = '2.0.17'
 
 COLOR = True
 
 is_merge_commit = re.compile(r'^Merge\s\w{40}\sinto\s\w{40}$')
 
 remove_token = re.compile(r'token=[^\&]+').sub
+
 
 def sanitize_arg(replacement, arg):
     return re.sub(r'[\&]+', replacement, arg, 0, re.MULTILINE)
@@ -177,15 +178,16 @@ def check_output(cmd, **popen_args):
         return output.decode('utf-8')
 
 
-def try_to_run(cmd, shell=True):
+def try_to_run(cmd, shell=False, cwd=None):
     try:
-        return check_output(cmd, shell=shell)
+        return check_output(cmd, shell=shell, cwd=cwd)
     except subprocess.CalledProcessError as e:
         write('    Error running `%s`: %s' % (cmd, e.output or str(e)))
 
+
 def run_python_coverage(args):
     """Run the Python coverage tool
-    
+
     If it's importable in this Python, launch it using 'python -m'.
     Otherwise, look it up on PATH like any other command.
     """
@@ -197,6 +199,7 @@ def run_python_coverage(args):
     else:
         # Coverage is installed on this Python. Run it as a module.
         try_to_run([sys.executable, '-m', 'coverage'] + args, shell=False)
+
 
 def remove_non_ascii(data):
     try:
@@ -218,40 +221,67 @@ def main(*argv, **kwargs):
     parser = argparse.ArgumentParser(prog='codecov', add_help=True,
                                      formatter_class=argparse.RawDescriptionHelpFormatter,
                                      epilog="""Upload reports to Codecov""")
-    basics = parser.add_argument_group('======================== Basics ========================')
-    basics.add_argument('--version', action='version', version='Codecov py-v'+version+" - https://codecov.io/")
-    basics.add_argument('--token', '-t', default=os.getenv("CODECOV_TOKEN"), help="Private repository token or @filename for file containing the token. Defaults to $CODECOV_TOKEN. Not required for public repositories on Travis CI, CircleCI and AppVeyor")
-    basics.add_argument('--file', '-f', nargs="*", default=None, help="Target a specific file for uploading")
-    basics.add_argument('--flags', '-F', nargs="*", default=None, help="Flag these uploaded files with custom labels")
-    basics.add_argument('--env', '-e', nargs="*", default=None, help="Store environment variables to help distinguish CI builds.")
-    basics.add_argument('--required', action="store_true", default=False, help="If Codecov fails it will exit 1 - possibly failing the CI build.")
-    basics.add_argument('--name', '-n', default=None, help="Custom defined name of the upload. Visible in Codecov UI.")
+    basics = parser.add_argument_group(
+        '======================== Basics ========================')
+    basics.add_argument('--version', action='version',
+                        version='Codecov py-v'+version+" - https://codecov.io/")
+    basics.add_argument('--token', '-t', default=os.getenv("CODECOV_TOKEN"),
+                        help="Private repository token or @filename for file containing the token. Defaults to $CODECOV_TOKEN. Not required for public repositories on Travis CI, CircleCI and AppVeyor")
+    basics.add_argument('--file', '-f', nargs="*", default=None,
+                        help="Target a specific file for uploading")
+    basics.add_argument('--flags', '-F', nargs="*", default=None,
+                        help="Flag these uploaded files with custom labels")
+    basics.add_argument('--env', '-e', nargs="*", default=None,
+                        help="Store environment variables to help distinguish CI builds.")
+    basics.add_argument('--required', action="store_true", default=False,
+                        help="If Codecov fails it will exit 1 - possibly failing the CI build.")
+    basics.add_argument('--name', '-n', default=None,
+                        help="Custom defined name of the upload. Visible in Codecov UI.")
 
-    gcov = parser.add_argument_group('======================== gcov ========================')
-    gcov.add_argument('--gcov-root', default=None, help="Project root directory when preparing gcov")
-    gcov.add_argument('--gcov-glob', nargs="*", default=[], help="Paths to ignore during gcov gathering")
-    gcov.add_argument('--gcov-exec', default='gcov', help="gcov executable to run. Defaults to 'gcov'")
-    gcov.add_argument('--gcov-args', default='', help="extra arguments to pass to gcov")
+    gcov = parser.add_argument_group(
+        '======================== gcov ========================')
+    gcov.add_argument('--gcov-root', default=None,
+                      help="Project root directory when preparing gcov")
+    gcov.add_argument('--gcov-glob', nargs="*", default=[],
+                      help="Paths to ignore during gcov gathering")
+    gcov.add_argument('--gcov-exec', default='gcov',
+                      help="gcov executable to run. Defaults to 'gcov'")
+    gcov.add_argument('--gcov-args', default='',
+                      help="extra arguments to pass to gcov")
 
-    advanced = parser.add_argument_group('======================== Advanced ========================')
+    advanced = parser.add_argument_group(
+        '======================== Advanced ========================')
     advanced.add_argument('-X', '--disable', nargs="*", default=[], help="Disable features. Accepting **search** to disable crawling through directories, **detect** to disable detecting CI provider, **gcov** disable gcov commands, `pycov` disables running python `coverage xml`, **fix** to disable report adjustments https://docs.codecov.io/docs/fixing-reports")
-    advanced.add_argument('--root', default=None, help="Project directory. Default: current direcory or provided in CI environment variables")
-    advanced.add_argument('--commit', '-c', default=None, help="Commit SHA, set automatically")
-    advanced.add_argument('--prefix', '-P', default=None, help="Prefix network paths to help resolve paths: https://github.com/codecov/support/issues/472")
+    advanced.add_argument('--root', default=None,
+                          help="Project directory. Default: current direcory or provided in CI environment variables")
+    advanced.add_argument('--commit', '-c', default=None,
+                          help="Commit SHA, set automatically")
+    advanced.add_argument('--prefix', '-P', default=None,
+                          help="Prefix network paths to help resolve paths: https://github.com/codecov/support/issues/472")
     advanced.add_argument('--branch', '-b', default=None, help="Branch name")
-    advanced.add_argument('--build', default=None, help="Specify a custom build number to distinguish CI jobs, provided automatically for supported CI companies")
-    advanced.add_argument('--pr', default=None, help="Specify a custom pr number, provided automatically for supported CI companies")
+    advanced.add_argument('--build', default=None,
+                          help="Specify a custom build number to distinguish CI jobs, provided automatically for supported CI companies")
+    advanced.add_argument(
+        '--pr', default=None, help="Specify a custom pr number, provided automatically for supported CI companies")
     advanced.add_argument('--tag', default=None, help="Git tag")
 
-    enterprise = parser.add_argument_group('======================== Enterprise ========================')
-    enterprise.add_argument('--slug', '-r', default=os.getenv("CODECOV_SLUG"), help="Specify repository slug for Enterprise ex. owner/repo")
-    enterprise.add_argument('--url', '-u', default=os.getenv("CODECOV_URL", "https://codecov.io"), help="Your Codecov endpoint")
-    enterprise.add_argument('--cacert', default=os.getenv("CODECOV_CACERT", os.getenv("CURL_CA_BUNDLE")), help="Certificate pem bundle used to verify with your Codecov instance")
+    enterprise = parser.add_argument_group(
+        '======================== Enterprise ========================')
+    enterprise.add_argument('--slug', '-r', default=os.getenv("CODECOV_SLUG"),
+                            help="Specify repository slug for Enterprise ex. owner/repo")
+    enterprise.add_argument('--url', '-u', default=os.getenv("CODECOV_URL",
+                                                             "https://codecov.io"), help="Your Codecov endpoint")
+    enterprise.add_argument('--cacert', default=os.getenv("CODECOV_CACERT", os.getenv(
+        "CURL_CA_BUNDLE")), help="Certificate pem bundle used to verify with your Codecov instance")
 
-    debugging = parser.add_argument_group('======================== Debugging ========================')
-    debugging.add_argument('--dump', action="store_true", help="Dump collected data and do not send to Codecov")
-    debugging.add_argument('-v', '--verbose', action="store_true", help="Be verbose, e.g. dump the collected data")
-    debugging.add_argument('--no-color', action="store_true", help="Do not output with color")
+    debugging = parser.add_argument_group(
+        '======================== Debugging ========================')
+    debugging.add_argument('--dump', action="store_true",
+                           help="Dump collected data and do not send to Codecov")
+    debugging.add_argument('-v', '--verbose', action="store_true",
+                           help="Be verbose, e.g. dump the collected data")
+    debugging.add_argument('--no-color', action="store_true",
+                           help="Do not output with color")
 
     # Parse Arguments
     # ---------------
@@ -300,8 +330,10 @@ def main(*argv, **kwargs):
             # https://wiki.jenkins-ci.org/display/JENKINS/GitHub+pull+request+builder+plugin#GitHubpullrequestbuilderplugin-EnvironmentVariables
             query.update(dict(branch=os.getenv('ghprbSourceBranch') or os.getenv('GIT_BRANCH') or os.getenv('BRANCH_NAME'),
                               service='jenkins',
-                              commit=os.getenv('ghprbActualCommit') or os.getenv('GIT_COMMIT'),
-                              pr=os.getenv('ghprbPullId') or os.getenv('CHANGE_ID'),
+                              commit=os.getenv('ghprbActualCommit') or os.getenv(
+                                  'GIT_COMMIT'),
+                              pr=os.getenv('ghprbPullId') or os.getenv(
+                                  'CHANGE_ID'),
                               build=os.getenv('BUILD_NUMBER'),
                               build_url=os.getenv('BUILD_URL')))
             root = os.getenv('WORKSPACE') or root
@@ -328,7 +360,8 @@ def main(*argv, **kwargs):
 
             _add_env_if_not_empty(include_env, 'TRAVIS_OS_NAME')
             if language:
-                _add_env_if_not_empty(include_env, 'TRAVIS_%s_VERSION' % language.upper())
+                _add_env_if_not_empty(
+                    include_env, 'TRAVIS_%s_VERSION' % language.upper())
 
         # --------
         # Codeship
@@ -349,7 +382,8 @@ def main(*argv, **kwargs):
             # https://buildkite.com/docs/guides/environment-variables
             query.update(dict(branch=os.getenv('BUILDKITE_BRANCH'),
                               service='buildkite',
-                              build=os.getenv('BUILDKITE_BUILD_NUMBER') + '.' + os.getenv('BUILDKITE_JOB_ID'),
+                              build=os.getenv(
+                                  'BUILDKITE_BUILD_NUMBER') + '.' + os.getenv('BUILDKITE_JOB_ID'),
                               slug=os.getenv('BUILDKITE_PROJECT_SLUG'),
                               build_url=os.getenv('BUILDKITE_BUILD_URL'),
                               commit=os.getenv('BUILDKITE_COMMIT')))
@@ -362,10 +396,13 @@ def main(*argv, **kwargs):
             # https://circleci.com/docs/environment-variables
             query.update(dict(branch=os.getenv('CIRCLE_BRANCH'),
                               service='circleci',
-                              build=os.getenv('CIRCLE_BUILD_NUM') + "." + os.getenv('CIRCLE_NODE_INDEX'),
-                              job=os.getenv('CIRCLE_BUILD_NUM') + "." + os.getenv('CIRCLE_NODE_INDEX'),
+                              build=os.getenv('CIRCLE_BUILD_NUM') +
+                              "." + os.getenv('CIRCLE_NODE_INDEX'),
+                              job=os.getenv('CIRCLE_BUILD_NUM') +
+                              "." + os.getenv('CIRCLE_NODE_INDEX'),
                               pr=os.getenv('CIRCLE_PR_NUMBER'),
-                              slug=os.getenv('CIRCLE_PROJECT_USERNAME') + "/" + os.getenv('CIRCLE_PROJECT_REPONAME'),
+                              slug=os.getenv('CIRCLE_PROJECT_USERNAME') +
+                              "/" + os.getenv('CIRCLE_PROJECT_REPONAME'),
                               commit=os.getenv('CIRCLE_SHA1')))
             write('    Circle CI Detected')
 
@@ -376,7 +413,8 @@ def main(*argv, **kwargs):
             # https://semaphoreapp.com/docs/available-environment-variables.html
             query.update(dict(branch=os.getenv('BRANCH_NAME'),
                               service='semaphore',
-                              build=os.getenv('SEMAPHORE_BUILD_NUMBER') + '.' + os.getenv('SEMAPHORE_CURRENT_THREAD'),
+                              build=os.getenv(
+                                  'SEMAPHORE_BUILD_NUMBER') + '.' + os.getenv('SEMAPHORE_CURRENT_THREAD'),
                               slug=os.getenv('SEMAPHORE_REPO_SLUG'),
                               commit=os.getenv('REVISION')))
             write('    Semaphore Detected')
@@ -423,7 +461,8 @@ def main(*argv, **kwargs):
             # http://www.appveyor.com/docs/environment-variables
             query.update(dict(branch=os.getenv('APPVEYOR_REPO_BRANCH'),
                               service="appveyor",
-                              job='/'.join((os.getenv('APPVEYOR_ACCOUNT_NAME'), os.getenv('APPVEYOR_PROJECT_SLUG'), os.getenv('APPVEYOR_BUILD_VERSION'))),
+                              job='/'.join((os.getenv('APPVEYOR_ACCOUNT_NAME'), os.getenv(
+                                  'APPVEYOR_PROJECT_SLUG'), os.getenv('APPVEYOR_BUILD_VERSION'))),
                               build=os.getenv('APPVEYOR_JOB_ID'),
                               pr=os.getenv('APPVEYOR_PULL_REQUEST_NUMBER'),
                               slug=os.getenv('APPVEYOR_REPO_NAME'),
@@ -439,7 +478,8 @@ def main(*argv, **kwargs):
             query.update(dict(branch=os.getenv('WERCKER_GIT_BRANCH'),
                               service="wercker",
                               build=os.getenv('WERCKER_MAIN_PIPELINE_STARTED'),
-                              slug=os.getenv('WERCKER_GIT_OWNER') + '/' + os.getenv('WERCKER_GIT_REPOSITORY'),
+                              slug=os.getenv('WERCKER_GIT_OWNER') + '/' +
+                              os.getenv('WERCKER_GIT_REPOSITORY'),
                               commit=os.getenv('WERCKER_GIT_COMMIT')))
             write('    Wercker Detected')
 
@@ -481,12 +521,15 @@ def main(*argv, **kwargs):
             if os.getenv('CI_PROJECT_DIR', '').startswith('/'):
                 root = os.getenv('CI_PROJECT_DIR')
             else:
-                root = os.getenv('HOME') + '/' + os.getenv('CI_PROJECT_DIR', '')
+                root = os.getenv('HOME') + '/' + \
+                    os.getenv('CI_PROJECT_DIR', '')
 
             if os.getenv('CI_BUILD_REPO'):
-                query['slug'] = os.getenv('CI_BUILD_REPO').split('/', 3)[-1].replace('.git', '')
+                query['slug'] = os.getenv('CI_BUILD_REPO').split(
+                    '/', 3)[-1].replace('.git', '')
             elif os.getenv('CI_REPOSITORY_URL'):
-                query['slug'] = os.getenv('CI_REPOSITORY_URL').split('/', 3)[-1].replace('.git', '')
+                query['slug'] = os.getenv('CI_REPOSITORY_URL').split(
+                    '/', 3)[-1].replace('.git', '')
 
             write('    Gitlab CI Detected')
 
@@ -504,7 +547,8 @@ def main(*argv, **kwargs):
         if not query.get('branch'):
             try:
                 # find branch, commit, repo from git command
-                branch = try_to_run('git rev-parse --abbrev-ref HEAD || hg branch')
+                branch = try_to_run(
+                    ['git',  'rev-parse', '--abbrev-ref', 'HEAD', '||', 'hg branch'])
                 query['branch'] = branch if branch != 'HEAD' else ''
                 write('  -> Got branch from git/hg')
 
@@ -513,7 +557,8 @@ def main(*argv, **kwargs):
 
         if not query.get('commit'):
             try:
-                query['commit'] = try_to_run("git rev-parse HEAD || hg id -i --debug | tr -d '+'")
+                query['commit'] = try_to_run(
+                    ["git", "rev-parse", "HEAD", "||", "hg", "id", "-i", "--debug", "|", "tr", "-d", "'+'"])
                 write('  -> Got sha from git/hg')
 
             except:  # pragma: no cover
@@ -539,7 +584,7 @@ def main(*argv, **kwargs):
     elif query['pr'] and query['pr'] != 'false':
         # Merge Commits
         # -------------
-        res = try_to_run('git log -1 --pretty=%B')
+        res = try_to_run(['git', 'log', '-1', '--pretty=%B'])
         if res and is_merge_commit.match(res.strip()):
             query['commit'] = res.split(' ')[1]
             write('    Fixing merge commit SHA')
@@ -567,16 +612,18 @@ def main(*argv, **kwargs):
         # --------------------
         if query.get('token') and query.get('token')[0] == '@':
             write('    Reading token from file')
-            query['token'] = fopen(opj(os.getcwd(), query['token'][1:])).strip()
+            query['token'] = fopen(
+                opj(os.getcwd(), query['token'][1:])).strip()
 
-        assert query.get('commit') not in ('', None), "Commit sha is missing. Please specify via --commit=:sha"
+        assert query.get('commit') not in (
+            '', None), "Commit sha is missing. Please specify via --commit=:sha"
 
         # Build TOC
         # ---------
-        toc = str((try_to_run('cd %s && git ls-files' % root) or
-                   try_to_run('git ls-files') or
-                   try_to_run('cd %s && hg locate' % root) or
-                   try_to_run('hg locate') or '').strip())
+        toc = str((try_to_run(['git', 'ls-files'], cwd=root) or
+                   try_to_run(['git', 'ls-files']) or
+                   try_to_run(['hg', 'locate'], cwd=root) or
+                   try_to_run(['hg', 'locate']) or ['']).strip())
 
         if codecov.prefix:
             prefix = codecov.prefix.strip('/')
@@ -613,7 +660,8 @@ def main(*argv, **kwargs):
                 if _slug:
                     query['slug'] = _slug.groups()[1]
 
-        assert query.get('job') or query.get('token'), "Missing repository upload token"
+        assert query.get('job') or query.get(
+            'token'), "Missing repository upload token"
 
         # Processing gcov
         # ---------------
@@ -627,12 +675,13 @@ def main(*argv, **kwargs):
                 "-not -path './vendor/**'"
             )
             write('==> Processing gcov (disable by -X gcov)')
-            cmd = "find %s %s -type f -name '*.gcno' %s -exec %s -pb %s {} +" % (
-                  (sanitize_arg('', codecov.gcov_root or root)),
-                  dont_search_here,
-                  " ".join(map(lambda a: "-not -path '%s'" % a, codecov.gcov_glob)),
-                  (sanitize_arg('', codecov.gcov_exec or '')),
-                  (sanitize_arg('', codecov.gcov_args or '')))
+            cmd = ['find',
+                   (sanitize_arg('', codecov.gcov_root or root)), dont_search_here,
+                   '-type', 'f', '-name', '*.gcno', " ".join(map(lambda a: "-not -path '%s'" %
+                                                                 a, codecov.gcov_glob)),
+                   '-exec', (sanitize_arg('',
+                                          codecov.gcov_exec or '')),
+                   '-pb',  (sanitize_arg('', codecov.gcov_args or '')), '{}', '+']
             write('    Executing gcov (%s)' % cmd)
             try_to_run(cmd)
 
@@ -652,7 +701,9 @@ def main(*argv, **kwargs):
             if os.path.exists(bowerrc):
                 write('    Detecting .bowerrc file')
                 try:
-                    bower_components = '/' + (loads(fopen(bowerrc)).get('directory') or 'bower_components').replace('./', '').strip('/')
+                    bower_components = '/' + \
+                        (loads(fopen(bowerrc)).get('directory')
+                         or 'bower_components').replace('./', '').strip('/')
                     write('    .bowerrc detected, ignoring ' + bower_components)
                 except Exception as e:
                     write('    .bowerrc parsing error: ' + str(e))
@@ -704,7 +755,8 @@ def main(*argv, **kwargs):
                 if k:
                     write('    + ' + k)
 
-            env = '\n'.join(["%s=%s" % (k, os.getenv(k, '')) for k in include_env if k]) + '\n<<<<<< ENV'
+            env = '\n'.join(["%s=%s" % (k, os.getenv(k, ''))
+                             for k in include_env if k]) + '\n<<<<<< ENV'
 
         # join reports together
         reports = '\n'.join((env, (toc or ''), '<<<<<< network',
@@ -712,7 +764,8 @@ def main(*argv, **kwargs):
                              '<<<<<< EOF'))
 
         query['package'] = "py" + VERSION
-        urlargs = (urlencode(dict([(k, v.strip()) for k, v in query.items() if v not in ('', None)]))).replace("+", "%20")
+        urlargs = (urlencode(dict([(k, v.strip()) for k, v in query.items(
+        ) if v not in ('', None)]))).replace("+", "%20")
 
         result = ''
         if codecov.dump:
@@ -772,8 +825,9 @@ def main(*argv, **kwargs):
                 # just incase, try traditional upload
                 res = requests.post('%s/upload/v2?%s' % (codecov.url, urlargs),
                                     verify=codecov.cacert,
-                                    data='\n'.join((reports, s3.reason if s3 else '', s3.text if s3 else '')),
-                                    headers={"Accept": "text/plain"})
+                                    data='\n'.join(
+                    (reports, s3.reason if s3 else '', s3.text if s3 else '')),
+                    headers={"Accept": "text/plain"})
                 if res.status_code < 500:
                     write('    ' + res.text)
                     res.raise_for_status()
@@ -791,9 +845,11 @@ def main(*argv, **kwargs):
         write('')
         # detect language
         if language:
-            write('Tip: See an example %s repo: https://github.com/codecov/example-%s' % (language, language))
+            write('Tip: See an example %s repo: https://github.com/codecov/example-%s' %
+                  (language, language))
         else:
-            write('Tip: See all example repositories: https://github.com/codecov?query=example')
+            write(
+                'Tip: See all example repositories: https://github.com/codecov?query=example')
 
         write('Support channels:', 'green')
         write('  Email:   hello@codecov.io\n'
