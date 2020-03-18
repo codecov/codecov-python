@@ -26,7 +26,7 @@ import logging
 logging.captureWarnings(True)
 
 
-version = VERSION = __version__ = '2.0.21'
+version = VERSION = __version__ = '2.0.22'
 
 COLOR = True
 

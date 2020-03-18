@@ -1,3 +1,7 @@
+### `2.0.22
+
+- Cleaning TOC generation
+
 ### `2.0.21`
 
 - fixed string issues
