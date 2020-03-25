@@ -1,6 +1,5 @@
-
 language: python
-cache: pip
+# cache: pip
 notifications:
   email: false
 dist: xenial
@@ -32,6 +31,8 @@ install:
   - pip install -r tests/requirements.txt
   - python setup.py install
 script:
-  - pytest tests/test.py --cov=codecov
+  - make reinstall
+  - make test
+  # - pytest tests/test.py --cov=codecov
 after_success:
   - codecov

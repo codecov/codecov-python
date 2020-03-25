@@ -50,14 +50,16 @@ class TestUploader(unittest.TestCase):
 
     def tearDown(self):
         self.delete(self.filepath, self.coverage, self.jacoco, self.bowerrc)
-        self.delete('hello', 'hello.c', 'hello.gcda', 'hello.c.gcov', 'hello.gcno')
+        self.delete('hello', 'hello.c', 'hello.gcda',
+                    'hello.c.gcov', 'hello.gcno')
 
     def set_env(self, **kwargs):
         for key in kwargs:
             os.environ[key] = str(kwargs[key])
 
     def run_cli(self, dump=True, *args, **kwargs):
-        inline = list(itertools.chain(*[['--%s' % key, str(value)] for key, value in kwargs.items() if value]))
+        inline = list(itertools.chain(
+            *[['--%s' % key, str(value)] for key, value in kwargs.items() if value]))
         if dump:
             inline.append('--dump')
         inline.extend(args)
@@ -78,21 +80,26 @@ class TestUploader(unittest.TestCase):
     @data('vendor', 'node_modules', 'js/generated/coverage', '__pycache__', 'coverage/instrumented',
           'build/lib', 'htmlcov', '.egg-info', '.git', '.tox', 'venv', '.venv-python-2.7')
     def test_ignored_path(self, path):
-        self.assertTrue(bool(codecov.ignored_path('/home/ubuntu/' + path)), path + ' should be ignored')
-        self.assertTrue(bool(codecov.ignored_path('/home/ubuntu/' + path + '/more paths')), path + ' should be ignored')
+        self.assertTrue(bool(codecov.ignored_path(
+            '/home/ubuntu/' + path)), path + ' should be ignored')
+        self.assertTrue(bool(codecov.ignored_path(
+            '/home/ubuntu/' + path + '/more paths')), path + ' should be ignored')
 
     @data('coverage.xml', 'jacoco.xml', 'jacocoTestResults.xml', 'coverage.txt',
           'gcov.lst', 'cov.gcov', 'info.lcov', 'clover.xml', 'cobertura.xml',
           'luacov.report.out', 'gcov.info', 'nosetests.xml')
     def test_is_report(self, path):
-        self.assertFalse(bool(codecov.ignored_report('/home/file/' + path)), path + ' should not be ignored')
-        self.assertTrue(bool(codecov.is_report('/home/file/' + path)), path + ' should be a report')
+        self.assertFalse(bool(codecov.ignored_report(
+            '/home/file/' + path)), path + ' should not be ignored')
+        self.assertTrue(bool(codecov.is_report(
+            '/home/file/' + path)), path + ' should be a report')
 
     @data('.coverage.worker10', 'coverage.jade', 'include.lst', 'inputFiles.lst',
           'createdFiles.lst', 'scoverage.measurements.blackandwhite.xml', 'test_hello_coverage.txt',
           'conftest_blackwhite.c.gcov')
     def test_ignore_report(self, path):
-        self.assertTrue(bool(codecov.ignored_report('/home/file/' + path)), path + ' should be ignored')
+        self.assertTrue(bool(codecov.ignored_report(
+            '/home/file/' + path)), path + ' should be ignored')
 
     def test_command(self):
         try:
@@ -142,13 +149,16 @@ class TestUploader(unittest.TestCase):
                 put.return_value = Mock(status_code=200)
                 with open(self.filepath, 'w+') as f:
                     f.write('coverage data')
-                res = self.run_cli(False, commit='a'*40, branch='master', token='<token>')
+                res = self.run_cli(False, commit='a'*40,
+                                   branch='master', token='<token>')
                 self.assertEqual(res['result'].strip(), 'target')
                 assert 'https://codecov.io/upload/v4?' in post.call_args[0][0]
-                assert 'commit=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' in post.call_args[0][0]
+                assert 'commit=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' in post.call_args[
+                    0][0]
                 assert 'token=%3Ctoken%3E' in post.call_args[0][0]
                 assert 'branch=master' in post.call_args[0][0]
-                assert u'tests/test.py'.encode("utf-8") in put.call_args[1]['data']
+                assert u'tests/test.py'.encode(
+                    "utf-8") in put.call_args[1]['data']
 
     def test_send_error(self):
         with patch('requests.post') as post:
@@ -156,7 +166,8 @@ class TestUploader(unittest.TestCase):
             with open(self.filepath, 'w+') as f:
                 f.write('coverage data')
             try:
-                self.run_cli(False, token='not-a-token', commit='a'*40, branch='master')
+                self.run_cli(False, token='not-a-token',
+                             commit='a'*40, branch='master')
             except Exception:
                 pass
             else:
@@ -207,7 +218,8 @@ class TestUploader(unittest.TestCase):
     @unittest.skipIf(os.getenv('CI') == "True" and os.getenv('APPVEYOR') == 'True', 'Skip AppVeyor CI test')
     def test_prefix(self):
         self.fake_report()
-        res = self.run_cli(prefix='/foo/bar/', dump=True, token='a', branch='b', commit='c')
+        res = self.run_cli(prefix='/foo/bar/', dump=True,
+                           token='a', branch='b', commit='c')
         assert '\nfoo/bar/.gitignore' in res['reports']
 
     def write_c(self):
@@ -219,7 +231,8 @@ class TestUploader(unittest.TestCase):
                        'return 0;', '}'))
         with open(os.path.join(os.path.dirname(__file__), '../hello.c'), 'w+') as f:
             f.write(c)
-        codecov.try_to_run('clang -coverage -O0 hello.c -o hello && ./hello')
+        codecov.try_to_run(['clang', '-coverage', '-O0',
+                            'hello.c', '-o', 'hello', '&&', './hello'])
 
     def test_disable_gcov(self):
         if self._env.get('TRAVIS') == 'true':
@@ -246,12 +259,14 @@ class TestUploader(unittest.TestCase):
         #     self.skipTest("Skipped, works on Travis only.")
 
     def test_disable_detect(self):
-        self.set_env(JENKINS_URL='a', GIT_BRANCH='b', GIT_COMMIT='c', CODECOV_TOKEN='d')
+        self.set_env(JENKINS_URL='a', GIT_BRANCH='b',
+                     GIT_COMMIT='c', CODECOV_TOKEN='d')
         self.fake_report()
         try:
             self.run_cli(disable='detect')
         except AssertionError as e:
-            self.assertEqual(str(e), "Commit sha is missing. Please specify via --commit=:sha")
+            self.assertEqual(
+                str(e), "Commit sha is missing. Please specify via --commit=:sha")
         else:
             raise Exception("Did not raise AssertionError")
 
@@ -315,6 +330,10 @@ class TestUploader(unittest.TestCase):
         else:
             raise Exception("Did not raise AssertionError")
 
+    def test_sanitize_arg(self):
+        self.assertEqual(codecov.sanitize_arg(
+            '', '& echo test > vuln1.txt'), ' echo test > vuln1.txt')
+
     @unittest.skipUnless(os.getenv('JENKINS_URL'), 'Skip Jenkins CI test')
     def test_ci_jenkins(self):
         self.set_env(BUILD_URL='https://....',
@@ -326,7 +345,8 @@ class TestUploader(unittest.TestCase):
         self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'jenkins')
-        self.assertEqual(res['query']['commit'], 'c739768fcac68144a3a6d82305b9c4106934d31a')
+        self.assertEqual(res['query']['commit'],
+                         'c739768fcac68144a3a6d82305b9c4106934d31a')
         self.assertEqual(res['query']['build'], '41')
         self.assertEqual(res['query']['build_url'], 'https://....')
         self.assertEqual(res['query']['pr'], '')
@@ -345,7 +365,8 @@ class TestUploader(unittest.TestCase):
         self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'jenkins')
-        self.assertEqual(res['query']['commit'], 'c739768fcac68144a3a6d82305b9c4106934d31a')
+        self.assertEqual(res['query']['commit'],
+                         'c739768fcac68144a3a6d82305b9c4106934d31a')
         self.assertEqual(res['query']['build'], '41')
         self.assertEqual(res['query']['build_url'], 'https://....')
         self.assertEqual(res['query']['pr'], '1')
@@ -363,7 +384,8 @@ class TestUploader(unittest.TestCase):
         self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'jenkins')
-        self.assertEqual(res['query']['commit'], codecov.check_output(("git", "rev-parse", "HEAD")))
+        self.assertEqual(res['query']['commit'], codecov.check_output(
+            ("git", "rev-parse", "HEAD")))
         self.assertEqual(res['query']['build'], '41')
         self.assertEqual(res['query']['build_url'], 'https://....')
         self.assertEqual(res['query']['pr'], '1')
@@ -385,7 +407,8 @@ class TestUploader(unittest.TestCase):
         self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'travis')
-        self.assertEqual(res['query']['commit'], 'c739768fcac68144a3a6d82305b9c4106934d31a')
+        self.assertEqual(res['query']['commit'],
+                         'c739768fcac68144a3a6d82305b9c4106934d31a')
         self.assertEqual(res['query']['build'], '4.1')
         self.assertEqual(res['query']['pr'], '')
         self.assertEqual(res['query']['tag'], 'v1.1.1')
@@ -404,9 +427,11 @@ class TestUploader(unittest.TestCase):
         self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'codeship')
-        self.assertEqual(res['query']['commit'], '743b04806ea677403aa2ff26c6bdeb85005de658')
+        self.assertEqual(res['query']['commit'],
+                         '743b04806ea677403aa2ff26c6bdeb85005de658')
         self.assertEqual(res['query']['build'], '20')
-        self.assertEqual(res['query']['build_url'], 'https://codeship.io/build/1')
+        self.assertEqual(res['query']['build_url'],
+                         'https://codeship.io/build/1')
         self.assertEqual(res['query']['pr'], '')
         self.assertEqual(res['query']['branch'], 'master')
         self.assertEqual(res['codecov'].token, 'token')
@@ -424,7 +449,8 @@ class TestUploader(unittest.TestCase):
         self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'circleci')
-        self.assertEqual(res['query']['commit'], 'd653b934ed59c1a785cc1cc79d08c9aaa4eba73b')
+        self.assertEqual(res['query']['commit'],
+                         'd653b934ed59c1a785cc1cc79d08c9aaa4eba73b')
         self.assertEqual(res['query']['build'], '57.1')
         self.assertEqual(res['query']['pr'], '1')
         self.assertEqual(res['query']['slug'], 'owner/repo')
@@ -443,7 +469,8 @@ class TestUploader(unittest.TestCase):
         self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'buildkite')
-        self.assertEqual(res['query']['commit'], 'd653b934ed59c1a785cc1cc79d08c9aaa4eba73b')
+        self.assertEqual(res['query']['commit'],
+                         'd653b934ed59c1a785cc1cc79d08c9aaa4eba73b')
         self.assertEqual(res['query']['build'], '57.1')
         self.assertEqual(res['query']['slug'], 'owner/repo')
         self.assertEqual(res['query']['branch'], 'master')
@@ -461,7 +488,8 @@ class TestUploader(unittest.TestCase):
         self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'semaphore')
-        self.assertEqual(res['query']['commit'], '743b04806ea677403aa2ff26c6bdeb85005de658')
+        self.assertEqual(res['query']['commit'],
+                         '743b04806ea677403aa2ff26c6bdeb85005de658')
         self.assertEqual(res['query']['build'], '10.1')
         self.assertEqual(res['query']['slug'], 'owner/repo')
         self.assertEqual(res['query']['branch'], 'master')
@@ -477,9 +505,11 @@ class TestUploader(unittest.TestCase):
         self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'drone.io')
-        self.assertEqual(res['query']['commit'], codecov.check_output(("git", "rev-parse", "HEAD")))
+        self.assertEqual(res['query']['commit'], codecov.check_output(
+            ("git", "rev-parse", "HEAD")))
         self.assertEqual(res['query']['build'], '10')
-        self.assertEqual(res['query']['build_url'], 'https://drone.io/github/builds/1')
+        self.assertEqual(res['query']['build_url'],
+                         'https://drone.io/github/builds/1')
         self.assertEqual(res['codecov'].token, 'token')
 
     @unittest.skipUnless(os.getenv('SHIPPABLE') == "true", 'Skip Shippable CI test')
@@ -494,10 +524,12 @@ class TestUploader(unittest.TestCase):
         self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'shippable')
-        self.assertEqual(res['query']['commit'], '743b04806ea677403aa2ff26c6bdeb85005de658')
+        self.assertEqual(res['query']['commit'],
+                         '743b04806ea677403aa2ff26c6bdeb85005de658')
         self.assertEqual(res['query']['build'], '10')
         self.assertEqual(res['query']['slug'], 'owner/repo')
-        self.assertEqual(res['query']['build_url'], 'https://shippable.com/...')
+        self.assertEqual(res['query']['build_url'],
+                         'https://shippable.com/...')
         self.assertEqual(res['codecov'].token, 'token')
 
     # @unittest.skipUnless(os.getenv('CI') == "True" and os.getenv('APPVEYOR') == 'True', 'Skip AppVeyor CI test')
@@ -517,7 +549,8 @@ class TestUploader(unittest.TestCase):
         self.fake_report()
         res = self.run_cli(file=self.filepath)
         self.assertEqual(res['query']['service'], 'appveyor')
-        self.assertEqual(res['query']['commit'], 'd653b934ed59c1a785cc1cc79d08c9aaa4eba73b')
+        self.assertEqual(res['query']['commit'],
+                         'd653b934ed59c1a785cc1cc79d08c9aaa4eba73b')
         self.assertEqual(res['query']['job'], 'owner/repo/1.2.3')
         self.assertEqual(res['query']['build'], '9r2qufuu8')
         self.assertEqual(res['query']['slug'], 'owner/repo')
@@ -535,7 +568,8 @@ class TestUploader(unittest.TestCase):
         self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'wercker')
-        self.assertEqual(res['query']['commit'], 'd653b934ed59c1a785cc1cc79d08c9aaa4eba73b')
+        self.assertEqual(res['query']['commit'],
+                         'd653b934ed59c1a785cc1cc79d08c9aaa4eba73b')
         self.assertEqual(res['query']['build'], '1399372237')
         self.assertEqual(res['query']['slug'], 'owner/repo')
         self.assertEqual(res['codecov'].token, 'token')
@@ -551,7 +585,8 @@ class TestUploader(unittest.TestCase):
         self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'magnum')
-        self.assertEqual(res['query']['commit'], 'd653b934ed59c1a785cc1cc79d08c9aaa4eba73b')
+        self.assertEqual(res['query']['commit'],
+                         'd653b934ed59c1a785cc1cc79d08c9aaa4eba73b')
         self.assertEqual(res['query']['build'], '1399372237')
         self.assertEqual(res['codecov'].token, 'token')
 
@@ -568,7 +603,8 @@ class TestUploader(unittest.TestCase):
         self.fake_report()
         res = self.run_cli()
         self.assertEqual(res['query']['service'], 'gitlab')
-        self.assertEqual(res['query']['commit'], 'd653b934ed59c1a785cc1cc79d08c9aaa4eba73b')
+        self.assertEqual(res['query']['commit'],
+                         'd653b934ed59c1a785cc1cc79d08c9aaa4eba73b')
         self.assertEqual(res['query']['build'], '1399372237')
         self.assertEqual(res['query']['slug'], 'owner/repo')
         self.assertEqual(res['codecov'].token, 'token')
@@ -582,7 +618,8 @@ class TestUploader(unittest.TestCase):
                            slug='owner/repo',
                            token='token')
         self.assertEqual(res['query'].get('service'), None)
-        self.assertEqual(res['query']['commit'], 'd653b934ed59c1a785cc1cc79d08c9aaa4eba73b')
+        self.assertEqual(res['query']['commit'],
+                         'd653b934ed59c1a785cc1cc79d08c9aaa4eba73b')
         self.assertEqual(res['query']['build'], '10')
         self.assertEqual(res['query']['slug'], 'owner/repo')
         self.assertEqual(res['codecov'].token, 'token')
