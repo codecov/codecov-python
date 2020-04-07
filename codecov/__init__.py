@@ -688,7 +688,7 @@ def main(*argv, **kwargs):
             write('==> Processing gcov (disable by -X gcov)')
             cmd = ['find',
                    (sanitize_arg('', codecov.gcov_root or root)), dont_search_here,
-                   '-type', 'f', '-name', '*.gcno', " ".join(map(lambda a: "-not -path '%s'" %
+                   '-type', 'f', '-name', '\'*.gcno\'', " ".join(map(lambda a: "-not -path '%s'" %
                                                                  a, codecov.gcov_glob)),
                    '-exec', (sanitize_arg('',
                                           codecov.gcov_exec or '')),
