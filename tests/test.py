@@ -2,14 +2,12 @@ import os
 import sys
 import pickle
 import itertools
+
 from ddt import ddt, data
 from mock import patch, Mock
+
 import unittest
-
-import subprocess
-
 import codecov
-
 
 @ddt
 class TestUploader(unittest.TestCase):
@@ -229,10 +227,13 @@ class TestUploader(unittest.TestCase):
                        'if (t)', 'printf("on this line\\n");',
                        'else', 'printf("but not here\\n");',
                        'return 0;', '}'))
-        with open(os.path.join(os.path.dirname(__file__), '../hello.c'), 'w+') as f:
-            f.write(c)
-        codecov.try_to_run(['clang', '-coverage', '-O0',
-                            'hello.c', '-o', 'hello', '&&', './hello'])
+
+        filepath = os.path.join(os.path.dirname(__file__), '../hello.c')
+        with open(filepath, 'w+') as filehandle:
+            filehandle.write(c)
+
+        codecov.try_to_run(['clang', '-coverage', '-O0', 'hello.c', '-o', 'hello'])
+        codecov.try_to_run(['./hello'])
 
     def test_disable_gcov(self):
         if self._env.get('TRAVIS') == 'true':
@@ -240,7 +241,7 @@ class TestUploader(unittest.TestCase):
             try:
                 self.run_cli(disable='gcov', token='a', branch='b', commit='c')
             except AssertionError as e:
-                self.assertEqual(os.path.exists('hello.c.gcov'), False)
+                self.assertFalse(os.path.exists('hello.c.gcov'))
                 self.assertEqual(str(e), "No coverage report found")
             else:
                 raise Exception("Did not raise AssertionError")
@@ -248,15 +249,13 @@ class TestUploader(unittest.TestCase):
             self.skipTest("Skipped, works on Travis only.")
 
     def test_gcov(self):
-        self.skipTest("Need to fix this test...")
-        # if self._env.get('TRAVIS') == 'true':
-        #     self.write_c()
-        #     output = self.run_cli(token='a', branch='b', commit='c')
-        #     self.assertEqual(os.path.exists('hello.c.gcov'), True)
-        #     report = output['reports'].split('<<<<<< network\n')[1].splitlines()
-        #     self.assertIn('hello.c.gcov', report[0])
-        # else:
-        #     self.skipTest("Skipped, works on Travis only.")
+        self.write_c()
+        output = self.run_cli(**self.defaults)
+
+        self.assertTrue(os.path.exists('hello.c.gcov'))
+
+        report = output['reports'].split('<<<<<< network\n')[1].splitlines()
+        self.assertIn('hello.c.gcov', report[0])
 
     def test_disable_detect(self):
         self.set_env(JENKINS_URL='a', GIT_BRANCH='b',

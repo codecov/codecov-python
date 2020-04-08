@@ -19,8 +19,6 @@ try:
 except ImportError:  # pragma: no cover
     from pipes import quote
 
-import subprocess
-
 # https://urllib3.readthedocs.org/en/latest/security.html#insecureplatformwarning
 import logging
 logging.captureWarnings(True)
@@ -29,6 +27,8 @@ logging.captureWarnings(True)
 version = VERSION = __version__ = '2.0.21'
 
 COLOR = True
+
+TRAVIS = os.environ.get('TRAVIS', 'false') == 'true'
 
 is_merge_commit = re.compile(r'^Merge\s\w{40}\sinto\s\w{40}$')
 
@@ -679,7 +679,7 @@ def main(*argv, **kwargs):
         if 'gcov' in codecov.disable:
             write('XX> Skip processing gcov')
 
-        else:
+        elif TRAVIS:
             dont_search_here = (
                 "-not -path './bower_components/**' "
                 "-not -path './node_modules/**' "
@@ -693,6 +693,32 @@ def main(*argv, **kwargs):
                    '-exec', (sanitize_arg('',
                                           codecov.gcov_exec or '')),
                    '-pb',  (sanitize_arg('', codecov.gcov_args or '')), '{}', '+']
+            write('    Executing gcov (%s)' % cmd)
+            try_to_run(cmd)
+
+        else:
+            dont_search_here = ["(",    "-not", "-path", "*/bower_components/*",
+                                "-and", "-not", "-path", "*/node_modules/*",
+                                "-and", "-not", "-path", "*/vendor/*"]
+
+            # Add exclusions for all GCOV glob expression flags:
+            for globexpr in codecov.gcov_glob:
+                dont_search_here.extend(["-and", "-not", "-path", "%s" % globexpr])
+
+            # Terminate the exclusion expression:
+            dont_search_here.append(")")
+
+            write('==> Processing gcov (disable by -X gcov)')
+            cmd = ['find',
+                   sanitize_arg('', codecov.gcov_root or root)] + \
+                                               dont_search_here + \
+                  ['-type', 'f',
+                   '-name', '*.gcno',
+                   '-exec',
+                   sanitize_arg('', codecov.gcov_exec or 'gcov'),
+                   sanitize_arg('', codecov.gcov_args or '-pb'),
+                   '{}', '+']
+            
             write('    Executing gcov (%s)' % cmd)
             try_to_run(cmd)
 
