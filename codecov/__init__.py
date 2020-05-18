@@ -1042,6 +1042,7 @@ def main(*argv, **kwargs):
                             s3 = requests.put(
                                 upload_url,
                                 data=reports,
+                                verify=codecov.cacert,
                                 headers={"Content-Type": "text/plain",},
                             )
                             s3.raise_for_status()
