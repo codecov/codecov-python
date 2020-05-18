@@ -1046,7 +1046,6 @@ def main(*argv, **kwargs):
                                 data=reports,
                                 headers={
                                     "Content-Type": "text/plain",
-                                    "x-amz-acl": "public-read",
                                 },
                             )
                             s3.raise_for_status()
