@@ -737,7 +737,6 @@ def main(*argv, **kwargs):
 
                             write('    Uploading to S3...')
                             s3 = requests.put(upload_url, data=reports,
-                                              verify=codecov.cacert,
                                               headers={'Content-Type': 'text/plain',
                                                        'x-amz-acl': 'public-read'})
                             s3.raise_for_status()
