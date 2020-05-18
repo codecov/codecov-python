@@ -14,11 +14,11 @@ Find coverage reports for all the [languages below](#languages), gather them and
 ## Usage
 
 ```sh
-pip install --user codecov && codecov -t the-repository-upload-token
+pip install --user codecov && codecov -t <the-repository-upload-token>
 ```
 or
 ```sh
-conda install -c conda-forge codecov && codecov -t the-repository-upload-token
+conda install -c conda-forge codecov && codecov -t <the-repository-upload-token>
 ```
 > `--user` argument not needed for Python projects. [See example here](https://github.com/codecov/example-python).
 
@@ -35,7 +35,7 @@ Just please make sure to pass all the necessary environment variables through:
 
 ```
 [testenv]
-passenv = TOXENV CI TRAVIS TRAVIS_*
+passenv = TOXENV CI TRAVIS TRAVIS_* CODECOV_*
 deps = codecov>=1.4.0
 commands = codecov -e TOXENV
 ```
@@ -76,23 +76,22 @@ after_success:
 ## CI Providers
 |                       Company                       |                                                                                     Supported                                                                                      |  Token Required  |
 | --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
-| [Travis CI](https://travis-ci.org/)                 | Yes [![Build Status](https://secure.travis-ci.org/codecov/codecov-python.svg?branch=master)](http://travis-ci.org/codecov/codecov-python)                                          | Private only     |
+| [Travis CI](https://travis-ci.org/)                 | Yes [![Build Status](https://secure.travis-ci.org/codecov/codecov-python.svg?branch=master)](https://travis-ci.org/codecov/codecov-python)                                         | Private only     |
 | [CircleCI](https://circleci.com/)                   | Yes                                                                                                                                                                                | Private only     |
 | [Codeship](https://codeship.com/)                   | Yes                                                                                                                                                                                | Public & Private |
 | [Jenkins](https://jenkins-ci.org/)                  | Yes                                                                                                                                                                                | Public & Private |
 | [Semaphore](https://semaphoreci.com/)               | Yes                                                                                                                                                                                | Public & Private |
 | [Drone.io](https://drone.io/)                       | Yes                                                                                                                                                                                | Public & Private |
-| [AppVeyor](http://www.appveyor.com/)                | Yes [![Build status](https://ci.appveyor.com/api/projects/status/sw18lsj7786bw806/branch/master?svg=true)](https://ci.appveyor.com/project/stevepeak/codecov-python/branch/master) | Private only     |
+| [AppVeyor](https://www.appveyor.com/)               | Yes [![Build status](https://ci.appveyor.com/api/projects/status/sw18lsj7786bw806/branch/master?svg=true)](https://ci.appveyor.com/project/stevepeak/codecov-python/branch/master) | Private only     |
 | [Wercker](http://wercker.com/)                      | Yes                                                                                                                                                                                | Public & Private |
 | [Magnum CI](https://magnum-ci.com/)                 | Yes                                                                                                                                                                                | Public & Private |
-| [Shippable](http://www.shippable.com/)              | Yes                                                                                                                                                                                | Public & Private |
+| [Shippable](https://www.shippable.com/)             | Yes                                                                                                                                                                                | Public & Private |
 | [Gitlab CI](https://about.gitlab.com/gitlab-ci/)    | Yes                                                                                                                                                                                | Public & Private |
-| git / mercurial                                     | Yes (as a fallback)                                                                                                                                                                | Public & Private |
-| [Buildbot](http://buildbot.net/)                    | `coming soon` [buildbot/buildbot#1671](https://github.com/buildbot/buildbot/pull/1671)                                                                                             |                  |
+| Git / Mercurial                                     | Yes (as a fallback)                                                                                                                                                                | Public & Private |
+| [Buildbot](https://buildbot.net/)                   | `coming soon` [buildbot/buildbot#1671](https://github.com/buildbot/buildbot/pull/1671)                                                                                             |                  |
 | [Bamboo](https://www.atlassian.com/software/bamboo) | `coming soon`                                                                                                                                                                      |                  |
 | [Solano Labs](https://www.solanolabs.com/)          | `coming soon`                                                                                                                                                                      |                  |
 
-> Using **Travis CI**? Uploader is compatible with `sudo: false` which can speed up your builds. :+1:
 
 
 
@@ -102,4 +101,4 @@ after_success:
 
 ## Copyright
 
-> Copyright 2014-2017 codecov
+> Copyright 2014-2019 codecov
