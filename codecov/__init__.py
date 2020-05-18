@@ -229,17 +229,15 @@ def _add_env_if_not_empty(lst, value):
 
 
 def generate_toc(root):
-    return (
-        str(
-            (
-                try_to_run(["git", "ls-files"], cwd=root)
-                or try_to_run(["git", "ls-files"])
-                or try_to_run(["hg", "locate"], cwd=root)
-                or try_to_run(["hg", "locate"])
-            )
-        ).strip()
-        or ""
+    res = (
+        try_to_run(["git", "ls-files"], cwd=root)
+        or try_to_run(["git", "ls-files"])
+        or try_to_run(["hg", "locate"], cwd=root)
+        or try_to_run(["hg", "locate"])
     )
+    if res is None:
+        return ""
+    return str(res).strip() or ""
 
 
 def main(*argv, **kwargs):
