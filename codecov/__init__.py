@@ -31,7 +31,7 @@ import logging
 logging.captureWarnings(True)
 
 
-
+version=__version__
 
 COLOR = True
 
@@ -992,7 +992,7 @@ def main(*argv, **kwargs):
             )
         )
 
-        query["package"] = "py" + VERSION
+        query["package"] = "py" + __version__
         urlargs = (
             urlencode(
                 dict([(k, v.strip()) for k, v in query.items() if v not in ("", None)])
