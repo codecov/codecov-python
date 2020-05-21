@@ -1,9 +1,7 @@
 #!/usr/bin/env python
-from setuptools import setup
-
 from codecs import open
-
 import os
+from setuptools import setup
 
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -22,10 +20,10 @@ classifiers = [
     "Topic :: Software Development :: Testing",
 ]
 
-here = os.path.abspath(os.path.dirname(__file__))
+filepath = os.path.abspath(os.path.dirname(__file__))
 
 about = {}
-with open(os.path.join(here, 'codecov', '__version__.py'), 'r', 'utf-8') as f:
+with open(os.path.join(filepath, 'codecov', '__version__.py'), 'r', 'utf-8') as f:
     exec(f.read(), about)
 
 setup(
