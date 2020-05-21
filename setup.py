@@ -22,7 +22,7 @@ classifiers = [
 here = os.path.abspath(os.path.dirname(__file__))
 
 about = {}
-with open(os.path.join(here, 'requests', '__version__.py'), 'r', 'utf-8') as f:
+with open(file=os.path.join(here, 'requests', '__version__.py'), mode='r', encoding='utf-8') as f:
     exec(f.read(), about)
 
 setup(
