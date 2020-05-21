@@ -26,7 +26,7 @@ with open(file=os.path.join(here, 'requests', '__version__.py'), mode='r', encod
     exec(f.read(), about)
 
 setup(
-    name=about['__name__'],
+    name=about['__title__'],
     version=about['__version__'],
     description=about['__description__'],
     long_description=None,
