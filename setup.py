@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from setuptools import setup
+import os
 
-version = "2.1.1"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Environment :: Plugins",
@@ -19,17 +19,23 @@ classifiers = [
     "Topic :: Software Development :: Testing",
 ]
 
+here = os.path.abspath(os.path.dirname(__file__))
+
+about = {}
+with open(os.path.join(here, 'requests', '__version__.py'), 'r', 'utf-8') as f:
+    exec(f.read(), about)
+
 setup(
-    name="codecov",
-    version=version,
-    description="Hosted coverage reports for GitHub, Bitbucket and Gitlab",
+    name=about['__name__'],
+    version=about['__version__'],
+    description=about['__description__'],
     long_description=None,
     classifiers=classifiers,
     keywords="coverage codecov code python java scala php",
-    author="@codecov",
-    author_email="hello@codecov.io",
-    url="https://github.com/codecov/codecov-python",
-    license="http://www.apache.org/licenses/LICENSE-2.0",
+    author=about['__author__'],
+    author_email=about['__author_email__'],
+    url=about['__url__'],
+    license=about['__license__'],
     packages=["codecov"],
     include_package_data=True,
     zip_safe=True,

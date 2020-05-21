@@ -12,3 +12,5 @@ dist
 htmlcov
 venv
 *.sw[op]
+
+.idea/

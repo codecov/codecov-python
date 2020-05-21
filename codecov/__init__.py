@@ -9,6 +9,10 @@ import argparse
 from time import sleep
 from json import loads
 
+from .__version__ import __title__, __description__, __url__, __version__
+from .__version__ import __author__, __author_email__, __license__
+from .__version__ import __copyright__
+
 try:
     from urllib.parse import urlencode
 except ImportError:  # pragma: no cover
@@ -27,7 +31,7 @@ import logging
 logging.captureWarnings(True)
 
 
-version = VERSION = __version__ = "2.0.21"
+
 
 COLOR = True
 
