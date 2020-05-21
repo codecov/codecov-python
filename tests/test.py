@@ -2,6 +2,7 @@ import os
 import sys
 import pickle
 import itertools
+import zlib
 from ddt import ddt, data
 from mock import patch, Mock
 import unittest
@@ -267,7 +268,9 @@ class TestUploader(unittest.TestCase):
                 )
                 assert "token=%3Ctoken%3E" in post.call_args[0][0]
                 assert "branch=master" in post.call_args[0][0]
-                assert u"tests/test.py".encode("utf-8") in put.call_args[1]["data"]
+                gzip_worker = zlib.decompressobj(zlib.MAX_WBITS | 16)
+                reports = gzip_worker.decompress(put.call_args[1]["data"]) + gzip_worker.flush()
+                assert u"tests/test.py".encode("utf-8") in reports
 
     def test_send_error(self):
         with patch("requests.post") as post:
