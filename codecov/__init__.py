@@ -11,6 +11,17 @@ import zlib
 from time import sleep
 from json import loads
 
+from .__version__ import (
+    __author__,
+    __author_email__,
+    __copyright__,
+    __description__,
+    __license__,
+    __title__,
+    __url__,
+    __version__,
+)
+
 try:
     from urllib.parse import urlencode
 except ImportError:  # pragma: no cover
@@ -29,7 +40,7 @@ import logging
 logging.captureWarnings(True)
 
 
-version = VERSION = __version__ = "2.0.21"
+version=__version__
 
 COLOR = True
 
@@ -999,7 +1010,7 @@ def main(*argv, **kwargs):
             )
         )
 
-        query["package"] = "py" + VERSION
+        query["package"] = "py" + version
         urlargs = (
             urlencode(
                 dict([(k, v.strip()) for k, v in query.items() if v not in ("", None)])
