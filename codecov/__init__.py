@@ -999,7 +999,7 @@ def main(*argv, **kwargs):
             )
         )
 
-        query["package"] = "py" + __version__
+        query["package"] = "py" + version
         urlargs = (
             urlencode(
                 dict([(k, v.strip()) for k, v in query.items() if v not in ("", None)])
