@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 from setuptools import setup
+
+from codecs import open
+
 import os
 
 classifiers = [
@@ -22,7 +25,7 @@ classifiers = [
 here = os.path.abspath(os.path.dirname(__file__))
 
 about = {}
-with open(file=os.path.join(here, 'requests', '__version__.py'), mode='r', encoding='utf-8') as f:
+with open(os.path.join(here, 'codecov', '__version__.py'), 'r', 'utf-8') as f:
     exec(f.read(), about)
 
 setup(
