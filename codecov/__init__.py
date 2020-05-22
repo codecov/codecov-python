@@ -134,7 +134,7 @@ opj = os.path.join  # for faster access
 
 def write(text, color=None):
     global COLOR
-    if COLOR:
+    if text and COLOR:
         text = text.replace("==>", "\033[90m==>\033[0m")
         text = text.replace("    +", "    \033[32m+\033[0m")
         text = text.replace("XX>", "\033[31mXX>\033[0m")
@@ -161,7 +161,8 @@ def write(text, color=None):
         elif color == "green":
             text = "\033[92m%s\033[0m" % text
 
-    sys.stdout.write(text + "\n")
+    if text:
+        sys.stdout.write(text + "\n")
 
 
 def fopen(path):
