@@ -12,7 +12,7 @@ test:
 	py.test tests/test.py
 
 format:
-	which black && black . --check
+	black . --check
 
 compare:
 	hub compare $(shell git tag --sort=refname | tail -1)...master
