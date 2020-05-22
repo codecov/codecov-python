@@ -40,7 +40,7 @@ import logging
 logging.captureWarnings(True)
 
 
-version=__version__
+version = __version__
 
 COLOR = True
 
@@ -902,17 +902,24 @@ def main(*argv, **kwargs):
             write("XX> Skip processing gcov")
 
         else:
-            dont_search_here = [
-                "bower_components"
-                "node_modules"
-                "vendor"
-            ]
+            dont_search_here = ["bower_components" "node_modules" "vendor"]
             if codecov.gcov_glob:
                 dont_search_here.append(codecov.gcov_glob)
 
             write("==> Processing gcov (disable by -X gcov)")
-            for path in find_files(sanitize_arg("", codecov.gcov_root or root), "*.gcno", True, dont_search_here):
-                cmd = sanitize_arg("", codecov.gcov_exec or "") + " -pb " + sanitize_arg("", codecov.gcov_args or "") + " " + path
+            for path in find_files(
+                sanitize_arg("", codecov.gcov_root or root),
+                "*.gcno",
+                True,
+                dont_search_here,
+            ):
+                cmd = (
+                    sanitize_arg("", codecov.gcov_exec or "")
+                    + " -pb "
+                    + sanitize_arg("", codecov.gcov_args or "")
+                    + " "
+                    + path
+                )
                 write("    Executing gcov (%s)" % cmd)
                 write(try_to_run(cmd))
 
@@ -1056,8 +1063,8 @@ def main(*argv, **kwargs):
                             headers={
                                 "Accept": "text/plain",
                                 "X-Reduced-Redundancy": "false",
-                                "X-Content-Type": "application/x-gzip"
-                            }
+                                "X-Content-Type": "application/x-gzip",
+                            },
                         )
                         if res.status_code in (400, 406):
                             raise Exception(res.text)
@@ -1073,8 +1080,8 @@ def main(*argv, **kwargs):
                                 data=reports_gzip,
                                 headers={
                                     "Content-Type": "application/x-gzip",
-                                    "Content-Encoding": "gzip"
-                                }
+                                    "Content-Encoding": "gzip",
+                                },
                             )
                             s3.raise_for_status()
                             assert s3.status_code == 200
@@ -1096,8 +1103,8 @@ def main(*argv, **kwargs):
                     headers={
                         "Accept": "text/plain",
                         "Content-Type": "application/x-gzip",
-                        "Content-Encoding": "gzip"
-                    }
+                        "Content-Encoding": "gzip",
+                    },
                 )
                 if res.status_code < 500:
                     write("    " + res.text)
