@@ -269,7 +269,10 @@ class TestUploader(unittest.TestCase):
                 assert "token=%3Ctoken%3E" in post.call_args[0][0]
                 assert "branch=master" in post.call_args[0][0]
                 gzip_worker = zlib.decompressobj(zlib.MAX_WBITS | 16)
-                reports = gzip_worker.decompress(put.call_args[1]["data"]) + gzip_worker.flush()
+                reports = (
+                    gzip_worker.decompress(put.call_args[1]["data"])
+                    + gzip_worker.flush()
+                )
                 assert u"tests/test.py".encode("utf-8") in reports
 
     def test_send_error(self):

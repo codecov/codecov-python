@@ -23,20 +23,20 @@ classifiers = [
 filepath = os.path.abspath(os.path.dirname(__file__))
 
 about = {}
-with open(os.path.join(filepath, 'codecov', '__version__.py'), 'r', 'utf-8') as f:
+with open(os.path.join(filepath, "codecov", "__version__.py"), "r", "utf-8") as f:
     exec(f.read(), about)
 
 setup(
-    name=about['__title__'],
-    version=about['__version__'],
-    description=about['__description__'],
+    name=about["__title__"],
+    version=about["__version__"],
+    description=about["__description__"],
     long_description=None,
     classifiers=classifiers,
     keywords="coverage codecov code python java scala php",
-    author=about['__author__'],
-    author_email=about['__author_email__'],
-    url=about['__url__'],
-    license=about['__license__'],
+    author=about["__author__"],
+    author_email=about["__author_email__"],
+    url=about["__url__"],
+    license=about["__license__"],
     packages=["codecov"],
     include_package_data=True,
     zip_safe=True,
