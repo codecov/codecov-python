@@ -11,6 +11,9 @@ reinstall:
 test:
 	py.test tests/test.py
 
+format:
+	black . --check
+
 compare:
 	hub compare $(shell git tag --sort=refname | tail -1)...master
 

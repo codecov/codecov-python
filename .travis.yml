@@ -26,6 +26,7 @@ matrix:
             - python-mock
     - python: 3.7
       dist: xenial
+      script: make format
 
 install:
   - pip install -r tests/requirements.txt
