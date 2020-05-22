@@ -11,7 +11,7 @@ reinstall:
 test:
 	py.test tests/test.py
 
-lint:
+format:
 	black . --check
 
 compare:
