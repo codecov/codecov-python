@@ -28,13 +28,14 @@ except ImportError:  # pragma: no cover
     from urllib import urlencode
 
 quote = None
-if sys.platform == 'win32':  # pragma: no cover
+if sys.platform == "win32":  # pragma: no cover
     try:
         # https://github.com/python/cpython/blob/3.7/Lib/subprocess.py#L174-L175
         from subprocess import list2cmdline
 
         def quote(arg):
             return list2cmdline([arg])
+
     except ImportError:
         pass
 
@@ -763,12 +764,16 @@ def main(*argv, **kwargs):
             query.update(
                 dict(
                     service="gitlab",
-                    branch=os.getenv("CI_COMMIT_REF_NAME", os.getenv("CI_BUILD_REF_NAME")),
+                    branch=os.getenv(
+                        "CI_COMMIT_REF_NAME", os.getenv("CI_BUILD_REF_NAME")
+                    ),
                     build=os.getenv("CI_JOB_ID", os.getenv("CI_BUILD_ID")),
                     commit=os.getenv("CI_COMMIT_SHA", os.getenv("CI_BUILD_REF")),
                 )
             )
-            if sys.platform == "win32" or os.getenv("CI_PROJECT_DIR", "").startswith("/"):
+            if sys.platform == "win32" or os.getenv("CI_PROJECT_DIR", "").startswith(
+                "/"
+            ):
                 root = os.getenv("CI_PROJECT_DIR")
             else:
                 root = os.getenv("HOME") + "/" + os.getenv("CI_PROJECT_DIR", "")

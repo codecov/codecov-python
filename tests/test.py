@@ -828,7 +828,7 @@ class TestUploader(unittest.TestCase):
             CI_COMMIT_SHA="d653b934ed59c1a785cc1cc79d08c9aaa4eba73b",
             HOME="/",
             CI_PROJECT_DIR=os.getcwd().strip("/"),
-            CODECOV_TOKEN="token"
+            CODECOV_TOKEN="token",
         )
         self.fake_report()
         res = self.run_cli()
