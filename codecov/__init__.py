@@ -768,7 +768,7 @@ def main(*argv, **kwargs):
                     commit=os.getenv("CI_BUILD_REF"),
                 )
             )
-            if os.getenv("CI_PROJECT_DIR", "").startswith("/"):
+            if sys.platform == "win32" or os.getenv("CI_PROJECT_DIR", "").startswith("/"):
                 root = os.getenv("CI_PROJECT_DIR")
             else:
                 root = os.getenv("HOME") + "/" + os.getenv("CI_PROJECT_DIR", "")
