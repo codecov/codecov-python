@@ -98,6 +98,10 @@ class TestUploader(unittest.TestCase):
             "CI_PROJECT_DIR",
             "CI_BUILD_REF",
             "CI_SERVER_NAME",
+            "CI_COMMIT_REF_NAME",
+            "CI_JOB_ID",
+            "CI_REPOSITORY_URL",
+            "CI_COMMIT_SHA",
             "ghprbActualCommit",
             "ghprbSourceBranch",
             "ghprbPullId",
@@ -791,13 +795,37 @@ class TestUploader(unittest.TestCase):
     @unittest.skipUnless(
         os.getenv("CI_SERVER_NAME", "").startswith("GitLab"), "Skip GitLab CI test"
     )
-    def test_ci_gitlab(self):
+    def test_ci_gitlab_pre9(self):
         self.set_env(
             CI_BUILD_REF_NAME="master",
             CI_BUILD_ID="1399372237",
             CI_BUILD_REPO="https://gitlab.com/owner/repo.git",
             CI_SERVER_NAME="GitLab CI",
             CI_BUILD_REF="d653b934ed59c1a785cc1cc79d08c9aaa4eba73b",
+            HOME="/",
+            CI_PROJECT_DIR=os.getcwd().strip("/"),
+            CODECOV_TOKEN="token",
+        )
+        self.fake_report()
+        res = self.run_cli()
+        self.assertEqual(res["query"]["service"], "gitlab")
+        self.assertEqual(
+            res["query"]["commit"], "d653b934ed59c1a785cc1cc79d08c9aaa4eba73b"
+        )
+        self.assertEqual(res["query"]["build"], "1399372237")
+        self.assertEqual(res["query"]["slug"], "owner/repo")
+        self.assertEqual(res["codecov"].token, "token")
+
+    @unittest.skipUnless(
+        os.getenv("CI_SERVER_NAME", "").startswith("GitLab"), "Skip GitLab CI test"
+    )
+    def test_ci_gitlab(self):
+        self.set_env(
+            CI_COMMIT_REF_NAME="master",
+            CI_JOB_ID="1399372237",
+            CI_REPOSITORY_URL="https://gitlab.com/owner/repo.git",
+            CI_SERVER_NAME="GitLab CI",
+            CI_COMMIT_SHA="d653b934ed59c1a785cc1cc79d08c9aaa4eba73b",
             HOME="/",
             CI_PROJECT_DIR=os.getcwd().strip("/"),
             CODECOV_TOKEN="token",
