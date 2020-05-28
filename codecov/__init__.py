@@ -1095,6 +1095,7 @@ def main(*argv, **kwargs):
                             write("    Uploading to S3...")
                             s3 = requests.put(
                                 upload_url,
+                                verify=codecov.cacert,
                                 data=reports_gzip,
                                 headers={
                                     "Content-Type": "application/x-gzip",
