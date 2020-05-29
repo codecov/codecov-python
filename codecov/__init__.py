@@ -931,13 +931,11 @@ def main(*argv, **kwargs):
                 True,
                 dont_search_here,
             ):
-                cmd = (
-                    sanitize_arg("", codecov.gcov_exec or "")
-                    + " -pb "
-                    + sanitize_arg("", codecov.gcov_args or "")
-                    + " "
-                    + path
-                )
+                cmd = sanitize_arg("", codecov.gcov_exec or "").split(" ")
+                cmd.append("-pb")
+                if codecov.gcov_args:
+                    cmd.append(sanitize_arg("", codecov.gcov_args or ""))
+                cmd.append(path)
                 write("    Executing gcov (%s)" % cmd)
                 write(try_to_run(cmd))
 
