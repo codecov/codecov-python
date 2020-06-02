@@ -93,6 +93,10 @@ after_success:
 | [Solano Labs](https://www.solanolabs.com/)          | `coming soon`                                                                                                                                                                      |                  |
 
 
+## Troubleshooting
+
+If you're seeing an **HTTP 400 error when uploading reports to S3**, make sure you've updated to at least version 2.1.3. 
+
 
 
 [1]: https://codecov.io/
