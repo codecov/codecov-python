@@ -1,4 +1,4 @@
-### `2.1.4
+### `2.1.4`
 
 - Enforce black formatting [#260](https://github.com/codecov/codecov-python/pull/260)
 - Fix command line quoting on Windows [#169](https://github.com/codecov/codecov-python/pull/169)
@@ -8,22 +8,22 @@
 - Include the cacert in the PUT call when uploading to S3 [#266](https://github.com/codecov/codecov-python/pull/266)
 - Fixed gcov not being found in certain instances [#263](https://github.com/codecov/codecov-python/pull/263)
 
-### `2.1.3
+### `2.1.3`
 
 - Fix find command not working on Windows
 - Add support for gzipping reports
 - Dynamic syncing of version
 
-### `2.1.1
+### `2.1.1`
 
 - Fix command when neither hg or git are not available
 
-### `2.1.0
+### `2.1.0`
 
 - Remove x-amz-acl header
 - Reformat with Black
 
-### `2.0.22
+### `2.0.22`
 
 - Cleaning TOC generation
 
