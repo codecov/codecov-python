@@ -1,3 +1,32 @@
+### `2.1.4`
+
+- [#260](https://github.com/codecov/codecov-python/pull/260) Enforce black formatting
+- [#169](https://github.com/codecov/codecov-python/pull/169) Fix command line quoting on Windows
+- [#216](https://github.com/codecov/codecov-python/pull/216) Fix GitLab CI project directory detection on Windows
+- [#264](https://github.com/codecov/codecov-python/pull/264) Fix GitLab CI post version 9
+- [#262](https://github.com/codecov/codecov-python/pull/262) Check text for NoneType on writes
+- [#266](https://github.com/codecov/codecov-python/pull/266) Include the cacert in the PUT call when uploading to S3
+- [#263](https://github.com/codecov/codecov-python/pull/263) Fixed gcov not being found in certain instances
+
+### `2.1.3`
+
+- Fix find command not working on Windows
+- Add support for gzipping reports
+- Dynamic syncing of version
+
+### `2.1.1`
+
+- Fix command when neither hg or git are not available
+
+### `2.1.0`
+
+- Remove x-amz-acl header
+- Reformat with Black
+
+### `2.0.22`
+
+- Cleaning TOC generation
+
 ### `2.0.21`
 
 - fixed string issues
