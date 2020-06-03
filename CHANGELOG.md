@@ -1,6 +1,6 @@
 ### `2.1.4
 
-- Enforce black formatting (https://github.com/codecov/codecov-python/pull/260)
+- Enforce black formatting (#260)
 - Fix command line quoting on Windows (https://github.com/codecov/codecov-python/pull/169)
 - Fix GitLab CI project directory detection on Windows (https://github.com/codecov/codecov-python/pull/216)
 - Fix GitLab CI post version 9 (https://github.com/codecov/codecov-python/pull/264)
