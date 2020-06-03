@@ -1,12 +1,12 @@
 ### `2.1.4
 
-- Enforce black formatting (#260)
-- Fix command line quoting on Windows (https://github.com/codecov/codecov-python/pull/169)
-- Fix GitLab CI project directory detection on Windows (https://github.com/codecov/codecov-python/pull/216)
-- Fix GitLab CI post version 9 (https://github.com/codecov/codecov-python/pull/264)
-- Check text for NoneType on writes (https://github.com/codecov/codecov-python/pull/262)
+- Enforce black formatting #260                                (https://github.com/codecov/codecov-python/pull/260)
+- Fix command line quoting on Windows                     (https://github.com/codecov/codecov-python/pull/169)
+- Fix GitLab CI project directory detection on Windows    (https://github.com/codecov/codecov-python/pull/216)
+- Fix GitLab CI post version 9                            (https://github.com/codecov/codecov-python/pull/264)
+- Check text for NoneType on writes                       (https://github.com/codecov/codecov-python/pull/262)
 - Include the cacert in the PUT call when uploading to S3 (https://github.com/codecov/codecov-python/pull/266)
-- Fixed gcov not being found in certain instances (https://github.com/codecov/codecov-python/pull/263)
+- Fixed gcov not being found in certain instances         (https://github.com/codecov/codecov-python/pull/263)
 
 ### `2.1.3
 
