@@ -82,6 +82,7 @@ class TestUploader(unittest.TestCase):
             "DRONE_BUILD_LINK",
             "TRAVIS_REPO_SLUG",
             "CODECOV_TOKEN",
+            "CODECOV_NAME",
             "APPVEYOR",
             "APPVEYOR_REPO_BRANCH",
             "APPVEYOR_BUILD_VERSION",
@@ -394,7 +395,13 @@ class TestUploader(unittest.TestCase):
         #     self.skipTest("Skipped, works on Travis only.")
 
     def test_disable_detect(self):
-        self.set_env(JENKINS_URL="a", GIT_BRANCH="b", GIT_COMMIT="c", CODECOV_TOKEN="d")
+        self.set_env(
+            JENKINS_URL="a",
+            GIT_BRANCH="b",
+            GIT_COMMIT="c",
+            CODECOV_TOKEN="d",
+            CODECOV_NAME="e",
+        )
         self.fake_report()
         try:
             self.run_cli(disable="detect")
@@ -486,6 +493,7 @@ class TestUploader(unittest.TestCase):
             GIT_COMMIT="c739768fcac68144a3a6d82305b9c4106934d31a",
             BUILD_NUMBER="41",
             CODECOV_TOKEN="token",
+            CODECOV_NAME="name",
         )
         self.fake_report()
         res = self.run_cli()
@@ -498,6 +506,7 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res["query"]["pr"], "")
         self.assertEqual(res["query"]["branch"], "master")
         self.assertEqual(res["codecov"].token, "token")
+        self.assertEqual(res["codecov"].name, "name")
 
     @unittest.skipUnless(os.getenv("JENKINS_URL"), "Skip Jenkins CI test")
     def test_ci_jenkins_env(self):
@@ -509,6 +518,7 @@ class TestUploader(unittest.TestCase):
             ghprbPullId="1",
             BUILD_NUMBER="41",
             CODECOV_TOKEN="token",
+            CODECOV_NAME="name",
         )
         self.fake_report()
         res = self.run_cli()
@@ -521,6 +531,7 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res["query"]["pr"], "1")
         self.assertEqual(res["query"]["branch"], "master")
         self.assertEqual(res["codecov"].token, "token")
+        self.assertEqual(res["codecov"].name, "name")
 
     @unittest.skipUnless(os.getenv("JENKINS_URL"), "Skip Jenkins CI test")
     def test_ci_jenkins_blue_ocean(self):
@@ -531,6 +542,7 @@ class TestUploader(unittest.TestCase):
             CHANGE_ID="1",
             BUILD_NUMBER="41",
             CODECOV_TOKEN="token",
+            CODECOV_NAME="name",
         )
         self.fake_report()
         res = self.run_cli()
@@ -543,6 +555,7 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res["query"]["pr"], "1")
         self.assertEqual(res["query"]["branch"], "master")
         self.assertEqual(res["codecov"].token, "token")
+        self.assertEqual(res["codecov"].name, "name")
 
     @unittest.skipUnless(
         os.getenv("CI") == "true"
@@ -585,6 +598,7 @@ class TestUploader(unittest.TestCase):
             CI_BUILD_URL="https://codeship.io/build/1",
             CI_COMMIT_ID="743b04806ea677403aa2ff26c6bdeb85005de658",
             CODECOV_TOKEN="token",
+            CODECOV_NAME="name",
         )
         self.fake_report()
         res = self.run_cli()
@@ -597,6 +611,7 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res["query"]["pr"], "")
         self.assertEqual(res["query"]["branch"], "master")
         self.assertEqual(res["codecov"].token, "token")
+        self.assertEqual(res["codecov"].name, "name")
 
     @unittest.skipUnless(
         os.getenv("CI") == "true" and os.getenv("CIRCLECI") == "true",
@@ -638,6 +653,7 @@ class TestUploader(unittest.TestCase):
             BUILDKITE_PROJECT_SLUG="owner/repo",
             BUILDKITE_COMMIT="d653b934ed59c1a785cc1cc79d08c9aaa4eba73b",
             CODECOV_TOKEN="token",
+            CODECOV_NAME="name",
         )
         self.fake_report()
         res = self.run_cli()
@@ -649,6 +665,7 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res["query"]["slug"], "owner/repo")
         self.assertEqual(res["query"]["branch"], "master")
         self.assertEqual(res["codecov"].token, "token")
+        self.assertEqual(res["codecov"].name, "name")
 
     @unittest.skipUnless(
         os.getenv("CI") == "true" and os.getenv("SEMAPHORE") == "true",
@@ -663,6 +680,7 @@ class TestUploader(unittest.TestCase):
             SEMAPHORE_REPO_SLUG="owner/repo",
             REVISION="743b04806ea677403aa2ff26c6bdeb85005de658",
             CODECOV_TOKEN="token",
+            CODECOV_NAME="name",
         )
         self.fake_report()
         res = self.run_cli()
@@ -686,6 +704,7 @@ class TestUploader(unittest.TestCase):
             DRONE_BRANCH="master",
             DRONE_BUILD_LINK="https://drone.io/github/builds/1",
             CODECOV_TOKEN="token",
+            CODECOV_NAME="name",
         )
         self.fake_report()
         res = self.run_cli()
@@ -696,6 +715,7 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res["query"]["build"], "10")
         self.assertEqual(res["query"]["build_url"], "https://drone.io/github/builds/1")
         self.assertEqual(res["codecov"].token, "token")
+        self.assertEqual(res["codecov"].name, "name")
 
     @unittest.skipUnless(os.getenv("SHIPPABLE") == "true", "Skip Shippable CI test")
     def test_ci_shippable(self):
@@ -707,6 +727,7 @@ class TestUploader(unittest.TestCase):
             BUILD_URL="https://shippable.com/...",
             COMMIT="743b04806ea677403aa2ff26c6bdeb85005de658",
             CODECOV_TOKEN="token",
+            CODECOV_NAME="name",
         )
         self.fake_report()
         res = self.run_cli()
@@ -718,6 +739,7 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res["query"]["slug"], "owner/repo")
         self.assertEqual(res["query"]["build_url"], "https://shippable.com/...")
         self.assertEqual(res["codecov"].token, "token")
+        self.assertEqual(res["codecov"].name, "name")
 
     # @unittest.skipUnless(os.getenv('CI') == "True" and os.getenv('APPVEYOR') == 'True', 'Skip AppVeyor CI test')
     @unittest.skip("Skip AppVeyor test")
@@ -734,6 +756,7 @@ class TestUploader(unittest.TestCase):
             APPVEYOR_REPO_NAME="owner/repo",
             APPVEYOR_REPO_COMMIT="d653b934ed59c1a785cc1cc79d08c9aaa4eba73b",
             CODECOV_TOKEN="token",
+            CODECOV_NAME="name",
         )
         self.fake_report()
         res = self.run_cli(file=self.filepath)
@@ -746,6 +769,7 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res["query"]["slug"], "owner/repo")
         self.assertEqual(res["query"]["pr"], "1")
         self.assertEqual(res["codecov"].token, "token")
+        self.assertEqual(res["codecov"].name, "name")
 
     @unittest.skipUnless(
         os.getenv("CI") == "true" and os.getenv("WERCKER_GIT_BRANCH"),
@@ -759,6 +783,7 @@ class TestUploader(unittest.TestCase):
             WERCKER_GIT_REPOSITORY="repo",
             WERCKER_GIT_COMMIT="d653b934ed59c1a785cc1cc79d08c9aaa4eba73b",
             CODECOV_TOKEN="token",
+            CODECOV_NAME="name",
         )
         self.fake_report()
         res = self.run_cli()
@@ -769,6 +794,7 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res["query"]["build"], "1399372237")
         self.assertEqual(res["query"]["slug"], "owner/repo")
         self.assertEqual(res["codecov"].token, "token")
+        self.assertEqual(res["codecov"].name, "name")
 
     @unittest.skipUnless(
         os.getenv("CI") == "true" and os.getenv("MAGNUM") == "true",
@@ -782,6 +808,7 @@ class TestUploader(unittest.TestCase):
             CI="true",
             CI_COMMIT="d653b934ed59c1a785cc1cc79d08c9aaa4eba73b",
             CODECOV_TOKEN="token",
+            CODECOV_NAME="name",
         )
         self.fake_report()
         res = self.run_cli()
@@ -791,6 +818,7 @@ class TestUploader(unittest.TestCase):
         )
         self.assertEqual(res["query"]["build"], "1399372237")
         self.assertEqual(res["codecov"].token, "token")
+        self.assertEqual(res["codecov"].name, "name")
 
     @unittest.skipUnless(
         os.getenv("CI_SERVER_NAME", "").startswith("GitLab"), "Skip GitLab CI test"
@@ -805,6 +833,7 @@ class TestUploader(unittest.TestCase):
             HOME="/",
             CI_PROJECT_DIR=os.getcwd().strip("/"),
             CODECOV_TOKEN="token",
+            CODECOV_NAME="name",
         )
         self.fake_report()
         res = self.run_cli()
@@ -815,6 +844,7 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res["query"]["build"], "1399372237")
         self.assertEqual(res["query"]["slug"], "owner/repo")
         self.assertEqual(res["codecov"].token, "token")
+        self.assertEqual(res["codecov"].name, "name")
 
     @unittest.skipUnless(
         os.getenv("CI_SERVER_NAME", "").startswith("GitLab"), "Skip GitLab CI test"
@@ -842,7 +872,7 @@ class TestUploader(unittest.TestCase):
 
     @unittest.skip("Skip CI None")
     def test_ci_none(self):
-        self.set_env(CODECOV_TOKEN="token")
+        self.set_env(CODECOV_TOKEN="token", CODECOV_NAME="name")
         self.fake_report()
         res = self.run_cli(
             build=10,
@@ -857,3 +887,4 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res["query"]["build"], "10")
         self.assertEqual(res["query"]["slug"], "owner/repo")
         self.assertEqual(res["codecov"].token, "token")
+        self.assertEqual(res["codecov"].name, "name")
