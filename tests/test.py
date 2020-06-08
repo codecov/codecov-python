@@ -859,6 +859,7 @@ class TestUploader(unittest.TestCase):
             HOME="/",
             CI_PROJECT_DIR=os.getcwd().strip("/"),
             CODECOV_TOKEN="token",
+            CODECOV_NAME="name",
         )
         self.fake_report()
         res = self.run_cli()
@@ -869,6 +870,33 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res["query"]["build"], "1399372237")
         self.assertEqual(res["query"]["slug"], "owner/repo")
         self.assertEqual(res["codecov"].token, "token")
+        self.assertEqual(res["codecov"].name, "name")
+
+    @unittest.skipUnless(
+        os.getenv("CI") == "true" and os.getenv("GITHUB_ACTION"),
+        "Skip GitHub Actions CI test",
+    )
+    def test_ci_github(self):
+        self.set_env(
+            GITHUB_REF="master",
+            GITHUB_RUN_ID="1399372237",
+            GITHUB_REPOSITORY="owner/repo",
+            GITHUB_ACTION="6de813bb999760c81f96f3cf5dbdcd51cead172f",
+            GITHUB_SHA="d653b934ed59c1a785cc1cc79d08c9aaa4eba73b",
+            HOME="/",
+            CODECOV_TOKEN="token",
+            CODECOV_NAME="name",
+        )
+        self.fake_report()
+        res = self.run_cli()
+        self.assertEqual(res["query"]["service"], "github")
+        self.assertEqual(
+            res["query"]["commit"], "d653b934ed59c1a785cc1cc79d08c9aaa4eba73b"
+        )
+        self.assertEqual(res["query"]["build"], "1399372237")
+        self.assertEqual(res["query"]["slug"], "owner/repo")
+        self.assertEqual(res["codecov"].token, "token")
+        self.assertEqual(res["codecov"].name, "name")
 
     @unittest.skip("Skip CI None")
     def test_ci_none(self):
