@@ -1123,8 +1123,9 @@ def main(*argv, **kwargs):
                             result, upload_url = res[0], res[1]
 
                             write("    Uploading to S3...")
-                            s3 = requests.put(
+                            s3 = retry_upload(
                                 upload_url,
+                                requests.put,
                                 verify=codecov.cacert,
                                 data=reports_gzip,
                                 headers={
@@ -1145,8 +1146,9 @@ def main(*argv, **kwargs):
 
                 write("    Uploading to Codecov...")
                 # just incase, try traditional upload
-                res = requests.post(
+                res = retry_upload(
                     "%s/upload/v2?%s" % (codecov.url, urlargs),
+                    requests.post,
                     verify=codecov.cacert,
                     data=reports_gzip,
                     headers={
