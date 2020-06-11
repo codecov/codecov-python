@@ -1101,7 +1101,6 @@ def main(*argv, **kwargs):
             reports_gzip = gzip_worker.compress(reports) + gzip_worker.flush()
             write("    Compressed contents to {0} bytes".format(len(reports_gzip)))
 
-            s3 = None
             success = False
             if "s3" not in codecov.disable:
                 try:
