@@ -288,7 +288,7 @@ def generate_toc(root):
 
 
 def retry_upload(url, request_method, **kwargs):
-    request_method(url, **kwargs)
+    return request_method(url, **kwargs)
 
 
 def main(*argv, **kwargs):
