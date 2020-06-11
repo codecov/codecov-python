@@ -287,8 +287,12 @@ def generate_toc(root):
     return str(res).strip() or ""
 
 
-def retry_upload(url, request_method, **kwargs):
-    return request_method(url, **kwargs)
+def retry_upload(url, request_method, retries=3, break_codes=(200, ), **kwargs):
+    for _ in range(retries):
+        res = request_method(url, **kwargs)
+        if res.status_code in break_codes:
+            return res
+    return res
 
 
 def main(*argv, **kwargs):
@@ -1104,6 +1108,7 @@ def main(*argv, **kwargs):
                     res = retry_upload(
                         "%s/upload/v4?%s" % (codecov.url, urlargs),
                         requests.post,
+                        break_codes=(200, 400, 406)
                         verify=codecov.cacert,
                         headers={
                             "Accept": "text/plain",
