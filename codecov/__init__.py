@@ -287,6 +287,10 @@ def generate_toc(root):
     return str(res).strip() or ""
 
 
+def retry_upload(url, request_method, **kwargs):
+    request_method(url, **kwargs)
+
+
 def main(*argv, **kwargs):
     root = os.getcwd()
 
@@ -1100,8 +1104,9 @@ def main(*argv, **kwargs):
                 if "s3" not in codecov.disable:
                     try:
                         write("    Pinging Codecov...")
-                        res = requests.post(
+                        res = retry_upload(
                             "%s/upload/v4?%s" % (codecov.url, urlargs),
+                            requests.post,
                             verify=codecov.cacert,
                             headers={
                                 "Accept": "text/plain",
