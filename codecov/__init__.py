@@ -1102,6 +1102,7 @@ def main(*argv, **kwargs):
             write("    Compressed contents to {0} bytes".format(len(reports_gzip)))
 
             s3 = None
+            success = False
             if "s3" not in codecov.disable:
                 try:
                     write("    Pinging Codecov...")
@@ -1138,35 +1139,30 @@ def main(*argv, **kwargs):
                         s3.raise_for_status()
                         assert s3.status_code == 200
                         write("    " + result)
-                        break
-                    else:
-                        # try again
-                        continue
+                        success = True
 
                 except AssertionError:
                     write("    Direct to s3 failed. Using backup v2 endpoint.")
 
-                write("    Uploading to Codecov...")
                 # just incase, try traditional upload
-                res = retry_upload(
-                    "%s/upload/v2?%s" % (codecov.url, urlargs),
-                    requests.post,
-                    verify=codecov.cacert,
-                    data=reports_gzip,
-                    headers={
-                        "Accept": "text/plain",
-                        "Content-Type": "application/x-gzip",
-                        "Content-Encoding": "gzip",
-                    },
-                )
-                if res.status_code < 500:
-                    write("    " + res.text)
-                    res.raise_for_status()
-                    result = res.text
-                    return
-
-                write("    Retrying... in %ds" % (trys * 30))
-                sleep(trys * 30)
+                if not success:
+                    write("    Uploading to Codecov...")
+                    res = retry_upload(
+                        "%s/upload/v2?%s" % (codecov.url, urlargs),
+                        requests.post,
+                        verify=codecov.cacert,
+                        data=reports_gzip,
+                        headers={
+                            "Accept": "text/plain",
+                            "Content-Type": "application/x-gzip",
+                            "Content-Encoding": "gzip",
+                        },
+                    )
+                    if res.status_code < 500:
+                        write("    " + res.text)
+                        res.raise_for_status()
+                        result = res.text
+                        return
 
     except Exception as e:
         write("Error: " + str(e))
