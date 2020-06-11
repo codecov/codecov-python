@@ -287,7 +287,7 @@ def generate_toc(root):
     return str(res).strip() or ""
 
 
-def retry_upload(url, request_method, retries=3, break_codes=(200, ), **kwargs):
+def retry_upload(url, request_method, retries=3, break_codes=(200,), **kwargs):
     for _ in range(retries):
         res = request_method(url, **kwargs)
         if res.status_code in break_codes:
