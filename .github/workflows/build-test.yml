@@ -32,6 +32,7 @@ jobs:
         echo '::set-env name=GITHUB_SHA::d653b934ed59c1a785cc1cc79d08c9aaa4eba73b'
         echo '::set-env name=GITHUB_RUN_ID::1399372237'
         echo '::set-env name=GITHUB_REPOSITORY::owner/repo'
+        echo $GITHUB_SHA
     - name: Test
       run: |
         make reinstall
