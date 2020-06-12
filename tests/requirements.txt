@@ -1,7 +1,7 @@
 coverage>=4.4.0
 ddt
 mock
-pytest>=3.6.0
+pytest>=4.6.0
 pytest-cov
 funcsigs
 requests
