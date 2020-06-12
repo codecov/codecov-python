@@ -287,6 +287,14 @@ def generate_toc(root):
     return str(res).strip() or ""
 
 
+def retry_upload(url, request_method, retries=3, break_codes=(200,), **kwargs):
+    for _ in range(retries):
+        res = request_method(url, **kwargs)
+        if res.status_code in break_codes:
+            return res
+    return res
+
+
 def main(*argv, **kwargs):
     root = os.getcwd()
 
@@ -1093,71 +1101,67 @@ def main(*argv, **kwargs):
             reports_gzip = gzip_worker.compress(reports) + gzip_worker.flush()
             write("    Compressed contents to {0} bytes".format(len(reports_gzip)))
 
-            s3 = None
-            trys = 0
-            while trys < 3:
-                trys += 1
-                if "s3" not in codecov.disable:
-                    try:
-                        write("    Pinging Codecov...")
-                        res = requests.post(
-                            "%s/upload/v4?%s" % (codecov.url, urlargs),
+            success = False
+            if "s3" not in codecov.disable:
+                try:
+                    write("    Pinging Codecov...")
+                    res = retry_upload(
+                        "%s/upload/v4?%s" % (codecov.url, urlargs),
+                        requests.post,
+                        break_codes=(200, 400, 406),
+                        verify=codecov.cacert,
+                        headers={
+                            "Accept": "text/plain",
+                            "X-Reduced-Redundancy": "false",
+                            "X-Content-Type": "application/x-gzip",
+                        },
+                    )
+                    if res.status_code in (400, 406):
+                        raise Exception(res.text)
+
+                    elif res.status_code < 500:
+                        assert res.status_code == 200
+                        res = res.text.strip().split()
+                        result, upload_url = res[0], res[1]
+
+                        write("    Uploading to S3...")
+                        s3 = retry_upload(
+                            upload_url,
+                            requests.put,
                             verify=codecov.cacert,
+                            data=reports_gzip,
                             headers={
-                                "Accept": "text/plain",
-                                "X-Reduced-Redundancy": "false",
-                                "X-Content-Type": "application/x-gzip",
+                                "Content-Type": "application/x-gzip",
+                                "Content-Encoding": "gzip",
                             },
                         )
-                        if res.status_code in (400, 406):
-                            raise Exception(res.text)
+                        s3.raise_for_status()
+                        assert s3.status_code == 200
+                        write("    " + result)
+                        success = True
 
-                        elif res.status_code < 500:
-                            assert res.status_code == 200
-                            res = res.text.strip().split()
-                            result, upload_url = res[0], res[1]
+                except AssertionError:
+                    write("    Direct to s3 failed. Using backup v2 endpoint.")
 
-                            write("    Uploading to S3...")
-                            s3 = requests.put(
-                                upload_url,
-                                verify=codecov.cacert,
-                                data=reports_gzip,
-                                headers={
-                                    "Content-Type": "application/x-gzip",
-                                    "Content-Encoding": "gzip",
-                                },
-                            )
-                            s3.raise_for_status()
-                            assert s3.status_code == 200
-                            write("    " + result)
-                            break
-                        else:
-                            # try again
-                            continue
-
-                    except AssertionError:
-                        write("    Direct to s3 failed. Using backup v2 endpoint.")
-
-                write("    Uploading to Codecov...")
                 # just incase, try traditional upload
-                res = requests.post(
-                    "%s/upload/v2?%s" % (codecov.url, urlargs),
-                    verify=codecov.cacert,
-                    data=reports_gzip,
-                    headers={
-                        "Accept": "text/plain",
-                        "Content-Type": "application/x-gzip",
-                        "Content-Encoding": "gzip",
-                    },
-                )
-                if res.status_code < 500:
-                    write("    " + res.text)
-                    res.raise_for_status()
-                    result = res.text
-                    return
-
-                write("    Retrying... in %ds" % (trys * 30))
-                sleep(trys * 30)
+                if not success:
+                    write("    Uploading to Codecov...")
+                    res = retry_upload(
+                        "%s/upload/v2?%s" % (codecov.url, urlargs),
+                        requests.post,
+                        verify=codecov.cacert,
+                        data=reports_gzip,
+                        headers={
+                            "Accept": "text/plain",
+                            "Content-Type": "application/x-gzip",
+                            "Content-Encoding": "gzip",
+                        },
+                    )
+                    if res.status_code < 500:
+                        write("    " + res.text)
+                        res.raise_for_status()
+                        result = res.text
+                        return
 
     except Exception as e:
         write("Error: " + str(e))
