@@ -878,11 +878,8 @@ class TestUploader(unittest.TestCase):
     )
     def test_ci_github(self):
         self.set_env(
-            GITHUB_REF="refs/pull/7/",
-            GITHUB_RUN_ID="1399372237",
-            GITHUB_REPOSITORY="owner/repo",
+            GITHUB_REF="refs/pull/7/merge",
             GITHUB_ACTION="6de813bb999760c81f96f3cf5dbdcd51cead172f",
-            GITHUB_SHA="d653b934ed59c1a785cc1cc79d08c9aaa4eba73b",
             HOME="/",
             CODECOV_TOKEN="token",
             CODECOV_NAME="name",
