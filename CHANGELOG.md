@@ -1,3 +1,7 @@
+### `2.1.6`
+
+- [#275](https://github.com/codecov/codecov-python/pull/275) Fix GitHub Actions implementation
+
 ### `2.1.5`
 
 - [#273](https://github.com/codecov/codecov-python/pull/273) Implement retries on Codecov API calls
