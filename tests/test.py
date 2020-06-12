@@ -889,7 +889,7 @@ class TestUploader(unittest.TestCase):
         )
         self.fake_report()
         res = self.run_cli()
-        self.assertEqual(res["query"]["service"], "github")
+        self.assertEqual(res["query"]["service"], "github-actions")
         self.assertEqual(
             res["query"]["commit"], "d653b934ed59c1a785cc1cc79d08c9aaa4eba73b"
         )

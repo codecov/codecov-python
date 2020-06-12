@@ -805,7 +805,7 @@ def main(*argv, **kwargs):
             # https://help.github.com/en/actions/configuring-and-managing-workflows/using-environment-variables
             query.update(
                 dict(
-                    service="github",
+                    service="github-actions",
                     build=os.getenv("GITHUB_RUN_ID"),
                     commit=os.getenv("GITHUB_SHA"),
                     slug=os.getenv("GITHUB_REPOSITORY"),
