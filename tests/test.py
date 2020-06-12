@@ -886,6 +886,14 @@ class TestUploader(unittest.TestCase):
         )
         self.fake_report()
         res = self.run_cli()
+        self.assertEqual(res["query"]["service"], "github-actions")
+        self.assertEqual(
+            res["query"]["commit"], os.getenv('GITHUB_SHA')
+        )
+        #self.assertEqual(res["query"]["build"], "1399372237")
+        #self.assertEqual(res["query"]["slug"], "owner/repo")
+        #self.assertEqual(res["codecov"].token, "token")
+        #self.assertEqual(res["codecov"].name, "name")
 
     @unittest.skip("Skip CI None")
     def test_ci_none(self):

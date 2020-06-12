@@ -32,7 +32,6 @@ jobs:
         make reinstall
         make test
       env:
-        GITHUB_SHA: d653b934ed59c1a785cc1cc79d08c9aaa4eba73b
         GITHUB_RUN_ID: 1399372237
         GITHUB_REPOSITORY: owner/repo
     - name: Upload coverage reports to Codecov
