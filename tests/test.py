@@ -878,7 +878,7 @@ class TestUploader(unittest.TestCase):
     )
     def test_ci_github(self):
         self.set_env(
-            GITHUB_REF="master",
+            GITHUB_REF="refs/pull/7/",
             GITHUB_RUN_ID="1399372237",
             GITHUB_REPOSITORY="owner/repo",
             GITHUB_ACTION="6de813bb999760c81f96f3cf5dbdcd51cead172f",
