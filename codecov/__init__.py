@@ -820,6 +820,7 @@ def main(*argv, **kwargs):
                 query["branch"] = os.getenv("GITHUB_REF").split("/", 3)[-1]
             if os.getenv("GITHUB_HEAD_REF"):
                 # PR refs are in the format: refs/pull/7/merge
+                write(os.getenv("GITHUB_REF"))
                 query["pr"] = os.getenv("GITHUB_REF").split("/")[-2]
                 query["branch"] = os.getenv("GITHUB_HEAD_REF")
 
