@@ -1,3 +1,9 @@
+### `2.1.5`
+
+- [#273](https://github.com/codecov/codecov-python/pull/273) Implement retries on Codecov API calls
+- [#265](https://github.com/codecov/codecov-python/pull/265) Add GitHub Actions CI detection
+- [#267](https://github.com/codecov/codecov-python/pull/267) Add CODECOV_NAME as default for name
+
 ### `2.1.4`
 
 - [#260](https://github.com/codecov/codecov-python/pull/260) Enforce black formatting
