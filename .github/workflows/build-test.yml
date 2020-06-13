@@ -34,8 +34,6 @@ jobs:
         make reinstall
         make test
       env:
-        CODECOV_NAME: name
-        CODECOV_TOKEN: token
         GITHUB_REPOSITORY: owner/repo
         GITHUB_RUN_ID: 1399372237
     - name: Upload coverage reports to Codecov

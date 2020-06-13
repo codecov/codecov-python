@@ -877,7 +877,11 @@ class TestUploader(unittest.TestCase):
         "Skip GitHub Actions CI test",
     )
     def test_ci_github(self):
-        self.set_env(HOME="/")
+        self.set_env(
+            HOME="/",
+            CODECOV_TOKEN="token",
+            CODECOV_NAME="name",
+        )
         self.fake_report()
         res = self.run_cli()
         self.assertEqual(res["query"]["service"], "github-actions")
