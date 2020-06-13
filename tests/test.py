@@ -877,21 +877,15 @@ class TestUploader(unittest.TestCase):
         "Skip GitHub Actions CI test",
     )
     def test_ci_github(self):
-        self.set_env(
-            GITHUB_REF="refs/pull/7/merge",
-            GITHUB_ACTION="6de813bb999760c81f96f3cf5dbdcd51cead172f",
-            HOME="/",
-            CODECOV_TOKEN="token",
-            CODECOV_NAME="name",
-        )
+        self.set_env(HOME="/")
         self.fake_report()
         res = self.run_cli()
         self.assertEqual(res["query"]["service"], "github-actions")
         self.assertEqual(res["query"]["commit"], os.getenv("GITHUB_SHA"))
         self.assertEqual(res["query"]["build"], "1399372237")
         self.assertEqual(res["query"]["slug"], "owner/repo")
-        # self.assertEqual(res["codecov"].token, "token")
-        # self.assertEqual(res["codecov"].name, "name")
+        self.assertEqual(res["codecov"].token, "token")
+        self.assertEqual(res["codecov"].name, "name")
 
     @unittest.skip("Skip CI None")
     def test_ci_none(self):
