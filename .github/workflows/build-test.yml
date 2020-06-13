@@ -33,9 +33,6 @@ jobs:
       run: |
         make reinstall
         make test
-      env:
-        GITHUB_REPOSITORY: owner/repo
-        GITHUB_RUN_ID: 1399372237
     - name: Upload coverage reports to Codecov
       run: |
         codecov
