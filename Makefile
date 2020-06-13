@@ -9,7 +9,7 @@ reinstall:
 	python setup.py install
 
 test:
-	py.test tests/test.py
+	py.test tests/test.py --cov=codecov
 
 format:
 	black . --check
