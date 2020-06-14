@@ -1,3 +1,7 @@
+### `2.1.7`
+
+- []() Fix pinned coverage version
+
 ### `2.1.6`
 
 - [#275](https://github.com/codecov/codecov-python/pull/275) Fix GitHub Actions implementation
