@@ -1,6 +1,6 @@
 ### `2.1.7`
 
-- []() Fix pinned coverage version
+- [#279](https://github.com/codecov/codecov-python/pull/279) Fix pinned coverage version
 
 ### `2.1.6`
 
