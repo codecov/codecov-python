@@ -1135,7 +1135,7 @@ def main(*argv, **kwargs):
                         s3 = retry_upload(
                             upload_url,
                             requests.put,
-                            codecov.tries,
+                            retries=codecov.tries,
                             verify=codecov.cacert,
                             data=reports_gzip,
                             headers={
