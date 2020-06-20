@@ -1114,7 +1114,7 @@ def main(*argv, **kwargs):
                     res = retry_upload(
                         "%s/upload/v4?%s" % (codecov.url, urlargs),
                         requests.post,
-                        codecov.tries,
+                        retries=codecov.tries,
                         break_codes=(200, 400, 406),
                         verify=codecov.cacert,
                         headers={
