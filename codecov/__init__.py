@@ -1157,7 +1157,7 @@ def main(*argv, **kwargs):
                     res = retry_upload(
                         "%s/upload/v2?%s" % (codecov.url, urlargs),
                         requests.post,
-                        codecov.tries,
+                        retries=codecov.tries,
                         verify=codecov.cacert,
                         data=reports_gzip,
                         headers={
