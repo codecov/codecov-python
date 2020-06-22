@@ -411,7 +411,7 @@ def main(*argv, **kwargs):
         "--tries",
         default=3,
         type=int,
-        help="Specify the number of attempts to make when uploading coverage report",
+        help="Specify the total number of attempts to make when uploading coverage report",
     )
 
     enterprise = parser.add_argument_group(
