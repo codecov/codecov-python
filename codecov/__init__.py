@@ -331,7 +331,7 @@ def main(*argv, **kwargs):
         "--flags",
         "-F",
         nargs="*",
-        default=None,
+        default=os.getenv("CODECOV_FLAGS"),
         help="Flag these uploaded files with custom labels",
     )
     basics.add_argument(
