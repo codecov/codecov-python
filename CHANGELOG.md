@@ -1,3 +1,8 @@
+### `2.1.8`
+
+- [#285](https://github.com/codecov/codecov-python/pull/285)Add support for CODECOV_FLAGS
+- [#276](https://github.com/codecov/codecov-python/pull/276)Add ability to specify number of upload retries
+
 ### `2.1.7`
 
 - [#279](https://github.com/codecov/codecov-python/pull/279) Fix pinned coverage version
