@@ -213,7 +213,7 @@ def check_output(cmd, **popen_args):
     process = Popen(cmd, stdout=PIPE, **popen_args)
     output, _ = process.communicate()
     if process.returncode:
-        raise CalledProcessError(process.returncode, cmd)
+        raise CalledProcessError(process.returncode, cmd, output)
     else:
         assert process.returncode == 0
         return output.decode("utf-8")
@@ -222,6 +222,12 @@ def check_output(cmd, **popen_args):
 def try_to_run(cmd, shell=False, cwd=None):
     try:
         return check_output(cmd, shell=shell, cwd=cwd)
+    except subprocess.CalledProcessError as e:
+        write(
+            "    Error running `%s`: returncode=%s, output=%s"
+            % (cmd, e.returncode, str(getattr(e, "output", str(e))))
+        )
+        return None
     except Exception as e:
         write("    Error running `%s`: %s" % (cmd, e or str(e)))
         return None
