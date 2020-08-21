@@ -1,3 +1,7 @@
+### `2.1.9`
+
+- [#289](https://github.com/codecov/codecov-python/pull/289)Remove token restriction as it is changed server-side
+
 ### `2.1.8`
 
 - [#285](https://github.com/codecov/codecov-python/pull/285)Add support for CODECOV_FLAGS

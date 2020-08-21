@@ -953,8 +953,6 @@ def main(*argv, **kwargs):
                 if _slug:
                     query["slug"] = _slug.groups()[1]
 
-        assert query.get("job") or query.get("token"), "Missing repository upload token"
-
         # Processing gcov
         # ---------------
         if "gcov" in codecov.disable:
@@ -1189,13 +1187,6 @@ def main(*argv, **kwargs):
                 "Tip: See all example repositories: https://github.com/codecov?query=example"
             )
 
-        write("Support channels:", "green")
-        write(
-            "  Email:   hello@codecov.io\n"
-            "  IRC:     #codecov\n"
-            "  Gitter:  https://gitter.im/codecov/support\n"
-            "  Twitter: @codecov\n"
-        )
         sys.exit(1 if codecov.required else 0)
 
     else:

@@ -294,18 +294,6 @@ class TestUploader(unittest.TestCase):
             else:
                 raise Exception("400 never raised")
 
-    @data((dict(commit="sha"), "Missing repository upload token"),)
-    def test_require_branch(self, dd):
-        (kwargs, reason) = dd
-        # this is so we dont get branch for local git
-        self.set_env(JENKINS_URL="hello")
-        try:
-            self.run_cli(**kwargs)
-        except AssertionError as e:
-            self.assertEqual(str(e), reason)
-        else:
-            raise Exception("Did not raise AssertionError")
-
     @unittest.skipIf(
         os.getenv("CI") == "True" and os.getenv("APPVEYOR") == "True",
         "Skip AppVeyor CI test",
