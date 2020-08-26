@@ -2,6 +2,7 @@ Codecov Global Python Uploader
 [![codecov.io](https://codecov.io/github/codecov/codecov-python/coverage.svg?branch=master)](https://codecov.io/github/codecov/codecov-python)
 ![PyPI](https://img.shields.io/pypi/v/codecov)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fcodecov%2Fcodecov-python.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fcodecov%2Fcodecov-python?ref=badge_shield)
 =======
 | [Support][1] | [Documentation][2] | [Community Boards][3] | [Twitter][4] |
 | ------------ | ------------------ | --------------------- | ------------ |
@@ -110,3 +111,7 @@ If you're seeing an **HTTP 400 error when uploading reports to S3**, make sure y
 ## Copyright
 
 > Copyright 2014-2020 codecov
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fcodecov%2Fcodecov-python.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fcodecov%2Fcodecov-python?ref=badge_large)
