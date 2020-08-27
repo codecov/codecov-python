@@ -866,7 +866,9 @@ class TestUploader(unittest.TestCase):
     )
     def test_ci_github(self):
         self.set_env(
-            HOME="/", CODECOV_TOKEN="token", CODECOV_NAME="name",
+            HOME="/",
+            CODECOV_TOKEN="token",
+            CODECOV_NAME="name",
         )
         self.fake_report()
         res = self.run_cli()
