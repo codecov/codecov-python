@@ -278,7 +278,7 @@ class TestUploader(unittest.TestCase):
                     gzip_worker.decompress(put.call_args[1]["data"])
                     + gzip_worker.flush()
                 )
-                assert u"tests/test.py".encode("utf-8") in reports
+                assert "tests/test.py".encode("utf-8") in reports
 
     def test_send_error(self):
         with patch("requests.post") as post:
