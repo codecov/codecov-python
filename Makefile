@@ -12,7 +12,7 @@ test:
 	py.test tests/test.py --cov=codecov
 
 format:
-	black . --check
+	black . --check -v -t py38
 
 compare:
 	hub compare $(shell git tag --sort=refname | tail -1)...master
