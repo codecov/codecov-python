@@ -292,6 +292,7 @@ def retry_upload(url, request_method, retries=3, break_codes=(200,), **kwargs):
         res = request_method(url, **kwargs)
         if res.status_code in break_codes:
             return res
+        sleep(2)
     return res
 
 
