@@ -288,11 +288,13 @@ def generate_toc(root):
 
 
 def retry_upload(url, request_method, retries=5, break_codes=(200,), **kwargs):
-    for _ in range(retries):
+    wait_seconds = 2
+    for i in range(retries):
         res = request_method(url, **kwargs)
         if res.status_code in break_codes:
             return res
-        sleep(2)
+        write("    Retrying {0}/{1} in {2}s..".format(i + 1, retries, wait_seconds))
+        sleep(wait_seconds)
     return res
 
 
