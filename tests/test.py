@@ -278,7 +278,7 @@ class TestUploader(unittest.TestCase):
                     gzip_worker.decompress(put.call_args[1]["data"])
                     + gzip_worker.flush()
                 )
-                assert u"tests/test.py".encode("utf-8") in reports
+                assert "tests/test.py".encode("utf-8") in reports
 
     def test_send_error(self):
         with patch("requests.post") as post:
@@ -866,7 +866,9 @@ class TestUploader(unittest.TestCase):
     )
     def test_ci_github(self):
         self.set_env(
-            HOME="/", CODECOV_TOKEN="token", CODECOV_NAME="name",
+            HOME="/",
+            CODECOV_TOKEN="token",
+            CODECOV_NAME="name",
         )
         self.fake_report()
         res = self.run_cli()
