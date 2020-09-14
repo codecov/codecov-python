@@ -1,4 +1,4 @@
-coverage==5.2.1
+coverage==5.3
 ddt
 mock
 pytest>=4.6.0
