@@ -290,11 +290,14 @@ def generate_toc(root):
     return str(res).strip() or ""
 
 
-def retry_upload(url, request_method, retries=3, break_codes=(200,), **kwargs):
-    for _ in range(retries):
+def retry_upload(url, request_method, retries=5, break_codes=(200,), **kwargs):
+    wait_seconds = 2
+    for i in range(retries):
         res = request_method(url, **kwargs)
         if res.status_code in break_codes:
             return res
+        write("    Retrying {0}/{1} in {2}s..".format(i + 1, retries, wait_seconds))
+        sleep(wait_seconds)
     return res
 
 
@@ -412,7 +415,7 @@ def main(*argv, **kwargs):
     advanced.add_argument("--tag", default=None, help="Git tag")
     advanced.add_argument(
         "--tries",
-        default=3,
+        default=5,
         type=int,
         help="Specify the total number of attempts to make when uploading coverage report",
     )
