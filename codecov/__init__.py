@@ -1149,6 +1149,7 @@ def main(*argv, **kwargs):
                         )
                         s3.raise_for_status()
                         assert s3.status_code == 200
+                        write("    Uploading to S3 took %s" % s3.elapsed)
                         write("    " + result)
                         success = True
 
