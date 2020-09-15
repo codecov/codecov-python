@@ -88,6 +88,7 @@ ignored_report = re.compile(
     r"(/\.coverage.*)|"
     r"(\.coveragerc)|"
     r"(\.egg)|"
+    r"(\.el)|"
     r"(\.gif)|"
     r"(\.ini)|"
     r"(\.less)|"
