@@ -869,7 +869,7 @@ def main(*argv, **kwargs):
             try:
                 query["commit"] = try_to_run(
                     ["git", "rev-parse", "HEAD"]
-                ) or try_to_run(["hg", "id", "-i", "--debug", "|", "tr", "-d", "'+'"])
+                ) or try_to_run(["hg", "log", "-r", ".", "-T", "{node}"])
                 write("  -> Got sha from git/hg")
 
             except:  # pragma: no cover
