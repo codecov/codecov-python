@@ -1,3 +1,19 @@
+### `2.1.10`
+
+#### Fixes
+- [#148](https://github.com/codecov/codecov-python/pull/148) Output elapsed time with S3 upload
+- [#153](https://github.com/codecov/codecov-python/pull/153) Improve error reporting in the "try_run" function and correctly include original command output in the error message
+- [#295](https://github.com/codecov/codecov-python/pull/295) Added sleep between upload retries.
+- [#297](https://github.com/codecov/codecov-python/pull/297) Ignore emacs lisp files
+- [#298](https://github.com/codecov/codecov-python/pull/298) Fix error try_to_run using | without shell=True (fix #284)
+
+#### Dependencies and Misc
+- [#290](https://github.com/codecov/codecov-python/pull/290) Bump coverage from 4.5.4 to 5.2.1
+- [#291](https://github.com/codecov/codecov-python/pull/291) Update python versions
+- [#292](https://github.com/codecov/codecov-python/pull/292) Add license scan report and status 
+- [#294](https://github.com/codecov/codecov-python/pull/294) Update README with accurate links
+- [#296](https://github.com/codecov/codecov-python/pull/296) Bump coverage from 5.2.1 to 5.3
+
 ### `2.1.9`
 
 - [#289](https://github.com/codecov/codecov-python/pull/289)Remove token restriction as it is changed server-side
