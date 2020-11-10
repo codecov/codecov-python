@@ -1,14 +1,18 @@
 deploy:
-	git tag -a v$(shell python -c "import codecov;print codecov.version;") -m ""
-	git push origin v$(shell python -c "import codecov;print codecov.version;")
-	python setup.py sdist bdist_wheel upload
+	git tag -a v$(python -c 'import codecov;print(codecov.version)') -m ""
+	git push origin v$(python -c 'import codecov;print(codecov.version)')
+	python setup.py sdist bdist_wheel bdist_egg
+	python -m twine upload dist/*
 
 reinstall:
 	pip uninstall -y codecov
 	python setup.py install
 
 test:
-	py.test tests/test.py
+	py.test tests/test.py --cov=codecov
+
+format:
+	black . -v -t py38 --check --diff
 
 compare:
 	hub compare $(shell git tag --sort=refname | tail -1)...master

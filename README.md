@@ -1,7 +1,12 @@
-Codecov Global Python Uploader [![codecov.io](https://codecov.io/github/codecov/codecov-python/coverage.svg?branch=master)](https://codecov.io/github/codecov/codecov-python)
+# Codecov Global Python Uploader
+
+[![codecov.io](https://codecov.io/github/codecov/codecov-python/coverage.svg?branch=master)](https://codecov.io/github/codecov/codecov-python)
+![PyPI](https://img.shields.io/pypi/v/codecov)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fcodecov%2Fcodecov-python.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fcodecov%2Fcodecov-python?ref=badge_shield)
 =======
-| [https://codecov.io/][1] | [@codecov][2] | [hello@codecov.io][3] |
-| ------------------------ | ------------- | --------------------- |
+| [Support][1] | [Documentation][2] | [Community Boards][3] | [Twitter][4] |
+| ------------ | ------------------ | --------------------- | ------------ |
 
 Find coverage reports for all the [languages below](#languages), gather them and submit them to Codecov.
 
@@ -75,30 +80,40 @@ after_success:
 
 ## CI Providers
 |                       Company                       |                                                                                     Supported                                                                                      |  Token Required  |
-| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
-| [Travis CI](https://travis-ci.org/)                 | Yes [![Build Status](https://secure.travis-ci.org/codecov/codecov-python.svg?branch=master)](https://travis-ci.org/codecov/codecov-python)                                         | Private only     |
-| [CircleCI](https://circleci.com/)                   | Yes                                                                                                                                                                                | Private only     |
-| [Codeship](https://codeship.com/)                   | Yes                                                                                                                                                                                | Public & Private |
-| [Jenkins](https://jenkins-ci.org/)                  | Yes                                                                                                                                                                                | Public & Private |
-| [Semaphore](https://semaphoreci.com/)               | Yes                                                                                                                                                                                | Public & Private |
-| [Drone.io](https://drone.io/)                       | Yes                                                                                                                                                                                | Public & Private |
-| [AppVeyor](https://www.appveyor.com/)               | Yes [![Build status](https://ci.appveyor.com/api/projects/status/sw18lsj7786bw806/branch/master?svg=true)](https://ci.appveyor.com/project/stevepeak/codecov-python/branch/master) | Private only     |
-| [Wercker](http://wercker.com/)                      | Yes                                                                                                                                                                                | Public & Private |
-| [Magnum CI](https://magnum-ci.com/)                 | Yes                                                                                                                                                                                | Public & Private |
-| [Shippable](https://www.shippable.com/)             | Yes                                                                                                                                                                                | Public & Private |
-| [Gitlab CI](https://about.gitlab.com/gitlab-ci/)    | Yes                                                                                                                                                                                | Public & Private |
-| Git / Mercurial                                     | Yes (as a fallback)                                                                                                                                                                | Public & Private |
-| [Buildbot](https://buildbot.net/)                   | `coming soon` [buildbot/buildbot#1671](https://github.com/buildbot/buildbot/pull/1671)                                                                                             |                  |
-| [Bamboo](https://www.atlassian.com/software/bamboo) | `coming soon`                                                                                                                                                                      |                  |
-| [Solano Labs](https://www.solanolabs.com/)          | `coming soon`                                                                                                                                                                      |                  |
+| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| [AppVeyor](https://www.appveyor.com/)                 | Yes [![Build status](https://ci.appveyor.com/api/projects/status/sw18lsj7786bw806/branch/master?svg=true)](https://ci.appveyor.com/project/stevepeak/codecov-python/branch/master) | Private only     |
+| [Bamboo](https://www.atlassian.com/software/bamboo)   | `coming soon`                                                                                                                                                                      |                  |
+| [Buildbot](https://buildbot.net/)                     | `coming soon` [buildbot/buildbot#1671](https://github.com/buildbot/buildbot/pull/1671)                                                                                             |                  |
+| [CircleCI](https://circleci.com/)                     | Yes                                                                                                                                                                                | Private only     |
+| [Codeship](https://codeship.com/)                     | Yes                                                                                                                                                                                | Public & Private |
+| [Drone.io](https://drone.io/)                         | Yes                                                                                                                                                                                | Public & Private |
+| [GitHub Actions](https://github.com/features/actions) | Yes [![Build status](https://github.com/codecov/codecov-python/workflows/Python%20package/badge.svg?branch=master)](https://github.com/codecov/codecov-python/actions?query=workflow%3A%22Python+package%22)                                                                                        | Public & Private |
+| [Gitlab CI](https://about.gitlab.com/gitlab-ci/)      | Yes                                                                                                                                                                                | Public & Private |
+| [Jenkins](https://jenkins-ci.org/)                    | Yes                                                                                                                                                                                | Public & Private |
+| [Magnum CI](https://magnum-ci.com/)                   | Yes                                                                                                                                                                                | Public & Private |
+| [Semaphore](https://semaphoreci.com/)                 | Yes                                                                                                                                                                                | Public & Private |
+| [Shippable](https://www.shippable.com/)               | Yes                                                                                                                                                                                | Public & Private |
+| [Solano Labs](https://www.solanolabs.com/)            | `coming soon`                                                                                                                                                                      |                  |
+| [Travis CI](https://travis-ci.org/)                   | Yes [![Build Status](https://secure.travis-ci.org/codecov/codecov-python.svg?branch=master)](https://travis-ci.org/codecov/codecov-python)                                         | Private only     |
+| [Wercker](http://wercker.com/)                        | Yes                                                                                                                                                                                | Public & Private |
+| Git / Mercurial                                       | Yes (as a fallback)                                                                                                                                                                | Public & Private |
+
+
+## Troubleshooting
+
+If you're seeing an **HTTP 400 error when uploading reports to S3**, make sure you've updated to at least version 2.1.3.
 
 
 
-
-[1]: https://codecov.io/
-[2]: https://twitter.com/codecov
-[3]: mailto:hello@codecov.io
+[1]: https://codecov.io/support/
+[2]: https://docs.codecov.io/
+[3]: https://community.codecov.io/
+[4]: https://twitter.com/codecov
 
 ## Copyright
 
-> Copyright 2014-2019 codecov
+> Copyright 2014-2020 codecov
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fcodecov%2Fcodecov-python.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fcodecov%2Fcodecov-python?ref=badge_large)

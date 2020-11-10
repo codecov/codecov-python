@@ -1,6 +1,5 @@
-
 language: python
-cache: pip
+# cache: pip
 notifications:
   email: false
 dist: xenial
@@ -8,10 +7,11 @@ sudo: false
 python:
   - 2.7
   - pypy
-  - 3.4
   - 3.5
   - 3.6
   - 3.7
+  - 3.8
+  - 3.9-dev
   - pypy3
 matrix:
   include:
@@ -25,13 +25,16 @@ matrix:
             - python-requests
             - python-coverage
             - python-mock
-    - python: 3.7
+    - python: 3.8
       dist: xenial
+      script: make format
 
 install:
   - pip install -r tests/requirements.txt
   - python setup.py install
 script:
-  - pytest tests/test.py --cov=codecov
+  - make reinstall
+  - make test
+  # - pytest tests/test.py --cov=codecov
 after_success:
   - codecov
