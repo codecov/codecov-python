@@ -376,6 +376,9 @@ def main(*argv, **kwargs):
     gcov.add_argument(
         "--gcov-exec", default="gcov", help="gcov executable to run. Defaults to 'gcov'"
     )
+    gcov.add_argument(
+        "--no-gcov-out", action="store_true", default=False, help="Disable gcov output"
+    )
     gcov.add_argument("--gcov-args", default="", help="extra arguments to pass to gcov")
 
     advanced = parser.add_argument_group(
@@ -982,8 +985,11 @@ def main(*argv, **kwargs):
                 if codecov.gcov_args:
                     cmd.append(sanitize_arg("", codecov.gcov_args or ""))
                 cmd.append(path)
-                write("    Executing gcov (%s)" % cmd)
-                write(try_to_run(cmd))
+                if not codecov.no_gcov_out:
+                    write("    Executing gcov (%s)" % cmd)
+                gcov_out = try_to_run(cmd)
+                if not codecov.no_gcov_out:
+                    write(gcov_out)
 
         # Collect Reports
         # ---------------
