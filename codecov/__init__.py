@@ -226,7 +226,11 @@ def try_to_run(cmd, shell=False, cwd=None):
     except Exception as e:
         write(
             "    Error running `%s`: returncode=%s, output=%s"
-            % (cmd, e.returncode, str(getattr(e, "output", str(e))))
+            % (
+                cmd,
+                str(getattr(e, "returncode", None)),
+                str(getattr(e, "output", str(e))),
+            )
         )
         return None
 
