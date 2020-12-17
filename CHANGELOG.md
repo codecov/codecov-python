@@ -1,3 +1,12 @@
+### `2.1.11`
+
+#### Fixes
+- #305 Added option to disable printing of gcov-out
+- #308 Handle exceptions that don't have a returncode
+
+#### Dependencies and Misc
+- #301 Update to Python 3.9
+
 ### `2.1.10`
 
 #### Fixes
@@ -10,7 +19,7 @@
 #### Dependencies and Misc
 - [#290](https://github.com/codecov/codecov-python/pull/290) Bump coverage from 4.5.4 to 5.2.1
 - [#291](https://github.com/codecov/codecov-python/pull/291) Update python versions
-- [#292](https://github.com/codecov/codecov-python/pull/292) Add license scan report and status 
+- [#292](https://github.com/codecov/codecov-python/pull/292) Add license scan report and status
 - [#294](https://github.com/codecov/codecov-python/pull/294) Update README with accurate links
 - [#296](https://github.com/codecov/codecov-python/pull/296) Bump coverage from 5.2.1 to 5.3
 
