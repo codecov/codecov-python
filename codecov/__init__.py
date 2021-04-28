@@ -505,6 +505,7 @@ def main(*argv, **kwargs):
 
     else:
         write("==> Detecting CI provider")
+
         # -------
         # Jenkins
         # -------
@@ -844,6 +845,39 @@ def main(*argv, **kwargs):
                 query["branch"] = os.getenv("GITHUB_HEAD_REF")
 
             write("    GitHub Actions CI Detected")
+
+        # -------
+        # Azure Pipelines
+        # -------
+        elif os.getenv("SYSTEM_TEAMFOUNDATIONSERVERURI"):
+            # https://docs.microsoft.com/en-us/azure/devops/pipelines/build/variables?view=vsts
+            # https://docs.microsoft.com/en-us/azure/devops/pipelines/build/variables?view=azure-devops&viewFallbackFrom=vsts&tabs=yaml
+            # https://github.com/codecov/codecov-bash/blob/ce0eb066b997622ff071255e8aa4c239099c17fc/codecov#L895
+            query.update(
+                dict(
+                    service="azure_pipelines",
+                    commit=os.getenv("BUILD_SOURCEVERSION"),
+                    build=os.getenv("BUILD_BUILDNUMBER"),
+                    project=os.getenv("SYSTEM_TEAMPROJECT"),
+                    server_uri=os.getenv("SYSTEM_TEAMFOUNDATIONSERVERURI"),
+                    job=os.getenv("BUILD_BUILDID"),
+                    branch=os.getenv("BUILD_SOURCEBRANCH", "").replace("refs/heads/", ""),
+                    build_url="".join([
+                        os.getenv("SYSTEM_TEAMFOUNDATIONSERVERURI", ""),
+                        os.getenv("SYSTEM_TEAMPROJECT", ""),
+                        "/_build/results?buildId=",
+                        os.getenv("BUILD_BUILDID", "")
+                    ])
+                )
+            )
+
+            if os.getenv("SYSTEM_PULLREQUEST_PULLREQUESTNUMBER"):
+                query.update(dict(pr=os.getenv("SYSTEM_PULLREQUEST_PULLREQUESTID")))
+            else:
+                query.update(dict(pr=os.getenv("SYSTEM_PULLREQUEST_PULLREQUESTNUMBER")))
+
+            root = os.getenv("BUILD_SOURCESDIRECTORY") or root
+            write("    Azure Pipelines detected")
 
         else:
             query.update(
