@@ -79,7 +79,7 @@ after_success:
 
 
 ## CI Providers
-|                       Company                       |                                                                                     Supported                                                                                      |  Token Required  |
+|                       Company                         |                                                                                     Supported                                                                                      |  Token Required  |
 | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
 | [AppVeyor](https://www.appveyor.com/)                 | Yes [![Build status](https://ci.appveyor.com/api/projects/status/sw18lsj7786bw806/branch/master?svg=true)](https://ci.appveyor.com/project/stevepeak/codecov-python/branch/master) | Private only     |
 | [Bamboo](https://www.atlassian.com/software/bamboo)   | `coming soon`                                                                                                                                                                      |                  |
@@ -96,6 +96,7 @@ after_success:
 | [Solano Labs](https://www.solanolabs.com/)            | `coming soon`                                                                                                                                                                      |                  |
 | [Travis CI](https://travis-ci.org/)                   | Yes [![Build Status](https://secure.travis-ci.org/codecov/codecov-python.svg?branch=master)](https://travis-ci.org/codecov/codecov-python)                                         | Private only     |
 | [Wercker](http://wercker.com/)                        | Yes                                                                                                                                                                                | Public & Private |
+| [Cirrus CI](https://cirrus-ci.org/)                   | Yes                                                                                                                                                                                | Private only     |
 | Git / Mercurial                                       | Yes (as a fallback)                                                                                                                                                                | Public & Private |
 
 
