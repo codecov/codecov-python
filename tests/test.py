@@ -879,6 +879,37 @@ class TestUploader(unittest.TestCase):
         self.assertEqual(res["codecov"].token, "token")
         self.assertEqual(res["codecov"].name, "name")
 
+    @unittest.skipUnless(
+        os.getenv("CI") == "true" and os.getenv("CIRRUS_CI") == "true",
+        "Skip Cirrus CI",
+    )
+    def test_ci_cirrus(self):
+        # The data used in this test follows the test case data in
+        # https://github.com/codecov/codecov-bash/pull/127
+        # Discussion about using codecov without token for Cirrus CI can be seen in:
+        # https://community.codecov.com/t/add-support-of-uploading-from-cirrus-ci-without-token/1028/36
+        self.set_env(
+            HOME="/",
+            CIRRUS_CI="true",
+            CIRRUS_REPO_FULL_NAME="codecov/ci-repo",
+            CIRRUS_BRANCH="master",
+            CIRRUS_PR="1",
+            CIRRUS_CHANGE_IN_REPO="180c0d097354fc1a451da8a3be5aba255f2ffd9f",
+            CIRRUS_BUILD_ID="777",
+            CIRRUS_TASK_ID="239",
+            CIRRUS_TASK_NAME="test"
+        )
+        self.fake_report()
+        res = self.run_cli()
+        self.assertEqual(res["query"]["service"], "cirrus-ci")
+        self.assertEqual(res["query"]["slug"], "codecov/ci-repo")
+        self.assertEqual(res["query"]["branch"], "master")
+        self.assertEqual(res["query"]["pr"], "1")
+        self.assertEqual(res["query"]["commit"], os.getenv("CIRRUS_CHANGE_IN_REPO"))
+        self.assertEqual(res["query"]["build"], "777")
+        self.assertEqual(res["query"]["build_url"], "https://cirrus-ci.com/task/239")
+        self.assertEqual(res["query"]["job"], "test")
+
     @unittest.skip("Skip CI None")
     def test_ci_none(self):
         self.set_env(CODECOV_TOKEN="token", CODECOV_NAME="name")
