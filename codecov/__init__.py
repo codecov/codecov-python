@@ -329,7 +329,7 @@ def main(*argv, **kwargs):
         "--token",
         "-t",
         default=os.getenv("CODECOV_TOKEN"),
-        help="Private repository token or @filename for file containing the token. Defaults to $CODECOV_TOKEN. Not required for public repositories on Travis CI, CircleCI and AppVeyor",
+        help="Private repository token or @filename for file containing the token. Defaults to $CODECOV_TOKEN. Not required for public repositories on Travis CI, CircleCI, AppVeyor and CirrusCI",
     )
     basics.add_argument(
         "--file",
@@ -844,6 +844,25 @@ def main(*argv, **kwargs):
                 query["branch"] = os.getenv("GITHUB_HEAD_REF")
 
             write("    GitHub Actions CI Detected")
+
+        # ---------
+        # Cirrus CI
+        # ---------
+        elif os.getenv("CIRRUS_CI"):
+            # https://cirrus-ci.org/guide/writing-tasks/#environment-variables
+            query.update(
+                dict(
+                    service="cirrus-ci",
+                    slug=os.getenv("CIRRUS_REPO_FULL_NAME"),
+                    branch=os.getenv("CIRRUS_BRANCH"),
+                    pr=os.getenv("CIRRUS_PR"),
+                    commit=os.getenv("CIRRUS_CHANGE_IN_REPO"),
+                    build=os.getenv("CIRRUS_BUILD_ID"),
+                    build_url="https://cirrus-ci.com/task/" + os.getenv("CIRRUS_TASK_ID"),
+                    job=os.getenv("CIRRUS_TASK_NAME"),
+                )
+            )
+            write("    Cirrus CI Detected")
 
         else:
             query.update(
