@@ -1,3 +1,14 @@
+### `2.1.12`
+
+#### Fixes
+- #322 Add Cirrus CI
+
+#### Dependencies and Misc
+- #311 Bump coverage from 5.3 to 5.3.1
+- #312 Bump coverage from 5.3.1 to 5.4
+- #314 Bump coverage from 5.4 to 5.5
+- #320 Upgrade to GitHub-native Dependabot
+
 ### `2.1.11`
 
 #### Fixes
