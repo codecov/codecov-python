@@ -121,7 +121,7 @@ If you're seeing an **HTTP 400 error when uploading reports to S3**, make sure y
 
 ## Copyright
 
-> Copyright 2014-2020 codecov
+> Copyright 2014-2022 codecov
 
 
 ## License
