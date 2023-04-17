@@ -2,6 +2,13 @@
 from codecs import open
 import os
 from setuptools import setup
+from setuptools.command.install import install
+
+class PostInstallCommand(install):
+    def run(self):
+        install.run(self)
+        print("\n**** The codecov package has been deprecated and will be removed by the team in the future. Please update to use the uploader (https://docs.codecov.com/docs/codecov-uploader) to prevent any breakages in workflow. ****\n")
+
 
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -45,4 +52,7 @@ setup(
     install_requires=["requests>=2.7.9", "coverage"],
     entry_points={"console_scripts": ["codecov=codecov:main"]},
     python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
+    cmdclass={
+        'install': PostInstallCommand,
+    },
 )
